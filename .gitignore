@@ -1,0 +1,43 @@
+# Nuxt dev/build outputs
+.nuxt/
+.nitro/
+.output/
+.cache/
+dist/
+
+# Node dependencies
+node_modules/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# System files
+.DS_Store
+Thumbs.db
+.fleet/
+.idea/
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Dossier temporaire / projet imbriqué
+#MonNouveauNuxt/
+
+# Public files générés par Nuxt (optionnel, si tu as des fichiers générés)
+*.local
+
+# Optional: VS Code settings
+.vscode/
+
+# Prisma (si tu utilises une génération automatique)
+app/generated/prisma/
+
+# Optional: output temporaire du builder Nitro sur certaines configs
+.server/

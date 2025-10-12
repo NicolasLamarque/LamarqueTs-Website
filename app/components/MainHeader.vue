@@ -1,0 +1,55 @@
+<template>
+  <!-- Header global -->
+  <header class="bg-sky-800 text-white shadow-xl p-4 flex justify-between items-center">
+   
+    <!-- Logo / titre -->
+    <NuxtLink to="/" class="text-2xl font-bold">
+      Mon Site
+      <span class="block text-sm font-normal">Travailleur social</span>
+
+
+    </NuxtLink>
+     
+    <!-- Menu desktop -->
+    <nav class="hidden md:flex space-x-6">
+    <NuxtLink     
+  to="/login" 
+  class="hover:text-gray-200 flex items-center justify-center"
+> <LoginIcon size="24" primaryColor="#00c2b2" accentColor="#80e0d8" />
+</NuxtLink>
+      <NuxtLink to="/" class="hover:text-gray-200">Accueil</NuxtLink>
+      
+      <NuxtLink to="/evenements" class="hover:text-gray-200">Évenements</NuxtLink>
+      <NuxtLink to="/blog" class="hover:text-gray-200">Blog</NuxtLink>
+      <NuxtLink to='Contact-Page' class="hover:text-gray-200">Contact</NuxtLink>
+       <ThemeSwitch/>
+    </nav>
+
+    <!-- Menu mobile -->
+    <button @click="toggleMenu" class="md:hidden">
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M4 6h16M4 12h16m-7 6h7"/>
+      </svg>
+    </button>
+  </header>
+
+  <!-- Menu mobile déroulant -->
+  <nav v-if="isMenuOpen" class="md:hidden bg-teal-500 text-white shadow-md p-2">
+    <NuxtLink to="/" class="block py-2">Accueil</NuxtLink>
+    <NuxtLink to="/blog" class="block py-2">Blog</NuxtLink>
+    <NuxtLink to="/contact-page" class="block py-2">Contact</NuxtLink>
+    <NuxtLink to="/evenements" class="block py-2">Évenements</NuxtLink>
+  </nav>
+</template>
+
+<script setup>
+import { ref } from 'vue'
+import LoginIcon from '~/components/LoginIcon.vue'
+
+
+
+// Contrôle l’état du menu mobile
+const isMenuOpen = ref(false)
+const toggleMenu = () => { isMenuOpen.value = !isMenuOpen.value }
+</script>
