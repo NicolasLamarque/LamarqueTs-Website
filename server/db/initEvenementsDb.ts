@@ -105,7 +105,7 @@ export function initEvenementsDb() {
 
 // --- INSERT ---
 export function insertEvenement(evenement: Evenement): RunResult { 
-  const db = openDb();
+  const db = openDb();// Ouverture de la connexion
   
   try {
     const stmt = db.prepare(`

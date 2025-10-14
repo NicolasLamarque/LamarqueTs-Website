@@ -1,7 +1,8 @@
 // server/db/initArticlesDb.ts
-import Database from "better-sqlite3";
+import Database,  { RunResult }  from "better-sqlite3";
 import fs from "fs";
 import path from "path";
+import { Result } from "postcss";
 
 const dbDir = path.join(process.cwd(), "server/db");
 if (!fs.existsSync(dbDir)) fs.mkdirSync(dbDir, { recursive: true });
@@ -42,43 +43,102 @@ export function initArticlesDb() {
 }
 
 // Fonctions CRUD pour les articles
-export function insertArticle(article: Article): void {
+export function insertArticle(article: Article): RunResult {
   const db = openDb();
-  const stmt = db.prepare("INSERT INTO articles (titleArticle, TextArticle, ImageArticle, DatePost, AuthorArticle, CategoryArticle, TagsArticle) VALUES (@titleArticle, @TextArticle, @ImageArticle, @DatePost, @AuthorArticle, @CategoryArticle, @TagsArticle)");
-  stmt.run(article.titleArticle, article.TextArticle, article.ImageArticle, article.DatePost, article.AuthorArticle, article.CategoryArticle, article.TagsArticle);
-  db.close();
+  // 1. Déclarer la variable stmt en dehors du try (pour garantir la portée)
+  let stmt; 
+  let result: RunResult; // Déclarer le résultat ici pour le retourner après
+  try {
+     // 2. Préparer la requête (dans le try pour gérer l'erreur de préparation)
+    stmt = db.prepare(`
+      INSERT INTO articles (titleArticle, TextArticle, ImageArticle, DatePost, AuthorArticle, CategoryArticle, TagsArticle) 
+      VALUES (@titleArticle, @TextArticle, @ImageArticle, @DatePost, @AuthorArticle, @CategoryArticle, @TagsArticle)
+    `);
+
+     // 3. Préparer les paramètres (avant l'exécution)
+    const params = {
+      ...article,
+      // Note : La colonne created_at/updated_at doit être dans votre table pour que cela fonctionne
+      created_at: new Date().toISOString(), 
+      updated_at: new Date().toISOString()
+    };
+     // 4. Exécuter la requête et stocker le résultat
+    result = stmt.run(params) as RunResult;
+
+  } catch (error) {
+    // 5. Gérer les erreurs et les laisser remonter à la couche API
+    throw error; 
+  } finally {
+    // 6. Fermer la connexion GARANTIE
+    db.close(); 
+  }
+  // 7. Retourner le résultat après que la connexion est fermée
+  return result;
 }
+ 
 
 export function getAllArticles(): Article[] {
   const db = openDb();
-  const stmt = db.prepare("SELECT * FROM articles");
-  const articles = stmt.all() as Article[];
+try {
+    const stmt = db.prepare("SELECT * FROM articles");
+   const articles = stmt.all() as Article[];
+   return articles;
+
+  } finally { 
   db.close();
-  return articles;
+}
 }
 
-export function updateArticle(id: number, article: Article): void {
+// 🟢 VERSION CORRIGÉE : Mise à Jour Dynamique (la seule façon de gérer Partial<Article>)
+
+export function updateArticle(id: number, article: Partial<Article>): number {
   const db = openDb();
-  const stmt = db.prepare("UPDATE articles SET titleArticle = ?, TextArticle = ?, ImageArticle = ?, DatePost = ?, AuthorArticle = ?, CategoryArticle = ?, TagsArticle = ? WHERE id = ?");
-  stmt.run({
-  titleArticle: article.titleArticle,
-  TextArticle: article.TextArticle,
-  ImageArticle: article.ImageArticle,
-  DatePost: article.DatePost,
-  AuthorArticle: article.AuthorArticle,
-  CategoryArticle: article.CategoryArticle,
-  TagsArticle: article.TagsArticle
-});
-
-  db.close();
+    try {
+    // 1. Initialiser la liste des champs à SET et l'objet de paramètres
+    const setFields: string[] = [];
+    const params: { [key: string]: any } = { id }; // Démarre avec l'ID pour le WHERE
+    // 2. Boucler sur les clés de l'objet fourni
+    for (const key in article) {
+        const value = article[key as keyof Article];
+        // 3. Inclure seulement les champs qui ont une valeur (non undefined/null)
+        if (value !== undefined && value !== null) {
+            // Utiliser les paramètres nommés @champ
+            setFields.push(`${key} = @${key}`);
+            params[key] = value;
+        }
+    }    // 4. Sortir s'il n'y a rien à mettre à jour
+    if (setFields.length === 0) return 0;
+    // 5. Ajouter le champ updated_at
+    setFields.push('updated_at = datetime(\'now\')');
+    // 6. Préparer la requête SQL dynamique
+    const stmt = db.prepare(`
+      UPDATE articles 
+      SET ${setFields.join(', ')} 
+      WHERE id = @id
+    `);
+    // 7. Exécution
+    const result = stmt.run(params);    // Retourner le nombre de changements (plus utile que boolean)
+    return result.changes; 
+  } finally {
+    db.close();
+  }
 }
 
-export function deleteArticle(id: number): void {
+export function deleteArticle(id: number): number {
   const db = openDb();
-  const stmt = db.prepare("DELETE FROM articles WHERE id = ?");
-  stmt.run(id);
-  db.close();
+  try {
+    const stmt = db.prepare("DELETE FROM articles WHERE id = ?");
+    const result = stmt.run({ id });
+    return result.changes;
+  } finally {
+    db.close();
+  }
+
 }
+
+
+
+
 
 if (!fs.existsSync(dbPath)) {
   initArticlesDb();

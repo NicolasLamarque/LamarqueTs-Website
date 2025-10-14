@@ -10,7 +10,8 @@
     "postinstall": "nuxt prepare",
     "clean": "rimraf .nuxt node_modules/.vite",
     "reinstall": "npm install",
-    "dev-clean": "npm run clean && npm run reinstall && npm run dev"
+    "dev-clean": "npm run clean && npm run reinstall && npm run dev",
+    "seed": "ts-node ./scripts/seedAdmin.ts" 
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^7.0.1",

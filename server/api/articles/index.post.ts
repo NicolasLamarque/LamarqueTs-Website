@@ -1,34 +1,47 @@
 // server/api/articles/index.post.ts
-import { defineEventHandler, readBody, createError } from 'h3';
-import Database from 'better-sqlite3';
-import path from 'path';
 
-const dbPath = path.join(process.cwd(), 'server/db/articles.db');
+import { defineEventHandler, createError, H3Error, readBody } from 'h3';
+import { insertArticle, Article } from '../../db/initArticlesDb'
 
-export default defineEventHandler(async (event) => {
-  const db = new Database(dbPath);
-  try {
-    const body = await readBody(event);
-    const { titleArticle, TextArticle, DatePost, AuthorArticle, CategoryArticle, ImageArticle, TagsArticle } = body;
 
-    if (!titleArticle || !TextArticle) {
-      throw createError({
-        statusCode: 400,
-        statusMessage: 'Le titre et le contenu de l\'article sont requis.',
-      });
+export default defineEventHandler(async (event) => { // 👈 On passe l'objet 'event'
+    let nouvelArticle: Article;
+    
+    // 1. Lire et valider les données envoyées par le client
+    try {
+        // Lire le corps de la requête de manière ASYNCHRONE
+        nouvelArticle = await readBody<Article>(event); 
+        
+        // ⚠️ Ajoutez ici une validation essentielle (ex: le titre doit exister)
+        if (!nouvelArticle || !nouvelArticle.titleArticle) {
+             throw createError({ statusCode: 400, message: 'Le titre de l\'événement est requis.' });
+        }
+
+    } catch (err) {
+        // Attrape les erreurs de validation ou de lecture du corps (JSON mal formé)
+        if (err instanceof H3Error) throw err;
+        throw createError({ statusCode: 400, message: 'Format de données invalide.' });
     }
 
-    const stmt = db.prepare('INSERT INTO articles (titleArticle, TextArticle, DatePost, AuthorArticle, CategoryArticle, ImageArticle, TagsArticle) VALUES (@titleArticle, @TextArticle, @DatePost, @AuthorArticle, @CategoryArticle, @ImageArticle, @TagsArticle)');
-    const info = stmt.run(titleArticle, TextArticle, DatePost, AuthorArticle, CategoryArticle, ImageArticle, TagsArticle);
+    try {
+        // 2. Appeler la fonction centralisée d'insertion
+        //    Passer l'objet 'nouvelEvenement' en argument
+        const result = insertArticle(nouvelArticle); 
 
-    return { id: info.lastInsertRowid, ...body };
-  } catch (err) {
-    console.error('Erreur lors de l\'ajout de l\'article:', err);
-    throw createError({
-      statusCode: 500,
-      statusMessage: 'Erreur lors de l\'ajout de l\'article.',
-    });
-  } finally {
-    db.close();
-  }
+        // 3. Retourner l'ID ou un message de succès (Code HTTP 201 Created est implicite ici)
+        //    (La fonction insertEvenement doit être mise à jour pour retourner l'ID)
+        return { 
+            success: true, 
+            id: result.lastInsertRowid, // Si on met à jour la fonction pour retourner le résultat
+            message: "Article créé avec succès." 
+        };
+
+    } catch (err) {
+        // 4. Gestion des erreurs DB non-prévues (Erreur 500)
+        console.error('Erreur DB lors de l\'insertion de l\'article:', err);
+        throw createError({
+            statusCode: 500,
+            statusMessage: 'Erreur interne lors de la création de l\'article.',
+        });
+    } 
 });

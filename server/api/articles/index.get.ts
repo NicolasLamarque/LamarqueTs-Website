@@ -1,25 +1,20 @@
 // server/api/articles/index.get.ts
 import { defineEventHandler, createError } from 'h3';
-import Database from 'better-sqlite3';
-import path from 'path';
-
-const dbPath = path.join(process.cwd(), 'server/db/articles.db');
+import { getAllArticles, Article } from '~~/server/db/initArticlesDb';
 
 export default defineEventHandler(async () => {
-  const db = new Database(dbPath);
-  try {
-    const stmt = db.prepare('SELECT * FROM articles');
-    const articles = stmt.all();
+  // NOTE : getAllArticles gère déjà les erreurs et le bloc finally
 
-    return articles;
+  try {
+
+  const Articles : Article[] = getAllArticles();
+    return Articles;
   } catch (err) {
     console.error('Erreur lors de la récupération des articles:', err);
     throw createError({
       statusCode: 500,
       statusMessage: 'Erreur lors de la récupération des articles.',
     });
-  } finally {
-    db.close();
-  }
+  } // NOTE : Le bloc finally est maintenant dans getAllArticles
 });
 
