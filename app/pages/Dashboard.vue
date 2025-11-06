@@ -24,13 +24,16 @@ import { ref, computed, defineAsyncComponent } from 'vue'
 import { useCookie, navigateTo } from '#app'
 
 // Imports statiques (toujours visibles)
-import BtnDaisyUi from '~/components/btnDaisyUi.vue'
+import BtnDaisyUi from '../components/btnDaisyUi.vue'
 
 // Imports dynamiques (affichés selon la section)
-const GestUserDash = defineAsyncComponent(() => import('~/components/GestUserDash.vue'))
-const ArticlesDash = defineAsyncComponent(() => import('~/components/ArticlesDash.vue'))
-const ServicesDash = defineAsyncComponent(() => import('~/components/ServicesDash.vue'))
-const CalendarDash = defineAsyncComponent(() => import('~/components/CalendarDash.vue'))
+const GestUserDash = defineAsyncComponent(() => import('../components/GestUserDash.vue'))
+const ArticlesDash = defineAsyncComponent(() => import('../components/ArticlesDash.vue'))
+const ServicesDash = defineAsyncComponent(() => import('../components/ServicesDash.vue'))
+const CalendarDash = defineAsyncComponent(() => import('../components/CalendarDash.vue'))
+const GestSupaBaseDash = defineAsyncComponent(() => import('../components/GestDatabaseDash.vue'))
+const mailsDash = defineAsyncComponent(() => import('../components/GestMailsDash.vue'))
+
 
 
 
@@ -52,7 +55,9 @@ const componentMap: Record<string, any> = {
   articles: ArticlesDash,
   users: GestUserDash,
   services: ServicesDash,
-  calendar: CalendarDash
+  calendar: CalendarDash,
+  supabase: GestSupaBaseDash,
+  mails: mailsDash
 }
 
 // Propriété calculée qui retourne le composant à afficher

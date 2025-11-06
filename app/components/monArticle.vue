@@ -5,7 +5,7 @@
     <section class="py-16 md:py-24 lg:py-32">
       <div class="container mx-auto px-4 max-w-4xl text-center">
         <h1 class="text-4xl sm:text-5xl md:text-6xl font-extrabold text-gray-800 dark:text-gray-100 leading-tight mb-6 tracking-tight">
-          Mon Blog : Réflexions et Insights
+          Mon Blog : Réflexions et Pensées
         </h1>
         <p class="text-lg md:text-xl text-gray-600 dark:text-gray-300 font-light mb-12 max-w-2xl mx-auto leading-relaxed">
           Plongez dans mes articles dédiés à la santé mentale, au bien-être, et à l'épanouissement personnel.

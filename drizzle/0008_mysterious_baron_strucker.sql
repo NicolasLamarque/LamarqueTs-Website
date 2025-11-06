@@ -1,0 +1,20 @@
+CREATE TABLE "contacts_messages" (
+	"id" serial PRIMARY KEY NOT NULL,
+	"sender_name" varchar(255) NOT NULL,
+	"sender_email" varchar(255) NOT NULL,
+	"message" text NOT NULL,
+	"encrypted" boolean DEFAULT false,
+	"encryption_algo" varchar(50),
+	"category" varchar(100) DEFAULT 'general',
+	"priority" varchar(20) DEFAULT 'normal',
+	"status" varchar(50) DEFAULT 'new',
+	"assigned_to" varchar(255),
+	"reply_history" jsonb DEFAULT '[]'::jsonb,
+	"mail_log" jsonb DEFAULT '[]'::jsonb,
+	"deleted" boolean DEFAULT false,
+	"deleted_at" timestamp with time zone,
+	"deleted_by" varchar(255),
+	"created_at" timestamp with time zone DEFAULT now(),
+	"updated_at" timestamp with time zone,
+	"last_sent_at" timestamp with time zone
+);

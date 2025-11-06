@@ -1,64 +1,39 @@
-// server/api/services/[id].patch.ts (Recommandé)
+// server/api/services/[id].patch.ts
 
+import { defineEventHandler, readBody, createError } from 'h3';
+import { updateService } from '../../utils/services';
 
-import { defineEventHandler, createError, H3Error, readBody } from 'h3';
-// Importez l'interface complète 'Service'
-import { updateService, getServiceById, Service } from '../../db/initServicesDb'; 
+export default defineEventHandler(async (event) => {
+    // La variable 'id' est une chaîne de caractères provenant des paramètres de l'URL
+    const { id } = event.context.params as { id: string };
 
-
-export default defineEventHandler(async (event) => { 
-  // --- 1. VALIDATION DE L'ID ---
-  const idParam = event.context.params?.id;
-  if (!idParam) throw createError({ statusCode: 400, message: 'ID du service manquant.' });
-  
-  const serviceId = parseInt(idParam);
-  if (isNaN(serviceId)) throw createError({ statusCode: 400, message: 'ID invalide.' });
-
-  // --- 2. LECTURE DES DONNÉES (PARTIELLES) ---
-  // On utilise Partial<Service> car on ne reçoit que les champs à modifier
-  let updatedData: Partial<Service>; 
-  try {
-    updatedData = await readBody<Partial<Service>>(event); 
-  } catch (error) {
-    throw createError({ statusCode: 400, message: 'Corps de requête invalide.' });
-  }
-  
-  // Si l'objet est vide (pas de données à modifier)
-  if (Object.keys(updatedData).length === 0) {
-    throw createError({ statusCode: 400, message: 'Aucune donnée fournie pour la mise à jour.' });
-  }
-
-  try {
-    // --- 3. EXÉCUTION DB ---
-    // Appel de la fonction de mise à jour partielle
-    const changes = updateService(serviceId, updatedData); 
-
-    // 4. Gestion 404 (0 changements = service non trouvé)
-    if (changes === 0) {
-      throw createError({ statusCode: 404, message: 'Service non trouvé.' });
+    // Validation et conversion au début du bloc try
+    const serviceId = parseInt(id);
+    if (isNaN(serviceId)) {
+        throw createError({ statusCode: 400, statusMessage: 'ID de service non valide.' });
     }
 
-    const serviceMiseAJour = getServiceById(serviceId);
+    try {
+        const body = await readBody(event); // Lire le corps de la requête
 
-if (!serviceMiseAJour) {
-    // Gérer l'erreur critique (voir ci-dessus)
-    throw createError({ statusCode: 500, message: 'Erreur de lecture après mise à jour.' });
-}
+        // 💡 CORRECTION : Utiliser serviceId (le nombre validé) pour la fonction
+        const updatedService = await updateService(serviceId, body); 
+        
+        // Gérer le cas où le service n'est pas trouvé
+        if (!updatedService) {
+            throw createError({ statusCode: 404, statusMessage: `Service avec l'ID ${serviceId} non trouvé.` });
+        }
 
-const titreService = serviceMiseAJour.title;
-    
-return { 
-    success: true, 
-    service: serviceMiseAJour, 
-    message: `Service "${titreService}" mis à jour.` 
-};
+        return { service: updatedService };
+    } catch (error) {
+        console.error(`Erreur lors de la mise à jour du service avec l'ID ${id}:`, error);
+        
+        // Si l'erreur a déjà un statusCode (comme le 404 ci-dessus), on la lance directement
+        if ((error as { statusCode?: number }).statusCode) throw error; 
 
-  } catch (err) {
-    // --- 6. GESTION DES ERREURS TECHNIQUES ---
-    if (err instanceof H3Error) {
-      throw err; 
+        throw createError({
+            statusCode: 500,
+            statusMessage: "Échec de la mise à jour du service.",
+        });
     }
-    console.error("Erreur DB lors de la mise à jour:", err);
-    throw createError({ statusCode: 500, message: "Erreur interne lors de la mise à jour du service." });
-  }
 });

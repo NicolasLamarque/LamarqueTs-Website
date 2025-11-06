@@ -45,7 +45,7 @@
 
 <script setup>
 import { ref } from 'vue'
-import LoginIcon from '~/components/LoginIcon.vue'
+import LoginIcon from '../components/LoginIcon.vue'
 
 
 

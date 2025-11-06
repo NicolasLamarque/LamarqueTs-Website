@@ -1,40 +1,33 @@
 // server/api/users/[id].delete.ts
 import { defineEventHandler, createError } from 'h3'
-import Database from 'better-sqlite3'
-import path from 'path'
+import {deleteUser} from '../../utils/users';
 
-const dbPath = path.join(process.cwd(), 'server/db/auth.db');
 
 export default defineEventHandler(async (event) => {
-  const userId = event.context.params?.id
-
-  if (!userId) {
-    throw createError({
-      statusCode: 400,
-      statusMessage: 'ID d\'utilisateur manquant.'
-    })
-  }
-  
-  const db = new Database(dbPath)
-  try {
-    const stmt = db.prepare('DELETE FROM users WHERE id = ?')
-    const result = stmt.run(userId)
-
-    if (result.changes === 0) {
-      throw createError({
-        statusCode: 404,
-        statusMessage: 'Utilisateur non trouvé.'
-      })
+ // 💡 Utilisez getRouterParam et vérifiez la non-nullité et le format en une seule étape
+    const idParam = getRouterParam(event, 'id');
+    
+    if (!idParam || isNaN(Number(idParam))) {
+        throw createError({ statusCode: 400, statusMessage: 'ID utilisateur non valide.' });
     }
+    
+    const id = Number(idParam);
 
-    return { success: true, message: `Utilisateur avec l'ID ${userId} supprimé.` }
+  try {
+    const deletedUser = await deleteUser(id);
+
+if (!deletedUser) {
+    // Si la fonction retourne 'undefined', cela signifie 0 changement
+    throw createError({ statusCode: 404, statusMessage: 'Utilisateur non trouvé pour la suppression.' });
+}
+    return { message: `Utilisateur ${deletedUser.id} supprimé avec succès.` };
   } catch (err) {
-    console.error(err)
-    throw createError({
-      statusCode: 500,
-      statusMessage: 'Erreur lors de la suppression de l\'utilisateur.'
-    })
-  } finally {
-    db.close()
+    // On vérifie si c'est deja une erreur H3 pour la relancer, 
+    // sinon on lance une erreur 500 générique.
+    if ((err as any).statusCode) {
+      throw err;
+    }
+    console.error(err);
+    throw createError({ statusCode: 500, statusMessage: 'Erreur lors de la suppression.' });
   }
-})
+});

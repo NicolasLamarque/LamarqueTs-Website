@@ -1,40 +1,50 @@
-// server/api/articles/[id].delete.ts
-import { defineEventHandler, createError } from 'h3';
-import Database from 'better-sqlite3';
-import path from 'path';
+// ============================================
+// server/api/articles/[id].delete.ts - CORRIGÉ
+// ============================================
 
-const dbPath = path.join(process.cwd(), 'server/db/articles.db');
+import { defineEventHandler, getRouterParam, createError } from 'h3';
+import { deleteArticle } from '~/server/utils/articles';
 
 export default defineEventHandler(async (event) => {
-  const articleId = event.context.params?.id;
-
-  if (!articleId) {
-    throw createError({
-      statusCode: 400,
-      statusMessage: 'ID de l\'article manquant.',
-    });
-  }
-
-  const db = new Database(dbPath);
   try {
-    const stmt = db.prepare('DELETE FROM articles WHERE id = ?');
-    const result = stmt.run(articleId);
-
-    if (result.changes === 0) {
-      throw createError({
-        statusCode: 404,
-        statusMessage: 'Article non trouvé.',
+    // ✅ CORRECTION : Utiliser getRouterParam au lieu de event.context.params
+    const idParam = getRouterParam(event, 'id');
+    
+    if (!idParam) {
+      throw createError({ statusCode: 400, message: 'ID manquant' });
+    }
+    
+    const id = Number(idParam);
+    
+    if (isNaN(id)) {
+      throw createError({ statusCode: 400, message: 'ID invalide' });
+    }
+    
+    console.log('🗑️ Suppression article ID:', id);
+    
+    const deletedArticle = await deleteArticle(id);
+    
+    if (!deletedArticle) {
+      throw createError({ 
+        statusCode: 404, 
+        message: `Article ${id} non trouvé` 
       });
     }
-
-    return { success: true, message: `Article avec l'ID ${articleId} supprimé.` };
-  } catch (err) {
-    console.error(err);
-    throw createError({
-      statusCode: 500,
-      statusMessage: 'Erreur lors de la suppression de l\'article.',
+    
+    console.log('✅ Article supprimé:', deletedArticle.id);
+    
+    return { 
+      success: true,
+      message: `Article ${deletedArticle.id} supprimé avec succès.`,
+      id: deletedArticle.id
+    };
+    
+  } catch (err: any) {
+    console.error('❌ Erreur suppression:', err);
+    if (err.statusCode) throw err;
+    throw createError({ 
+      statusCode: 500, 
+      message: 'Erreur lors de la suppression de l\'article.' 
     });
-  } finally {
-    db.close();
   }
 });

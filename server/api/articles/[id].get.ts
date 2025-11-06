@@ -1,48 +1,33 @@
 // server/api/articles/[id].get.ts
-import { defineEventHandler, createError } from 'h3';
-import Database from 'better-sqlite3';
-import path from 'path';
+import { defineEventHandler, createError, H3Error } from 'h3';
+import {getArticleById } from '../../utils/articles';
 
-const dbPath = path.join(process.cwd(), 'server/db/articles.db');
+
 
 export default defineEventHandler(async (event) => {
-  const articleId = event.context.params?.id;
+ const id = event.context.params?.id;
 
-  if (!articleId) {
-    throw createError({
-      statusCode: 400,
-      statusMessage: 'ID de l\'article manquant.',
-    });
-  }
+ if (!id) throw createError ({ statusCode: 400, statusMessage: 'ID manquant.' });
+ 
+ // 💡 AJOUT : Vérification que la conversion en nombre n'est pas NaN
+    const articleId = Number(id);
+    if (isNaN(articleId)) {
+        throw createError({ statusCode: 400, statusMessage: 'ID de l\'article invalide.' });
+    };
+    try {    // Utilisation de l'ID numérique validé
+            const article = await getArticleById(articleId); 
+            if (!article) createError({statusCode: 404, statusMessage:"Aucun articles récupéré"});
 
-  const db = new Database(dbPath);
-  
-  try {
-    const stmt = db.prepare('SELECT * FROM articles WHERE id = ?');
-    const article = stmt.get(articleId);
+              return article;
+                  }  catch (err){
+                  // La gestion des erreurs est propre
+                  if ((err as H3Error).statusCode) {
+                     throw err;
+                                };
 
-    if (!article) {
-      throw createError({
-        statusCode: 404,
-        statusMessage: 'Article non trouvé.',
-      });
-    }
+        console.error(`Erreur lors de la recherche de l'événement avec l'ID ${id}:`, err);
+        throw createError({ statusCode: 500, statusMessage: 'Erreur lors de la recherche de l\'article' });
 
-    return article;
-  } catch (err) {
-    console.error('Erreur lors de la récupération de l\'article:', err);
-    
-    // Si c'est déjà une erreur createError, la relancer
-    if (err.statusCode) {
-      throw err;
-    }
-    
-    // Sinon erreur serveur générique
-    throw createError({
-      statusCode: 500,
-      statusMessage: 'Erreur lors de la récupération de l\'article.',
-    });
-  } finally {
-    db.close();
-  }
+                  }
+
 });

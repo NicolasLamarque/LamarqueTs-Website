@@ -1,20 +1,22 @@
-// server/api/articles/index.get.ts
+// server/api/events/index.get.ts
 import { defineEventHandler, createError } from 'h3';
-import { getAllArticles, Article } from '~~/server/db/initArticlesDb';
+import { getAllArticles } from '~/server/utils/articles';
+
+
 
 export default defineEventHandler(async () => {
-  // NOTE : getAllArticles gère déjà les erreurs et le bloc finally
-
   try {
-
-  const Articles : Article[] = getAllArticles();
-    return Articles;
-  } catch (err) {
-    console.error('Erreur lors de la récupération des articles:', err);
-    throw createError({
-      statusCode: 500,
-      statusMessage: 'Erreur lors de la récupération des articles.',
-    });
-  } // NOTE : Le bloc finally est maintenant dans getAllArticles
+      // 1. Appel simple à la fonction de service (ne lit pas le body)
+      const ToutLesArticles = await getAllArticles(); // 2. Retourner la liste des services
+      return ToutLesArticles;
+    } catch (error) {
+      console.error(
+        "Erreur lors de la récupération de tous les services:",
+        error
+      ); // Retourner une erreur standard au client
+      throw createError({
+        statusCode: 500,
+        statusMessage: "Échec de la récupération de la liste des services.",
+      });
+    }
 });
-

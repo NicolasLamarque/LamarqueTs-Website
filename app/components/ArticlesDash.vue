@@ -1,6 +1,18 @@
 <template>
   <div class="p-4 bg-gray-100 dark:bg-gray-800 rounded shadow">
-    <h2 class="text-xl font-semibold mb-4 text-gray-800 dark:text-gray-100">Gestion des Articles</h2>
+    <div class="flex justify-between items-center mb-4">
+      <h2 class="text-xl font-semibold text-gray-800 dark:text-gray-100">Gestion des Articles</h2>
+      
+      <!-- 🐛 BOUTON DEBUG
+      <button 
+        @click="forceReload" 
+        class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 text-sm"
+      >
+        🔄 FORCE RELOAD DB
+      </button>
+
+       -->
+    </div>
 
     <div v-if="message" :class="message.type === 'success' ? 'bg-green-500' : 'bg-red-500'"
       class="text-white p-3 rounded-lg shadow-md mb-4 animate-fade-in">
@@ -51,7 +63,12 @@
     </form>
 
     <div class="bg-white dark:bg-gray-700 p-4 rounded shadow">
-      <table class="w-full table-auto border-collapse">
+      <div v-if="isLoading" class="text-center py-8">
+        <i class="fas fa-spinner fa-spin text-2xl text-gray-500"></i>
+        <p class="mt-2 text-gray-500">Chargement...</p>
+      </div>
+      
+      <table v-else class="w-full table-auto border-collapse">
         <thead>
           <tr class="bg-gray-200 dark:bg-gray-600">
             <th class="px-4 py-2 text-left">ID</th>
@@ -59,6 +76,9 @@
             <th class="px-4 py-2 text-left">Auteur</th>
             <th class="px-4 py-2 text-left">Catégorie</th>
             <th class="px-4 py-2 text-left">Date</th>
+            <!-- 🐛 DEBUG
+            <th class="px-4 py-2 text-left bg-red-100">🐛 DEBUG</th>
+            -->
             <th class="px-4 py-2">Actions</th>
           </tr>
         </thead>
@@ -68,7 +88,13 @@
             <td class="px-4 py-2">{{ a.titleArticle }}</td>
             <td class="px-4 py-2">{{ a.AuthorArticle }}</td>
             <td class="px-4 py-2">{{ a.CategoryArticle }}</td>
-            <td class="px-4 py-2">{{ a.DatePost }}</td>
+            <td class="px-4 py-2">{{ formatDate(a.DatePost) }}</td>
+            <!-- 🐛 DEBUG
+            <td class="px-4 py-2 bg-red-50 text-xs">
+              <div>created: {{ a.created_at ? '✅' : '❌' }}</div>
+              <div>updated: {{ a.updated_at ? '✅' : '❌' }}</div>
+            </td>
+            -->
             <td class="px-4 py-2 flex gap-2 justify-center">
               <button @click="editArticle(a)" class="bg-yellow-500 text-white px-2 py-1 rounded hover:bg-yellow-600">Modifier</button>
               <button @click="viewArticle(a)" class="bg-indigo-500 text-white px-2 py-1 rounded hover:bg-indigo-600">Voir</button>
@@ -76,62 +102,52 @@
             </td>
           </tr>
           <tr v-if="articles.length === 0">
-            <td colspan="6" class="text-center py-2 text-gray-500">Aucun article</td>
+            <td colspan="6" class="text-center py-4 text-gray-500">Aucun article</td>
           </tr>
         </tbody>
       </table>
     </div>
 
     <div v-if="showModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex justify-center items-center">
-  <div class="relative p-8 border w-3/4 max-w-4xl shadow-lg rounded-md bg-white dark:bg-gray-700">
-    <div class="mt-3 text-center">
-      <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white">{{ currentArticle?.titleArticle }}</h3>
-      <p class="text-sm text-gray-500 dark:text-gray-300">
-        Par {{ currentArticle?.AuthorArticle }} le {{ currentArticle?.DatePost }}
-      </p>
-      <NuxtImg
-        v-if="currentArticle?.ImageArticle"
-        :src="currentArticle.ImageArticle"
-        alt="Image de l'article"
-        class="w-full h-auto mt-4 mb-4 rounded-md shadow-lg"
-      />
-      <div class="mt-2 px-7 py-3 max-h-[70vh] overflow-y-auto prose dark:prose-invert markdown-content">
-        <div v-html="renderedMarkdown"></div>
-      </div>
-      <div class="items-center px-4 py-3">
-        <button @click="closeModal" class="px-4 py-2 bg-sky-500 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-sky-600 focus:outline-none focus:ring-2 focus:ring-sky-500">
-          Fermer
-        </button>
+      <div class="relative p-8 border w-3/4 max-w-4xl shadow-lg rounded-md bg-white dark:bg-gray-700">
+        <div class="mt-3 text-center">
+          <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white">{{ currentArticle?.titleArticle }}</h3>
+          <p class="text-sm text-gray-500 dark:text-gray-300">
+            Par {{ currentArticle?.AuthorArticle }} le {{ formatDate(currentArticle?.DatePost) }}
+          </p>
+          <NuxtImg
+            v-if="currentArticle?.ImageArticle"
+            :src="currentArticle.ImageArticle"
+            alt="Image de l'article"
+            class="w-full h-auto mt-4 mb-4 rounded-md shadow-lg"
+          />
+          <div class="mt-2 px-7 py-3 max-h-[70vh] overflow-y-auto prose dark:prose-invert markdown-content">
+            <div v-html="renderedMarkdown"></div>
+          </div>
+          <div class="items-center px-4 py-3">
+            <button @click="closeModal" class="px-4 py-2 bg-sky-500 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-sky-600 focus:outline-none focus:ring-2 focus:ring-sky-500">
+              Fermer
+            </button>
+          </div>
+        </div>
       </div>
     </div>
-  </div>
-</div>
 
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch } from 'vue'
+import { ref, onMounted, watch, computed } from 'vue'
 import { marked } from 'marked'
-
-interface Article {
-  id?: number
-  titleArticle?: string
-  TextArticle?: string
-  DatePost?: string
-  AuthorArticle?: string
-  CategoryArticle?: string
-  ImageArticle?: string
-  TagsArticle?: string
-}
+import type { ArticleSelect } from '~/server/utils/schema'
 
 interface Message {
   text: string
   type: 'success' | 'error'
 }
 
-const articles = ref<Article[]>([])
-const form = ref<Article>({
+const articles = ref<ArticleSelect[]>([])
+const form = ref<Partial<ArticleSelect>>({
   titleArticle: '',
   TextArticle: '',
   AuthorArticle: '',
@@ -144,7 +160,7 @@ const isLoading = ref(false)
 let editId: number | null = null
 const message = ref<Message | null>(null)
 const showModal = ref(false)
-const currentArticle = ref<Article | null>(null)
+const currentArticle = ref<ArticleSelect | null>(null)
 const renderedMarkdown = ref('')
 
 const showMessage = (text: string, type: 'success' | 'error') => {
@@ -157,20 +173,40 @@ const showMessage = (text: string, type: 'success' | 'error') => {
 const loadArticles = async () => {
   try {
     isLoading.value = true
-    const data = await $fetch<Article[]>('/api/articles')
+    
+    console.log('🔄 Chargement articles...')
+    
+    // ✅ FORCE REFRESH depuis la DB
+    const data = await $fetch<ArticleSelect[]>('/api/articles', {
+      method: 'GET',
+      headers: {
+        'Cache-Control': 'no-cache',
+        'Pragma': 'no-cache'
+      }
+    })
+    
+    console.log('📥 Articles reçus depuis API:', data)
+    console.log('📊 Nombre:', data.length)
+    console.log('📋 IDs:', data.map(a => a.id))
+    console.log('📋 Titres:', data.map(a => a.titleArticle))
+    
+    // ✅ VÉRIFIER SI articles.value AVANT écrasement
+    console.log('🗂️ Articles AVANT mise à jour:', articles.value.length)
+    
     articles.value = data
+    
+    console.log('✅ Articles APRÈS mise à jour:', articles.value.length)
+    
   } catch (error) {
-    console.error('Erreur lors du chargement des articles:', error)
+    console.error('❌ Erreur chargement articles:', error)
     showMessage('Erreur lors du chargement des articles.', 'error')
   } finally {
     isLoading.value = false
   }
 }
 
-
 // Convertir le Markdown en HTML
 const htmlContent = computed(() => {
-  
   if (!currentArticle.value?.TextArticle) return ''
   return marked(currentArticle.value.TextArticle)
 })
@@ -183,7 +219,7 @@ const submitArticle = async () => {
     const articleData = {
       titleArticle: form.value.titleArticle,
       TextArticle: form.value.TextArticle,
-      DatePost: new Date().toISOString().slice(0, 10), // Date du jour
+      DatePost: new Date().toISOString().slice(0, 10),
       AuthorArticle: form.value.AuthorArticle,
       CategoryArticle: form.value.CategoryArticle,
       ImageArticle: form.value.ImageArticle,
@@ -205,9 +241,12 @@ const submitArticle = async () => {
     }
     
     cancelEdit()
+    
+    // ✅ FORCE REFRESH après soumission
     await loadArticles()
+    
   } catch (err) {
-    console.error('Erreur lors de la soumission du formulaire:', err)
+    console.error('❌ Erreur soumission:', err)
     const apiError = (err as any)?.response?._data?.statusMessage || 'Une erreur est survenue.'
     showMessage(apiError, 'error')
   } finally {
@@ -215,7 +254,7 @@ const submitArticle = async () => {
   }
 }
 
-const editArticle = (article: Article) => {
+const editArticle = (article: ArticleSelect) => {
   form.value = {
     titleArticle: article.titleArticle,
     TextArticle: article.TextArticle,
@@ -242,25 +281,51 @@ const cancelEdit = () => {
 }
 
 const deleteArticleConfirm = async (id?: number) => {
-  if (id && confirm('Voulez-vous vraiment supprimer cet article ?')) {
+  if (!id) {
+    console.error('❌ ID invalide:', id)
+    showMessage('ID invalide', 'error')
+    return
+  }
+  
+  console.log('🤔 Tentative suppression ID:', id)
+  console.log('📋 Articles actuels:', articles.value.map(a => ({ id: a.id, titre: a.titleArticle })))
+  
+  if (confirm('Voulez-vous vraiment supprimer cet article ?')) {
     try {
       isLoading.value = true
-      await $fetch(`/api/articles/${id}`, {
+      
+      console.log('🗑️ Envoi requête DELETE pour ID:', id)
+      
+      const response = await $fetch(`/api/articles/${id}`, {
         method: 'DELETE'
       })
+      
+      console.log('✅ Réponse serveur:', response)
+      
       showMessage('Article supprimé avec succès !', 'success')
+      
+      // ✅ FORCE REFRESH après suppression
+      console.log('🔄 Rechargement de la liste...')
       await loadArticles()
-    } catch (err) {
-      console.error('Erreur lors de la suppression de l\'article:', err)
-      const apiError = (err as any)?.response?._data?.statusMessage || 'Une erreur est survenue.'
+      
+      console.log('✅ Liste rechargée, nouveaux articles:', articles.value.length)
+      
+    } catch (err: any) {
+      console.error('❌ Erreur complète:', err)
+      console.error('❌ Status:', err?.statusCode)
+      console.error('❌ Message:', err?.data?.message || err?.message)
+      
+      const apiError = err?.data?.message || err?.message || 'Erreur lors de la suppression'
       showMessage(apiError, 'error')
     } finally {
       isLoading.value = false
     }
+  } else {
+    console.log('❌ Suppression annulée par l\'utilisateur')
   }
 }
 
-const viewArticle = (article: Article) => {
+const viewArticle = (article: ArticleSelect) => {
   currentArticle.value = article
   showModal.value = true
 }
@@ -279,6 +344,42 @@ watch(currentArticle, async (newArticle) => {
     renderedMarkdown.value = ''
   }
 })
+
+// Formatage des dates avec gestion stricte de null
+const formatDate = (date: Date | string | null | undefined): string => {
+  if (!date || date === null) return ''
+  
+  try {
+    const d = date instanceof Date ? date : new Date(date)
+    
+    // Vérifier que la date est valide
+    if (isNaN(d.getTime())) return ''
+    
+    return d.toLocaleDateString('fr-CA', { 
+      year: 'numeric', 
+      month: '2-digit', 
+      day: '2-digit' 
+    })
+  } catch {
+    return ''
+  }
+}
+
+// 🐛 FONCTION DEBUG : Force reload
+const forceReload = async () => {
+  console.log('🔴 FORCE RELOAD DÉCLENCHÉ')
+  console.log('📋 Articles AVANT clear:', articles.value.length, articles.value)
+  
+  // Vider complètement
+  articles.value = []
+  
+  console.log('📋 Articles APRÈS clear:', articles.value.length)
+  
+  // Recharger
+  await loadArticles()
+  
+  console.log('📋 Articles APRÈS reload:', articles.value.length, articles.value)
+}
 </script>
 
 <style scoped>
@@ -291,13 +392,13 @@ watch(currentArticle, async (newArticle) => {
   animation: fadeIn 0.5s ease-in-out;
 }
 
-/* Styles pour le rendu Markdown (Prose) */
+/* Styles pour le rendu Markdown */
 .prose {
-  color: #374151; /* gray-800 */
+  color: #374151;
 }
 
 .prose h1, .prose h2, .prose h3, .prose h4, .prose h5, .prose h6 {
-  color: #111827; /* gray-900 */
+  color: #111827;
 }
 
 .prose p {
@@ -316,41 +417,41 @@ watch(currentArticle, async (newArticle) => {
 }
 
 .prose a {
-  color: #3b82f6; /* blue-500 */
+  color: #3b82f6;
   text-decoration: underline;
 }
 
 .prose pre {
-  background-color: #f3f4f6; /* gray-100 */
+  background-color: #f3f4f6;
   border-radius: 0.25rem;
   padding: 1rem;
   overflow-x: auto;
 }
 
 .prose code {
-  color: #ef4444; /* red-500 */
+  color: #ef4444;
 }
 
 .dark .prose {
-  color: #d1d5db; /* gray-300 */
+  color: #d1d5db;
 }
 
 .dark .prose h1, .dark .prose h2, .dark .prose h3, .dark .prose h4, .dark .prose h5, .dark .prose h6 {
-  color: #e5e7eb; /* gray-200 */
+  color: #e5e7eb;
 }
 
 .dark .prose a {
-  color: #60a5fa; /* blue-400 */
+  color: #60a5fa;
 }
 
 .dark .prose pre {
-  background-color: #1f2937; /* gray-800 */
+  background-color: #1f2937;
 }
 
 .dark .prose code {
-  color: #f87171; /* red-400 */
+  color: #f87171;
 }
-/* Style pour le contenu Markdown converti en HTML */
+
 .markdown-content :deep(h1) {
   @apply text-4xl font-extrabold mt-8 mb-6 text-gray-800 dark:text-gray-100 tracking-tight;
 }

@@ -1,47 +1,47 @@
-// server/api/evenements/getduree.ts
-import { defineEventHandler, createError, getQuery } from 'h3';
-import Database from 'better-sqlite3';
-import path from 'path';
+// -----------------------------------------------------------
+// server/api/events/getduree.ts
+import { defineEventHandler, getQuery, createError } from 'h3';
+import { getEvenementDureeData } from '~/server/utils/evenements';
 
-const dbPath = path.join(process.cwd(), 'server/db/evenements.db');
-
-type EvenementRow = {
-  dateDebut: string;
-  heureDebut: string;
-  dateFin: string | null;
-  heureFin: string | null;
-};
-
-export default defineEventHandler((event) => {
-  const query = getQuery(event);
-  const id = query.id ? Number(query.id) : null;
-
-  if (!id) {
-    throw createError({ statusCode: 400, statusMessage: 'ID requis (query param)' });
-  }
-
-  const db = new Database(dbPath, { readonly: true });
-  
+export default defineEventHandler(async (event) => {
   try {
-    const row = db
-      .prepare("SELECT dateDebut, heureDebut, dateFin, heureFin FROM evenements WHERE id = ?")
-      .get(id) as EvenementRow | undefined;
-
-    if (!row || !row.dateFin || !row.heureFin) {
-      return { duree: null };
+    const { id } = getQuery(event);
+    
+    if (!id) {
+      throw createError({ statusCode: 400, message: 'ID required' });
     }
-
-    const debut = new Date(`${row.dateDebut}T${row.heureDebut}`);
-    const fin = new Date(`${row.dateFin}T${row.heureFin}`);
-
+    
+    const eventId = parseInt(id as string);
+    
+    if (isNaN(eventId)) {
+      throw createError({ statusCode: 400, message: 'Invalid ID' });
+    }
+    
+    const eventData = await getEvenementDureeData(eventId);
+    
+    // Si pas de données ou dates manquantes
+    if (!eventData?.dateDebut || !eventData?.heureDebut || !eventData?.dateFin || !eventData?.heureFin) {
+      return { duree: 0 };
+    }
+    
+    // Construire les dates complètes
+    const dateDebut = eventData.dateDebut instanceof Date 
+      ? eventData.dateDebut.toISOString().split('T')[0] 
+      : String(eventData.dateDebut);
+    const dateFin = eventData.dateFin instanceof Date 
+      ? eventData.dateFin.toISOString().split('T')[0] 
+      : String(eventData.dateFin);
+    
+    const debut = new Date(`${dateDebut}T${eventData.heureDebut}`);
+    const fin = new Date(`${dateFin}T${eventData.heureFin}`);
+    
     const dureeMs = fin.getTime() - debut.getTime();
-    const dureeMinutes = dureeMs / (1000 * 60);
-
-    return { duree: dureeMinutes };
-  } catch (err) {
-    console.error('Erreur getDuree:', err);
-    throw createError({ statusCode: 500, statusMessage: 'Erreur serveur' });
-  } finally {
-    db.close();
+    
+    // Durée en minutes (ou 0 si négatif)
+    return { duree: dureeMs > 0 ? dureeMs / (1000 * 60) : 0 };
+  } catch (error) {
+    console.error('Error in getduree:', error);
+    if ((error as any).statusCode) throw error;
+    throw createError({ statusCode: 500, message: 'Failed to calculate duration' });
   }
 });

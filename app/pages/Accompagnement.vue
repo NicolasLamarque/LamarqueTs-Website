@@ -15,7 +15,7 @@
         
         <!-- Image principale -->
         <div class="max-w-4xl mx-auto rounded-2xl overflow-hidden shadow-xl">
-          <img src="/service1.jpg" alt="Accompagnement individuel à Shawinigan" class="w-full h-auto" />
+          <img src="/situationsComplexes.jpg" alt="Accompagnement individuel à Shawinigan" class="w-full h-auto" />
         </div>
       </div>
     </section>
@@ -27,12 +27,17 @@
           <h2 class="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-6">Qu'est-ce que l'accompagnement individuel?</h2>
           <div class="space-y-4 text-gray-600 dark:text-gray-300 leading-relaxed">
             <p>
-              L'accompagnement individuel est une démarche personnalisée qui vous permet de prendre du recul 
-              sur votre situation, d'identifier vos ressources intérieures et de développer des solutions 
-              adaptées à vos besoins spécifiques.
+              L'accompagnement individuel est une démarche personnalisée qui vous te permet de prendre du recul 
+              sur ta situation, d'identifier tes ressources intérieures et de développer tes solutions...celles qui sont
+              adaptées à tes besoins spécifiques. Je cherche a trouver avec toi ta réponse plutôt que de te donner la mienne.
+            L'accompagnement peut aller de la gestion du stress et de l'anxiété à l'amélioration des relations interpersonnelles, 
+              en passant par le développement de compétences en communication et en résolution de problèmes au quotidient. parfois
+              un réel besoin de support est nécessaire pour traverser cetaines périodes de transition ou de changement important dans la vie.
+              Avec le temps ce support devient moins nécéssaire et la personne recommence à avancer. 
+              Nous avons tous notre rythme touvons le tiens.
             </p>
             <p>
-              Dans un cadre confidentiel et sans jugement, nous travaillons ensemble à votre rythme pour 
+              Dans un cadre confidentiel et sans jugement, nous travaillons ensemble à notre rythme pour 
               vous aider à surmonter les obstacles qui se dressent sur votre chemin et à atteindre vos objectifs 
               personnels.
             </p>
@@ -176,7 +181,7 @@
         </p>
         <div class="flex flex-col sm:flex-row gap-4 justify-center">
           <nuxt-link
-            to="/contact"
+            to="/contact-page"
             class="inline-block bg-sky-700 text-white py-3 px-8 rounded-xl font-semibold shadow-xl hover:shadow-2xl hover:bg-sky-600 transition-all duration-500">
             Prendre rendez-vous
           </nuxt-link>
@@ -198,7 +203,7 @@ useHead({
   meta: [
     {
       name: 'description',
-      content: 'Service d\'accompagnement individuel à Shawinigan. Un espace bienveillant pour explorer vos défis personnels et développer des stratégies d\'adaptation.'
+      content: 'Service d\'accompagnement individuel à Shawinigan par un travailleur social. Un espace bienveillant pour explorer vos défis personnels et développer des stratégies d\'adaptation.'
     }
   ]
 })

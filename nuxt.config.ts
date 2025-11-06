@@ -1,14 +1,17 @@
+import { fileURLToPath } from 'node:url'
 
 export default defineNuxtConfig({
+  compatibilityDate: '2025-10-29',
   components: true,
+  
   devtools: {
     enabled: true,
   },
+  
   future: {
     compatibilityVersion: 4,
-    
   },
-
+  
   app: {
     head: {
       title: 'My Nuxt 3 Project',
@@ -22,18 +25,85 @@ export default defineNuxtConfig({
       ],
     },
   },
-  modules: [// Content module for managing content
-  // Tailwind CSS module for styling
-  '@nuxt/content',
-  '@nuxtjs/tailwindcss', 
-  '@nuxt/image', 
-  '@vesp/nuxt-fontawesome'],
-
-  fontawesome: {
-    icons: {
-      solid: ['cog', 'calendar-check', 'clock', 'eye', 'edit', 'trash','envelope', 'external-link-alt', 'location-dot', 'phone'],
+  
+  // Configuration des alias
+  alias: {
+    // Alias racine du projet
+    '~': fileURLToPath(new URL('./', import.meta.url)),
+    '@': fileURLToPath(new URL('./', import.meta.url)),
     
-    }
-  }
- 
+    // Alias pour le dossier serveur
+    '#server': fileURLToPath(new URL('./server', import.meta.url)),
+    '#server-src': fileURLToPath(new URL('./server/src', import.meta.url)),
+  },
+  
+  // Configuration Vite (optionnel, mais peut aider)
+  vite: {
+    resolve: {
+      alias: {
+        '~': fileURLToPath(new URL('./', import.meta.url)),
+        '@': fileURLToPath(new URL('./', import.meta.url)),
+        '#server': fileURLToPath(new URL('./server', import.meta.url)),
+        '#server-src': fileURLToPath(new URL('./server/src', import.meta.url)),
+      },
+    },
+  },
+  
+  modules: [
+        '@nuxtjs/tailwindcss',
+    '@nuxt/image',
+    '@vesp/nuxt-fontawesome',
+  ],
+  
+  fontawesome: {
+  component: 'font-awesome-icon', // ✅ nom du composant global
+  icons: {
+    solid: [
+      'cog',
+      'calendar-check',
+      'clock',
+      'eye',
+      'edit',
+      'trash',
+      'envelope',
+      'external-link-alt',
+      'location-dot',
+      'phone',
+      'pencil-alt',
+      'user',
+      'user-group',
+      'user-circle',
+      'users',
+      'plus',
+      'times',
+      'search',
+      'arrow-left',
+      'arrow-right',
+      'chevron-left',
+      'chevron-right',
+      'bars',
+      'times-circle',
+      'info-circle',
+      'check-circle',
+      'exclamation-circle',
+      'question-circle',
+      'arrow-up',
+      'arrow-down',
+      'arrow-left',
+      'arrow-right',
+      'angle-left',
+      'angle-right',
+      'angle-up',
+      'angle-down',
+      'angle-double-left',
+      'angle-double-right',
+      'angle-double-up',
+      'angle-double-down',
+      'home',
+      'sign-out-alt',
+      'sign-in-alt',
+      'xmark',
+    ],
+  },
+},
 })

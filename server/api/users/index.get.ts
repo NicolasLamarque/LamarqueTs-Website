@@ -1,26 +1,29 @@
-
 // server/api/users/index.get.ts
-import { defineEventHandler, createError } from 'h3'
-import Database from 'better-sqlite3'
-import path from 'path'
 
-const dbPath = path.join(process.cwd(), 'server/db/auth.db');
+// 💡 Importation stable des fonctions depuis server/utils/
+import { getAllUsers } from "../../utils/users";
+import { createError } from "h3"; // Ajout de l'importation de createError
 
 export default defineEventHandler(async () => {
-  const db = new Database(dbPath)
   try {
-    // La requête SQL a été mise à jour pour sélectionner tous les champs
-    const stmt = db.prepare('SELECT id, username, mail, role, is_active, profile_picture, bio, two_factor_enabled, preferences FROM users')
-    const users = stmt.all()
-    
-    return users
-  } catch (err) {
-    console.error(err)
+    // 1. Appel simple à la fonction de service
+    const allUsers = await getAllUsers(); // 2. Sécurité : Retirer le mot de passe (Même si getAllUsers ne le sélectionne pas, c'est une bonne pratique)
+
+    const safeUsers = allUsers.map((user) => {
+      // Utilisation de la déstructuration pour exclure la propriété 'password'
+      const { password, ...safeUser } = user as any; // Assurez la déstructuration correcte
+      return safeUser;
+    }); // 3. CORRECTION MAJEURE : Retourner la liste (le tableau) directement
+
+    return safeUsers; // Ceci retourne directement le tableau d'utilisateurs [...]
+  } catch (error) {
+    console.error(
+      "Erreur lors de la récupération de tous les utilisateurs:",
+      error
+    );
     throw createError({
       statusCode: 500,
-      statusMessage: 'Erreur lors de la récupération des utilisateurs.'
-    })
-  } finally {
-    db.close()
+      statusMessage: "Échec de la récupération de la liste des utilisateurs.",
+    });
   }
-})
+});

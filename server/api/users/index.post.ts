@@ -1,55 +1,44 @@
-// server/api/users/index.post.ts
 import { defineEventHandler, readBody, createError } from 'h3'
-import Database from 'better-sqlite3'
-import path from 'path'
-import bcrypt from 'bcryptjs'
-
-// Définition de l'interface pour le corps de la requête
-interface User {
-  username?: string;
-  password?: string;
-  mail?: string;
-  role?: string;
-}
-
-// Chemin vers la DB
-const dbPath = path.join(process.cwd(), 'server/db/auth.db');
+import { insertUser} from '../../utils/users'
 
 export default defineEventHandler(async (event) => {
-  const body = await readBody(event) as User; // Correction ici
-  const { username, password, mail, role } = body;
+  const body = await readBody(event)
 
-  if (!username || !password) {
-    throw createError({ statusCode: 400, statusMessage: 'Nom d\'utilisateur ou mot de passe manquant.' });
+  if (!body.username || !body.password) {
+    throw createError({
+      statusCode: 400,
+      statusMessage: "Champs requis manquants (username et password).",
+    })
   }
 
-  const db = new Database(dbPath);
   try {
-    const hashedPassword = bcrypt.hashSync(password, 10);
-    
-    // Vérification de l'existence de l'utilisateur
-    const existingUser = db.prepare('SELECT id FROM users WHERE username = ?').get(username);
-    if (existingUser) {
-      throw createError({ statusCode: 409, statusMessage: 'Le nom d\'utilisateur existe déjà.' });
+    // 💡 Appel à la fonction qui gère le HASHAGE du mot de passe
+    const newUser = await insertUser(body as User)
+
+    if (!newUser) {
+      throw createError({
+        statusCode: 500,
+        statusMessage: "Échec de la création de l'utilisateur.",
+      })
     }
 
-    const stmt = db.prepare('INSERT INTO users (username, password, mail, role, is_active, bio, profile_picture, two_factor_enabled, preferences) VALUES (?, ?, ?, ?, ?, "", "", 0, "{}")');
-    const result = stmt.run(username, hashedPassword, mail, role, 1);
+    // ✅ La fonction insertUser supprime déjà le mot de passe du retour
+    return { user: newUser }
 
-    return { id: result.lastInsertRowid, message: 'Utilisateur ajouté avec succès.' };
-  } catch (err: unknown) {
-    console.error(err);
-    if (err instanceof Error && err.message.includes('UNIQUE constraint failed')) {
+  } catch (error: any) {
+    console.error("Erreur lors de l'insertion de l'utilisateur:", error)
+
+    // Gérer le cas d’un doublon (par exemple, username déjà utilisé)
+    if (error.message?.includes("duplicate key") || error.code === "23505") {
       throw createError({
         statusCode: 409,
-        statusMessage: 'Le nom d\'utilisateur existe déjà.'
-      });
+        statusMessage: "Nom d’utilisateur déjà pris.",
+      })
     }
+
     throw createError({
       statusCode: 500,
-      statusMessage: 'Erreur lors de l\'ajout de l\'utilisateur.'
-    });
-  } finally {
-    db.close();
+      statusMessage: "Erreur interne lors de l'inscription.",
+    })
   }
-});
+})

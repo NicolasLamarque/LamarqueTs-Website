@@ -1,29 +1,35 @@
-import { defineEventHandler, createError } from 'h3';
-// 👈 Importez votre fonction de gestion de DB
-import { deleteEvenement } from '../../db/initEvenementsDb'; 
+// ============================================
+// server/api/events/[id].delete.ts
+// Supprimer un événement
+// ============================================
+
+import { defineEventHandler, getRouterParam, createError } from 'h3';
+import { db } from '~/server/utils/db';
+import { evenements } from '~/server/utils/schema';
+import { eq } from 'drizzle-orm';
 
 export default defineEventHandler(async (event) => {
-  const id = event.context.params?.id;
-  
-  if (!id) throw createError({ statusCode: 400, statusMessage: 'ID manquant.' });
-  const evenementId = parseInt(id as string);
-  if (isNaN(evenementId)) throw createError({ statusCode: 400, statusMessage: 'ID invalide.' });
-
   try {
-    const changes = deleteEvenement(evenementId);
+    const idParam = getRouterParam(event, 'id');
+    if (!idParam) {
+      throw createError({ statusCode: 400, message: 'ID missing' });
+    }
     
-    if (changes === 0) {
-      throw createError({ statusCode: 404, statusMessage: 'Aucun événement trouvé.' });
+    const id = parseInt(idParam);
+    
+    const [deleted] = await db.delete(evenements)
+      .where(eq(evenements.id, id))
+      .returning();
+    
+    if (!deleted) {
+      throw createError({ statusCode: 404, message: 'Event not found' });
     }
-
-    return { success: true, message: `Événement ${evenementId} supprimé.` };
-  } catch (err) {
-    // On vérifie si c'est déjà une erreur H3 pour la relancer, 
-    // sinon on lance une erreur 500 générique.
-    if ((err as any).statusCode) {
-      throw err;
-    }
-    console.error(err);
-    throw createError({ statusCode: 500, statusMessage: 'Erreur lors de la suppression.' });
+    
+    return { message: 'Event deleted', id };
+    
+  } catch (error) {
+    console.error('Error deleting event:', error);
+    if ((error as any).statusCode) throw error;
+    throw createError({ statusCode: 500, message: 'Failed to delete event' });
   }
 });

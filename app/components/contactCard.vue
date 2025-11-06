@@ -174,6 +174,8 @@
 </template>
 
 <script setup lang="ts">
+import { ref } from 'vue'
+
 const form = ref({
   nom: '',
   email: '',
@@ -184,32 +186,26 @@ const form = ref({
 
 const isSubmitting = ref(false)
 const submitMessage = ref('')
-const submitSuccess = ref(false)
-const contactSection = ref<HTMLElement | null>(null)
-
-const scrollToContact = () => {
-  contactSection.value?.scrollIntoView({ behavior: 'smooth' })
-}
+const submitSuccess = ref<boolean | null>(null)
 
 const handleSubmit = async () => {
   isSubmitting.value = true
   submitMessage.value = ''
   
   try {
-    // Envoi vers votre API
-    const response = await $fetch('/api/contact', {
+    const response = await $fetch('/api/mails/contact', {
       method: 'POST',
       body: form.value
     })
-    
+
     submitSuccess.value = true
-    submitMessage.value = 'Merci ! Je vous répondrai dans les plus brefs délais.'
-    
-    // Réinitialiser le formulaire
+    submitMessage.value = '✅ Merci ! Je vous répondrai dans les plus brefs délais.'
     form.value = { nom: '', email: '', telephone: '', message: '', sujet: '' }
+
   } catch (error) {
+    console.error('Erreur contact:', error)
     submitSuccess.value = false
-    submitMessage.value = 'Une erreur est survenue. Veuillez réessayer.'
+    submitMessage.value = '⚠️ Une erreur est survenue. Veuillez réessayer.'
   } finally {
     isSubmitting.value = false
   }

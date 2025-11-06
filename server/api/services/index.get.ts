@@ -1,23 +1,21 @@
 // server/api/services/index.get.ts
 import { defineEventHandler, createError } from 'h3'
-import Database from 'better-sqlite3'
-import path from 'path'
+import { getAllServices } from '../../utils/services'
 
-const dbPath = path.join(process.cwd(), 'server/db/services.db')
 
-export default defineEventHandler(() => {
-  const db = new Database(dbPath)
+export default defineEventHandler(async () => {
   try {
-    const stmt = db.prepare('SELECT * FROM services WHERE deleted = 0 ORDER BY created_at DESC')
-    const services = stmt.all()
-    return services
-  } catch (err) {
-    console.error('Erreur lors de la récupération des services:', err)
+    // 1. Appel simple à la fonction de service (ne lit pas le body)
+    const allServices = await getAllServices(); // 2. Retourner la liste des services
+    return { services: allServices };
+  } catch (error) {
+    console.error(
+      "Erreur lors de la récupération de tous les services:",
+      error
+    ); // Retourner une erreur standard au client
     throw createError({
       statusCode: 500,
-      statusMessage: 'Erreur lors de la récupération des services.'
-    })
-  } finally {
-    db.close()
+      statusMessage: "Échec de la récupération de la liste des services.",
+    });
   }
 })

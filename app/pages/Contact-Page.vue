@@ -7,7 +7,7 @@
 <script setup lang="ts">
 
 import { onMounted } from 'vue'
-import { useDarkMode } from '~/composables/useDarkMode'
+import { useDarkMode } from '../composables/useDarkMode'
 
 const { isDark, initTheme } = useDarkMode()
 onMounted(() => initTheme())
