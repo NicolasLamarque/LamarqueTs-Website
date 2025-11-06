@@ -44,7 +44,7 @@
               <p class="text-sm text-gray-500 dark:text-gray-400 font-semibold mb-1">Téléphone</p>
               <a href="tel:+14189316786" 
                  class="text-sky-700 dark:text-sky-400 hover:underline font-semibold text-lg">
-                (418) 931-6786
+                mon tel
               </a>
             </div>
           </div>
@@ -60,8 +60,7 @@
               <div>
                 <p class="text-sm text-gray-500 dark:text-gray-400 font-semibold mb-1">Adresse</p>
                 <p class="text-gray-800 dark:text-gray-100 font-medium">
-                  3700 Rue place Masson<br>
-                  Shawinigan, Québec
+                 mon adresse
                 </p>
               </div>
             </div>
