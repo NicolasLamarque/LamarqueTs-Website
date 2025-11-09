@@ -192,7 +192,7 @@ const handleSubmit = async () => {
   submitMessage.value = ''
   
   try {
-    const response = await $fetch('/api/mails/contact', {
+    const response = await $fetch('/api/mail', {
       method: 'POST',
       body: form.value
     })
@@ -204,7 +204,7 @@ const handleSubmit = async () => {
   } catch (error) {
     console.error('Erreur contact:', error)
     submitSuccess.value = false
-    submitMessage.value = '⚠️ Une erreur est survenue. Veuillez réessayer.'
+    submitMessage.value = '⚠️ Une erreur est survenue. Veuillez réessayer.' 
   } finally {
     isSubmitting.value = false
   }

@@ -79,6 +79,8 @@ export default defineNuxtConfig({
       'search',
       'arrow-left',
       'arrow-right',
+      'calendar-alt',
+      'calendar-day',
       'chevron-left',
       'chevron-right',
       'bars',
