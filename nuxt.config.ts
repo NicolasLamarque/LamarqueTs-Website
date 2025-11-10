@@ -105,6 +105,10 @@ export default defineNuxtConfig({
       'sign-out-alt',
       'sign-in-alt',
       'xmark',
+      'faStethoscope',
+      'faUserDoctor', 
+      'faHospital', 
+      'faProcedures'
     ],
   },
 },
