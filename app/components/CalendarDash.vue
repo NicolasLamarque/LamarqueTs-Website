@@ -231,6 +231,11 @@
               <button type="button" @click="resetForm" :disabled="isLoading" class="btn btn-secondary">
                 <i class="fas fa-times mr-2"></i>Annuler
               </button>
+
+              <button @click="toggleView" class="bg-indigo-500 text-white px-6 py-2 rounded-lg font-semibold shadow-md hover:bg-indigo-600 transition-all">
+          <i :class="showCalendar ? 'fas fa-list' : 'fas fa-calendar-alt'" class="mr-2"></i>
+          {{ showCalendar ? "Voir la liste" : "Voir le calendrier" }}
+        </button>
             </div>
           </form>
         </section>

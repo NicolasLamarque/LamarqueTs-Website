@@ -69,33 +69,67 @@
               {{ event?.titleEvenement || 'Événement sans titre' }}
             </h2>
 
-            <div v-if="isRecurrentEvent" class="mb-6 p-6 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-2xl border-2 border-blue-200 dark:border-blue-800">
+            <div class="mb-6 p-6 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-2xl border-2 border-blue-200 dark:border-blue-800">
               <div class="flex items-start gap-4">
                 <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center flex-shrink-0">
-                  <i class="fas fa-info-circle text-white text-xl"></i>
+                  <i class="fas fa-calendar-week text-white text-xl"></i>
                 </div>
                 <div class="flex-1">
-                  <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-2">
+                  <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-3">
                     {{ sessionTitle }}
                   </h3>
-                  <p class="text-gray-700 dark:text-gray-300 leading-relaxed">
-                    {{ getRecurrenceDescription() }}
+                  
+                  <!-- Description générale (seulement si récurrent) -->
+                  <p v-if="isRecurrentEvent" class="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
+                    {{ getRecurrenceSummary() }}
                   </p>
-                  <div>
-    <div v-if="pending">Chargement...</div>
-    <div v-else-if="error">Erreur : {{ error.message }}</div>
-
-    <div v-else>
-      <div
-        v-for="event in evenements"
-        :key="event.id"
-        class="border p-3 mb-2 rounded shadow-sm"
-      >
-        
-        <p class="text-gray-600">{{ describeEvenement(event) }}</p>
-      </div>
-    </div>
-  </div>
+                  
+                  <!-- Liste des séances (toujours affichée) -->
+                  <div class="space-y-2 mt-4">
+                    <div
+                      v-for="(occurrence, index) in sessionsList"
+                      :key="index"
+                      class="group relative p-4 rounded-xl transition-all duration-300"
+                      :class="occurrence.isCurrent 
+                        ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-lg scale-105 ring-4 ring-indigo-300 dark:ring-indigo-700' 
+                        : 'bg-white/60 dark:bg-gray-800/60 text-gray-700 dark:text-gray-300 hover:bg-white/80 dark:hover:bg-gray-800/80'"
+                    >
+                      <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                          <div 
+                            class="w-10 h-10 rounded-lg flex items-center justify-center font-bold text-lg flex-shrink-0"
+                            :class="occurrence.isCurrent 
+                              ? 'bg-white/20 text-white' 
+                              : 'bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-blue-900/40 dark:to-indigo-900/40 text-blue-600 dark:text-blue-400'"
+                          >
+                            {{ index + 1 }}
+                          </div>
+                          <div>
+                            <p class="font-semibold text-sm uppercase tracking-wide" :class="occurrence.isCurrent ? 'text-white/90' : 'text-gray-500 dark:text-gray-400'">
+                              Séance {{ index + 1 }}{{ occurrence.isCurrent ? ' • Vous êtes ici' : '' }}
+                            </p>
+                            <p class="font-bold text-base" :class="occurrence.isCurrent ? 'text-white' : 'text-gray-900 dark:text-white'">
+                              {{ occurrence.dateFormatted }}
+                            </p>
+                          </div>
+                        </div>
+                        <div class="flex items-center gap-2">
+                          <div 
+                            class="px-3 py-1 rounded-lg text-sm font-semibold"
+                            :class="occurrence.isCurrent 
+                              ? 'bg-white/20 text-white' 
+                              : 'bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300'"
+                          >
+                            {{ occurrence.timeDisplay }}
+                          </div>
+                          <i 
+                            v-if="occurrence.isCurrent" 
+                            class="fas fa-arrow-left text-white text-xl animate-pulse"
+                          ></i>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -227,12 +261,6 @@
 import { defineProps, defineEmits, ref, watch, computed } from "vue";
 import type { Evenement } from "~/server/utils/schema";
 import UAvatar from "../components/UAvatar.vue";
-import { time } from "drizzle-orm/mysql-core";
-import { describeEvenement } from "~/server/utils/rruleHelpers";
-
-const { data: evenements, pending, error } = await useFetch("../api/events");
-
-
 
 const props = defineProps<{ 
   event?: Evenement | null; 
@@ -263,79 +291,73 @@ const themeClass = computed(() => {
 // ===============================
 // Parser RRule AMÉLIORÉ
 // ===============================
-// Définir le type de retour pour une meilleure sécurité des types
 type RRuleParams = {
   freq?: string;
-  interval: number; // Défini à 1 par défaut
+  interval: number;
   dtstart?: string;
   count?: number;
   until?: string;
   byweekday?: string[];
 };
 
-/**
- * Analyse la chaîne RRule pour en extraire les paramètres clés.
- */
 function parseRRule(rrule: string | null): RRuleParams {
   if (!rrule) return { interval: 1 };
   
-  // Filtrer les parties vides
-  const parts = rrule.split(';').filter(p => p.trim() !== '');
-  
+  const parts = rrule.split(";").filter((p) => p.trim() !== "");
   const result: RRuleParams = { interval: 1 };
-  
-  parts.forEach(part => {
-    const [key = '', rawValue = ''] = part.split(/[:=]/);
-    
+
+  parts.forEach((part) => {
+    const [key = "", rawValue = ""] = part.split(/[:=]/);
     const trimmedKey = key.trim();
     const value = rawValue.trim();
-    
+
     if (!trimmedKey) return;
 
     switch (trimmedKey) {
-      case 'FREQ':
+      case "FREQ":
         result.freq = value.toLowerCase();
         break;
 
-      case 'INTERVAL':
-      case 'COUNT':
-        const numValue = Number(value); 
+      case "INTERVAL":
+      case "COUNT":
+        const numValue = Number(value);
         if (!isNaN(numValue) && numValue >= 0) {
-            if (trimmedKey === 'INTERVAL') {
-                result.interval = numValue > 0 ? numValue : 1;
-            } else if (trimmedKey === 'COUNT') {
-                result.count = numValue;
-            }
+          if (trimmedKey === "INTERVAL") {
+            result.interval = numValue > 0 ? numValue : 1;
+          } else if (trimmedKey === "COUNT") {
+            result.count = numValue;
+          }
         }
         break;
-        
-      case 'DTSTART':
-      case 'UNTIL':
-        // Assumer le format YYYYMMDDTHHMMSS
+
+      case "DTSTART":
+      case "UNTIL":
         if (value.length >= 15) {
           const year = value.substring(0, 4);
           const month = value.substring(4, 6);
           const day = value.substring(6, 8);
           const hour = value.substring(9, 11);
           const minute = value.substring(11, 13);
-          
-          // Format ISO 8601 pour le constructeur Date (YYYY-MM-DDTHH:MM:00)
           const formattedDate = `${year}-${month}-${day}T${hour}:${minute}:00`;
 
-          if (trimmedKey === 'DTSTART') {
-              result.dtstart = formattedDate;
+          if (trimmedKey === "DTSTART") {
+            result.dtstart = formattedDate;
           } else {
-              result.until = formattedDate;
+            result.until = formattedDate;
           }
         }
         break;
 
-      case 'BYDAY':
-        result.byweekday = value.toLowerCase().split(',').map(d => d.trim()).filter(Boolean);
+      case "BYDAY":
+        result.byweekday = value
+          .toLowerCase()
+          .split(",")
+          .map((d) => d.trim())
+          .filter(Boolean);
         break;
     }
   });
-  
+
   return result;
 }
 
@@ -343,129 +365,106 @@ function parseRRule(rrule: string | null): RRuleParams {
 // Détection événement récurrent
 // ===============================
 const isRecurrentEvent = computed(() => {
-  // Un événement est "récurrent" s'il a plus d'une occurrence
   const parsed = parseRRule(props.event?.rrule || null);
-  return (parsed.freq && (parsed.count ? parsed.count > 1 : !!parsed.until)) 
-      || calculateOccurrences().length > 1; // Fallback sur le calcul si la règle est simple
+  return (
+    (parsed.freq && (parsed.count ? parsed.count > 1 : !!parsed.until)) ||
+    calculateOccurrences().length > 1
+  );
 });
 
-
-
-
-
 // ===============================
-// Calcul des occurrences CORRIGÉ ET ROBUSTIFIÉ
-// ⚠️ Avertissement: Cette logique est une version simplifiée et ne supporte pas
-// les règles complexes (ex: le 3e mardi du mois, exclusions, etc.).
-// Elle est principalement utilisée ici pour estimer le nombre total.
+// Calcul des occurrences
 // ===============================
 function calculateOccurrences(): Date[] {
   if (!props.event?.rrule) return [];
-  
+
   const parsed = parseRRule(props.event.rrule);
   if (!parsed.dtstart || !parsed.freq) return [];
-  
+
   const occurrences: Date[] = [];
   const start = new Date(parsed.dtstart);
-  const interval = parsed.interval; // interval est garanti d'être >= 1 par parseRRule
-  const originalDayOfMonth = start.getDate(); // Sauvegarde du jour du mois pour les récurrences mensuelles
-  
-  // Fonction interne pour générer la date suivante
+  const interval = parsed.interval;
+
   const generateNextDate = (baseDate: Date, interval: number, freq: string): Date => {
-      const nextDate = new Date(baseDate); // Cloner pour ne pas modifier la base
-      
-      switch (freq) {
-          case 'daily':
-              nextDate.setDate(baseDate.getDate() + interval);
-              break;
-          case 'weekly':
-              nextDate.setDate(baseDate.getDate() + (7 * interval));
-              break;
-          case 'monthly':
-              // Logique corrigée pour éviter le 'drift' des dates (ex: 31 janv -> 3 mars)
-              const newMonth = baseDate.getMonth() + interval;
-              nextDate.setMonth(newMonth);
-              // Si le setMonth a sauté un mois (car jour > jour max du mois cible),
-              // on revient au dernier jour du mois cible.
-              if (nextDate.getMonth() !== newMonth % 12) {
-                  // Mettre le jour à 0 revient au dernier jour du mois précédent (le mois cible)
-                  nextDate.setDate(0); 
-              }
-              break;
-          case 'yearly':
-              nextDate.setFullYear(baseDate.getFullYear() + interval);
-              break;
-          default:
-              return baseDate;
-      }
-      return nextDate;
+    const nextDate = new Date(baseDate);
+
+    switch (freq) {
+      case "daily":
+        nextDate.setDate(baseDate.getDate() + interval);
+        break;
+      case "weekly":
+        nextDate.setDate(baseDate.getDate() + 7 * interval);
+        break;
+      case "monthly":
+        const newMonth = baseDate.getMonth() + interval;
+        nextDate.setMonth(newMonth);
+        if (nextDate.getMonth() !== newMonth % 12) {
+          nextDate.setDate(0);
+        }
+        break;
+      case "yearly":
+        nextDate.setFullYear(baseDate.getFullYear() + interval);
+        break;
+      default:
+        return baseDate;
+    }
+    return nextDate;
   };
 
-  // 1. CAS COUNT
+  // CAS COUNT
   if (parsed.count && parsed.count > 0) {
-      let current = new Date(start);
-      for (let i = 0; i < parsed.count; i++) {
-          occurrences.push(new Date(current)); // Ajout de l'occurrence
-          // Calcul de la date suivante pour la prochaine itération
-          current = generateNextDate(current, interval, parsed.freq); 
-      }
-      return occurrences;
-  } 
-  
-  // 2. CAS UNTIL
-  if (parsed.until) {
-      const end = new Date(parsed.until);
-      let current = new Date(start);
-      
-      while (current <= end) {
-          occurrences.push(new Date(current));
-          
-          // Calcul de la date suivante
-          current = generateNextDate(current, interval, parsed.freq);
-
-          // Ajout d'une limite de sécurité contre les boucles infinies ou trop longues
-          if (occurrences.length > 1000) { 
-              console.warn("Limite de 1000 occurrences atteinte pour le calcul. Vérifiez votre règle UNTIL.");
-              break;
-          }
-      }
-  } 
-  
-  // 3. CAS SIMPLE (une seule occurrence si pas de count/until)
-  if (occurrences.length === 0) {
-      occurrences.push(start);
+    let current = new Date(start);
+    for (let i = 0; i < parsed.count; i++) {
+      occurrences.push(new Date(current));
+      current = generateNextDate(current, interval, parsed.freq);
+    }
+    return occurrences;
   }
-  
+
+  // CAS UNTIL
+  if (parsed.until) {
+    const end = new Date(parsed.until);
+    let current = new Date(start);
+
+    while (current <= end) {
+      occurrences.push(new Date(current));
+      current = generateNextDate(current, interval, parsed.freq);
+
+      if (occurrences.length > 1000) {
+        console.warn("Limite de 1000 occurrences atteinte");
+        break;
+      }
+    }
+  }
+
+  // CAS SIMPLE
+  if (occurrences.length === 0) {
+    occurrences.push(start);
+  }
+
   return occurrences;
 }
 
 // ===============================
-// Numéro de la séance CORRIGÉ
+// Numéro de la séance
 // ===============================
 const sessionNumber = computed(() => {
   if (!props.clickedDate) return 1;
 
-  const clickedDate = typeof props.clickedDate === 'string' 
-    ? new Date(props.clickedDate) 
-    : new Date(props.clickedDate);
+  const clickedDate =
+    typeof props.clickedDate === "string"
+      ? new Date(props.clickedDate)
+      : new Date(props.clickedDate);
 
   const occurrences = calculateOccurrences();
-
-  // Helper pour obtenir la date au format YYYY-MM-DD (indépendant du fuseau horaire local)
   const getDateKey = (date: Date) => date.toISOString().substring(0, 10);
-
-  // Clé de la date cliquée
   const clickedDateKey = getDateKey(clickedDate);
 
-  const index = occurrences.findIndex(occ => {
-    const occDate = occ instanceof Date ? occ : new Date(occ); 
-    
-    // Comparaison uniquement sur la date (YYYY-MM-DD)
+  const index = occurrences.findIndex((occ) => {
+    const occDate = occ instanceof Date ? occ : new Date(occ);
     return getDateKey(occDate) === clickedDateKey;
   });
 
-  // Si on trouve l'index, le numéro de séance est index + 1, sinon 1.
-  // Note: Un événement simple (non récurrent) aura toujours occurrences.length <= 1 et affichera '1ʳᵉ séance'.
   return index !== -1 ? index + 1 : 1;
 });
 
@@ -473,240 +472,264 @@ const sessionNumber = computed(() => {
 // Labels intelligents
 // ===============================
 function getEventTypeLabel(): string {
-  const tags = props.event?.TagsEvenement?.toLowerCase() || '';
-  
-  if (tags.includes('groupe fermé') || tags.includes('fermé')) return 'GROUPE FERMÉ';
-  if (tags.includes('groupe ouvert') || tags.includes('ouvert')) return 'GROUPE OUVERT';
-  if (tags.includes('libre')) return 'ACCÈS LIBRE';
-  
-  return 'RÉCURRENT';
+  const tags = props.event?.TagsEvenement?.toLowerCase() || "";
+
+  if (tags.includes("groupe fermé") || tags.includes("fermé"))
+    return "GROUPE FERMÉ";
+  if (tags.includes("groupe ouvert") || tags.includes("ouvert"))
+    return "GROUPE OUVERT";
+  if (tags.includes("libre")) return "ACCÈS LIBRE";
+
+  return "RÉCURRENT";
 }
-
-
-// Titre de la séance avec numéro si applicable
-const sessionTitle = computed(() => {
-  const occurrences = calculateOccurrences();
-  const totalSessions = occurrences.length;
-  const num = sessionNumber.value;
-  const name = props.event?.titleEvenement || 'Activité';
-  
-  // Si une seule occurrence : pas de numéro de séance
-  if (totalSessions <= 1) {
-    return name;
-  }
-  
-  // Sinon : afficher le numéro de séance
-  const ordinal = num === 1 ? '1ʳᵉ' : `${num}ᵉ`;
-  return `${ordinal} séance : ${name}`;
-});
 
 function getFrequencyLabel(freq: string, interval: number = 1): string {
   const labels: Record<string, string> = {
-    daily: interval > 1 ? `tous les ${interval} jours` : 'tous les jours',
-    weekly: interval > 1 ? `toutes les ${interval} semaines` : 'toutes les semaines',
-    monthly: interval > 1 ? `tous les ${interval} mois` : 'tous les mois',
-    yearly: interval > 1 ? `tous les ${interval} ans` : 'tous les ans',
+    daily: interval > 1 ? `tous les ${interval} jours` : "chaque jour",
+    weekly: interval > 1 ? `toutes les ${interval} semaines` : "chaque semaine",
+    monthly: interval > 1 ? `tous les ${interval} mois` : "chaque mois",
+    yearly: interval > 1 ? `tous les ${interval} ans` : "chaque année",
   };
   return labels[freq.toLowerCase()] || freq;
 }
 
-/**
- * Calcule l'heure de début et de fin basée sur la RRule et la durée.
- * @param {string} rruleStr - La chaîne RRule contenant DTSTART.
- * @param {string | undefined} durationStr - La chaîne de durée (HH:MM).
- * @param {boolean} isAllDay - Vrai si l'événement est de type toute la journée.
- * @returns {string} Le format HH:MM ou HH:MM → HH:MM, ou 'Toute la journée'.
- */
-function formatTimeRange(rruleStr: string, durationStr: string | undefined, isAllDay: boolean): string {
-  // 🚨 CORRECTION MAJEURE: Si c'est un événement de type 'Toute la journée', on court-circuite.
-  if (isAllDay) {
-      return 'Toute la journée';
-  }
-  
-  // Capture l'heure (HHMMSS) depuis DTSTART
-  const timeMatch = rruleStr.match(/DTSTART:(\d{8}T\d{6})/);
+// Titre de la séance avec numéro
+const sessionTitle = computed(() => {
+  const occurrences = calculateOccurrences();
+  const totalSessions = occurrences.length;
+  const num = sessionNumber.value;
+  const name = props.event?.titleEvenement || "Activité";
 
-  const timeStr = timeMatch?.[1];
-  
-  if (timeStr) {
-    const startHour = parseInt(timeStr.substring(9, 11), 10);
-    const startMinute = parseInt(timeStr.substring(11, 13), 10);
-    
-    // Si la durée est disponible, calculer l'heure de fin
-    if (durationStr) {
-      const [rawDurHours = '0', rawDurMinutes = '0'] = durationStr.split(':');
-      
-      const durHours = parseInt(rawDurHours, 10);
-      const durMinutes = parseInt(rawDurMinutes, 10);
-      
-      if (isNaN(durHours) || isNaN(durMinutes)) {
-        return `${startHour.toString().padStart(2, '0')}:${startMinute.toString().padStart(2, '0')} (Durée Invalide)`;
-      }
-
-      const totalMinutes = startMinute + durMinutes;
-      const carryHours = Math.floor(totalMinutes / 60);
-      const finalMinute = totalMinutes % 60;
-      
-      const finalHour = startHour + durHours + carryHours;
-      
-      // Formatage de l'heure de début
-      const startHourStr = startHour.toString().padStart(2, '0');
-      const startMinuteStr = startMinute.toString().padStart(2, '0');
-      
-      // Formatage de l'heure de fin
-      const finalHourStr = finalHour.toString().padStart(2, '0');
-      const finalMinuteStr = finalMinute.toString().padStart(2, '0');
-      
-      return `${startHourStr}:${startMinuteStr} → ${finalHourStr}:${finalMinuteStr}`;
-    }
-    
-    // Si pas de durée
-    return `${startHour.toString().padStart(2, '0')}:${startMinute.toString().padStart(2, '0')}`;
+  if (totalSessions <= 1) {
+    return name;
   }
 
-  // Si DTSTART n'a pas été trouvé dans la RRule
-  return 'Toute la journée';
-}
+  const ordinal = num === 1 ? "1ʳᵉ" : `${num}ᵉ`;
+  return `${ordinal} séance : ${name}`;
+});
+
+// ===============================
+// NOUVELLES FONCTIONS POUR LA LISTE DES SÉANCES
+// ===============================
 
 /**
- * Génère la description textuelle complète de la récurrence.
+ * Génère un résumé simplifié de la récurrence (première ligne)
  */
-function getRecurrenceDescription(): string {
+function getRecurrenceSummary(): string {
   if (!props.event?.rrule) return '';
   
   const parsed = parseRRule(props.event.rrule);
-  const occurrences = calculateOccurrences(); // Type: Date[]
-  const total = occurrences.length; 
+  const occurrences = calculateOccurrences();
+  const total = occurrences.length;
   
-  // Récupération de l'heure formatée (CORRECTION CRITIQUE)
-  const EventtimeRange = formatTimeRange(
-      props.event.rrule, 
-      props.event.duration ?? undefined
-  );
+  if (total <= 1) return '';
   
-  // Si une seule occurrence
-  if (total <= 1) { 
-    return `Événement unique. Horaire : ${EventtimeRange}`; 
-  }
-  
-  // --- Événement récurrent (total > 1) ---
   const freq = parsed.freq ? getFrequencyLabel(parsed.freq, parsed.interval) : '';
+  const tag = getEventTypeLabel();
   
-  // Dates de début et de fin sont garanties d'exister
   const startDate = occurrences[0].toLocaleDateString('fr-FR', { 
     day: 'numeric', 
     month: 'long', 
     year: 'numeric' 
   });
   
-  const lastIndex = occurrences.length - 1;
-  const endDate = occurrences[lastIndex].toLocaleDateString('fr-FR', { 
+  const endDate = occurrences[occurrences.length - 1].toLocaleDateString('fr-FR', { 
     day: 'numeric', 
     month: 'long', 
     year: 'numeric' 
   });
   
-  // Logique d'affichage des jours de la semaine (BYDAY)
-  let dayInfo = '';
-  if (parsed.byweekday && parsed.byweekday.length > 0) {
-      const dayMap: Record<string, string> = {
-          'mo': 'lundi', 'tu': 'mardi', 'we': 'mercredi', 'th': 'jeudi',
-          'fr': 'vendredi', 'sa': 'samedi', 'su': 'dimanche'
-      };
-      const days = parsed.byweekday.map(d => dayMap[d] || d);
-      // Affichage stylisé: Les lundis, mercredis et vendredis
-      const lastDay = days.pop();
-      const dayList = days.length > 0 ? days.join(', ') + ' et ' + lastDay : lastDay;
-      dayInfo = ` Les ${dayList}.`;
-  }
-  
-  // Logique des tags/type d'événement
-  const tags = props.event?.TagsEvenement?.toLowerCase() || '';
-  let typeInfo = '';
-  
-  if (tags.includes('groupe fermé') || tags.includes('fermé')) {
-    typeInfo = ' (inscription requise, places limitées)';
-  } else if (tags.includes('groupe ouvert') || tags.includes('ouvert')) {
-    typeInfo = ' (rejoignez-nous à tout moment)';
-  } else if (tags.includes('libre')) {
-    typeInfo = ' (accès libre sans inscription)';
-  }
-  
-  // Construction finale de la description
-  return `Activité ${freq} pendant ${total} séance${total > 1 ? 's' : ''}${typeInfo}. Du ${startDate} au ${endDate}.${dayInfo} Horaire : ${EventtimeRange}`;
+  return `${tag} • ${freq} pendant ${total} séance${total > 1 ? 's' : ''}. Du ${startDate} au ${endDate}.`;
 }
+
+/**
+ * Génère la liste complète des séances avec leurs dates et heures
+ */
+const sessionsList = computed(() => {
+  const occurrences = calculateOccurrences();
+  
+  // Si aucune occurrence calculée (événement simple sans RRule), créer une occurrence manuelle
+  const finalOccurrences = occurrences.length > 0 ? occurrences : [
+    props.event?.dateDebut ? new Date(props.event.dateDebut) : new Date()
+  ];
+  
+  const getDateKey = (date: Date) => date.toISOString().substring(0, 10);
+  
+  const clickedDate = props.clickedDate 
+    ? (typeof props.clickedDate === 'string' ? new Date(props.clickedDate) : props.clickedDate)
+    : props.event?.dateDebut 
+      ? new Date(props.event.dateDebut) 
+      : new Date();
+  
+  const clickedDateKey = getDateKey(clickedDate);
+  
+  return finalOccurrences.map((occ, index) => {
+    const occDate = occ instanceof Date ? occ : new Date(occ);
+    const dateKey = getDateKey(occDate);
+    
+    const dateFormatted = occDate.toLocaleDateString('fr-FR', {
+      weekday: 'long',
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric'
+    });
+    
+    let timeDisplay = 'Toute la journée';
+    
+    // Pour événement avec RRule
+    if (!props.event?.allDay && props.event?.rrule) {
+      timeDisplay = formatTimeRange(
+        props.event.rrule,
+        props.event.duration ?? undefined,
+        props.event.allDay ?? false
+      );
+    } 
+    // Pour événement simple sans RRule
+    else if (!props.event?.allDay && props.event?.heureDebut && props.event?.heureFin) {
+      timeDisplay = `${props.event.heureDebut} → ${props.event.heureFin}`;
+    }
+    
+    return {
+      dateFormatted,
+      timeDisplay,
+      isCurrent: clickedDateKey === dateKey
+    };
+  });
+});
+
+// ===============================
+// Formatage des heures
+// ===============================
+function formatTimeRange(
+  rruleStr: string,
+  durationStr: string | undefined,
+  isAllDay: boolean
+): string {
+  if (isAllDay) {
+    return "Toute la journée";
+  }
+
+  const timeMatch = rruleStr.match(/DTSTART:(\d{8}T\d{6})/);
+  const timeStr = timeMatch?.[1];
+
+  if (timeStr) {
+    const startHour = parseInt(timeStr.substring(9, 11), 10);
+    const startMinute = parseInt(timeStr.substring(11, 13), 10);
+
+          if (durationStr) {
+      const [rawDurHours = "0", rawDurMinutes = "0"] = durationStr.split(":");
+      const durHours = parseInt(rawDurHours, 10);
+      const durMinutes = parseInt(rawDurMinutes, 10);
+
+      if (isNaN(durHours) || isNaN(durMinutes)) {
+        return `${startHour.toString().padStart(2, "0")}:${startMinute.toString().padStart(2, "0")} (Durée Invalide)`;
+      }
+
+      const totalMinutes = startMinute + durMinutes;
+      const carryHours = Math.floor(totalMinutes / 60);
+      const finalMinute = totalMinutes % 60;
+      const finalHour = startHour + durHours + carryHours;
+
+      const startHourStr = startHour.toString().padStart(2, "0");
+      const startMinuteStr = startMinute.toString().padStart(2, "0");
+      const finalHourStr = finalHour.toString().padStart(2, "0");
+      const finalMinuteStr = finalMinute.toString().padStart(2, "0");
+
+      return `${startHourStr}:${startMinuteStr} → ${finalHourStr}:${finalMinuteStr}`;
+    }
+
+    return `${startHour.toString().padStart(2, "0")}:${startMinute.toString().padStart(2, "0")}`;
+  }
+
+  return "Toute la journée";
+}
+
 // ===============================
 // Formatage dates
 // ===============================
 const formatDateDisplay = computed(() => {
-  // Utilise la date cliquée en priorité
   const targetDate = props.clickedDate || props.event?.dateDebut;
-  
+
   if (targetDate) {
-    const date = typeof targetDate === 'string' 
-      ? new Date(targetDate) 
-      : targetDate;
-    
-    return date.toLocaleDateString('fr-FR', { 
-      weekday: 'long',
-      day: 'numeric', 
-      month: 'long', 
-      year: 'numeric' 
+    const date = typeof targetDate === "string" ? new Date(targetDate) : targetDate;
+    return date.toLocaleDateString("fr-FR", {
+      weekday: "long",
+      day: "numeric",
+      month: "long",
+      year: "numeric",
     });
   }
-  
-  // Fallback sur DTSTART de la RRule
+
   if (props.event?.rrule) {
     const parsed = parseRRule(props.event.rrule);
     if (parsed.dtstart) {
       const date = new Date(parsed.dtstart);
-      return date.toLocaleDateString('fr-FR', { 
-        weekday: 'long',
-        day: 'numeric', 
-        month: 'long', 
-        year: 'numeric' 
+      return date.toLocaleDateString("fr-FR", {
+        weekday: "long",
+        day: "numeric",
+        month: "long",
+        year: "numeric",
       });
     }
   }
-  
-  return '--';
+
+  return "--";
 });
 
-// Affiche l'heure de début et de fin ou "Toute la journée"
-const eventTimeDisplay = computed(() => { 
-    if (props.event?.allDay) return "Toute la journée";
+const eventTimeDisplay = computed(() => {
+  if (props.event?.allDay) return "Toute la journée";
 
-    if (props.event?.rrule) {
-        // Utilise la fonction robuste de formatage basée sur RRule et la durée
-        return formatTimeRange(
-            props.event.rrule, 
-            props.event.duration ?? undefined
-        );
-    }
+  if (props.event?.rrule) {
+    return formatTimeRange(
+      props.event.rrule,
+      props.event.duration ?? undefined,
+      props.event.allDay ?? false
+    );
+  }
 
-    // Fallback pour les événements simples (sans RRule)
-    return `${safeValue(props.event?.heureDebut)} → ${safeValue(props.event?.heureFin)}`;
+  return `${safeValue(props.event?.heureDebut)} → ${safeValue(props.event?.heureFin)}`;
 });
 
 // ===============================
 // Fonctions utilitaires
 // ===============================
-const parseTags = (tags: string) => tags?.split(",").map(t => t.trim()).filter(Boolean) || [];
+const parseTags = (tags: string) =>
+  tags?.split(",").map((t) => t.trim()).filter(Boolean) || [];
 
-const getStatusClass = (status: string) => ({
-  confirmed: "bg-green-500/90 text-white",
-  tentative: "bg-yellow-500/90 text-gray-900",
-  cancelled: "bg-red-500/90 text-white",
-}[status?.toLowerCase()] || "bg-gray-500/90 text-white");
+const getStatusClass = (status: string) =>
+  ({
+    confirmed: "bg-green-500/90 text-white",
+    tentative: "bg-yellow-500/90 text-gray-900",
+    cancelled: "bg-red-500/90 text-white",
+  })[status?.toLowerCase()] || "bg-gray-500/90 text-white";
 
-const getStatusLabel = (status: string) => ({
-  confirmed: "Confirmé",
-  tentative: "Provisoire",
-  cancelled: "Annulé",
-}[status?.toLowerCase()] || status);
+const getStatusLabel = (status: string) =>
+  ({
+    confirmed: "Confirmé",
+    tentative: "Provisoire",
+    cancelled: "Annulé",
+  })[status?.toLowerCase()] || status;
 </script>
 
 <style scoped>
+/* 🎨 VARIABLES DE COULEURS - Change ici pour tout modifier ! */
+:root {
+  /* Couleur de la séance active */
+  --session-active-from: #14b8a6; /* teal-500 */
+--session-active-to: #0d9488;   /* teal-600 */
+--session-active-ring: #5eead4; /* teal-300 */
+  
+  /* Couleur des séances inactives */
+  --session-inactive-bg: rgba(255, 255, 255, 0.6);
+  --session-inactive-badge-from: #dbeafe; /* blue-100 */
+  --session-inactive-badge-to: #c7d2fe;   /* indigo-100 */
+  
+  /* Couleur de l'encadré principal */
+  --info-box-from: #eff6ff; /* blue-50 */
+  --info-box-to: #e0e7ff;   /* indigo-50 */
+  --info-box-border: #c7d2fe; /* blue-200 */
+}
+
 .modal-fade-enter-active,
 .modal-fade-leave-active {
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
