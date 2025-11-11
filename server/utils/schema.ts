@@ -10,7 +10,8 @@ import { pgTable, serial, text, varchar, boolean, timestamp, integer, jsonb } fr
 
 // ========================================
 // TABLE USERS
-// ========================================
+//* ========================================
+
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
   username: text("username").notNull().unique(),

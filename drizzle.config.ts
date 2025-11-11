@@ -18,4 +18,5 @@ url: process.env.DATABASE_URL!,
 ssl: true, // ⬅️ On simplifie l'option SSL
 // Vous pouvez même essayer de retirer la ligne 'ssl: true' si le push échoue encore
 },
+schemafilter: ["public"],
 });
