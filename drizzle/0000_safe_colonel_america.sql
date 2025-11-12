@@ -1,0 +1,103 @@
+CREATE TABLE "articles" (
+	"id" serial PRIMARY KEY NOT NULL,
+	"title_article" varchar(500) NOT NULL,
+	"text_article" text NOT NULL,
+	"date_post" timestamp DEFAULT now(),
+	"author_article" varchar(255),
+	"category_article" varchar(255),
+	"image_article" varchar(500),
+	"tags_article" varchar(500),
+	"created_at" timestamp DEFAULT now(),
+	"updated_at" timestamp
+);
+--> statement-breakpoint
+CREATE TABLE "contacts_messages" (
+	"id" serial PRIMARY KEY NOT NULL,
+	"sender_name" varchar(255) NOT NULL,
+	"sender_email" varchar(255) NOT NULL,
+	"message" text NOT NULL,
+	"encrypted" boolean DEFAULT false,
+	"encryption_algo" varchar(50),
+	"category" varchar(100) DEFAULT 'general',
+	"priority" varchar(20) DEFAULT 'normal',
+	"status" varchar(50) DEFAULT 'new',
+	"assigned_to" varchar(255),
+	"reply_history" jsonb DEFAULT '[]'::jsonb,
+	"mail_log" jsonb DEFAULT '[]'::jsonb,
+	"deleted" boolean DEFAULT false,
+	"deleted_at" timestamp with time zone,
+	"deleted_by" varchar(255),
+	"created_at" timestamp with time zone DEFAULT now(),
+	"updated_at" timestamp with time zone,
+	"last_sent_at" timestamp with time zone
+);
+--> statement-breakpoint
+CREATE TABLE "evenements" (
+	"id" serial PRIMARY KEY NOT NULL,
+	"title_evenement" varchar(500) NOT NULL,
+	"text_evenement" text NOT NULL,
+	"date_debut" timestamp,
+	"heure_debut" varchar(10),
+	"heure_fin" varchar(10),
+	"all_day" boolean DEFAULT false,
+	"is_recurrent" boolean DEFAULT false,
+	"rrule" text,
+	"duration" varchar(10),
+	"exdate" text,
+	"author_evenement" varchar(255),
+	"category_evenement" varchar(255),
+	"color" varchar(50),
+	"location" varchar(500),
+	"status" varchar(50) DEFAULT 'confirmed',
+	"avatar_animateur" varchar(500),
+	"nom_animateur" varchar(255),
+	"icon_evenement" varchar(255),
+	"theme_visuel" varchar(100),
+	"image_evenement" varchar(500),
+	"tags_evenement" varchar(500),
+	"link" varchar(500),
+	"created_at" timestamp DEFAULT now(),
+	"updated_at" timestamp
+);
+--> statement-breakpoint
+CREATE TABLE "services" (
+	"id" serial PRIMARY KEY NOT NULL,
+	"title" varchar(255) NOT NULL,
+	"description" varchar(255) NOT NULL,
+	"icon" varchar(255) NOT NULL,
+	"image" varchar(255),
+	"link" varchar(255),
+	"color" varchar(255),
+	"tags" varchar(255),
+	"contenu" text,
+	"created_at" timestamp DEFAULT now(),
+	"updated_at" timestamp,
+	"deleted_at" timestamp,
+	"deleted" boolean DEFAULT false,
+	"deleted_by" varchar(255)
+);
+--> statement-breakpoint
+CREATE TABLE "users" (
+	"id" serial PRIMARY KEY NOT NULL,
+	"username" text NOT NULL,
+	"password" text NOT NULL,
+	"mail" text,
+	"role" text DEFAULT 'user',
+	"is_active" boolean DEFAULT true,
+	"created_at" timestamp DEFAULT now(),
+	"updated_at" timestamp,
+	"last_login" timestamp,
+	"profile_picture" text,
+	"bio" text,
+	"reset_token" text,
+	"reset_token_expiry" timestamp,
+	"email_verified" boolean DEFAULT false,
+	"email_verification_token" text,
+	"preferences" text,
+	"two_factor_enabled" boolean DEFAULT false,
+	"two_factor_secret" text,
+	"oauth_provider" text,
+	"oauth_id" text,
+	"oauth_token" text,
+	CONSTRAINT "users_username_unique" UNIQUE("username")
+);
