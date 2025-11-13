@@ -2,8 +2,9 @@
 // server/api/contact/messages/[id].get.ts
 // Récupérer un message par ID (décrypté)
 // ============================================
+// server/api/mail/[id].get.ts
 import { defineEventHandler, getRouterParam, createError } from 'h3'
-import { getMessageById } from '../../utils/contact'
+import { getMessageById } from '../../utils/contact'  // ✅ Bon chemin
 
 export default defineEventHandler(async (event) => {
   const id = parseInt(getRouterParam(event, 'id') || '0')
@@ -29,7 +30,6 @@ export default defineEventHandler(async (event) => {
     
     console.log('✅ Message récupéré et décrypté')
     
-    // Le message est déjà décrypté par getMessageById()
     return message
     
   } catch (error: any) {
