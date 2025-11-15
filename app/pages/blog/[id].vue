@@ -23,7 +23,7 @@
               <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
               </svg>
-              Publié le {{ article.DatePost }}
+              Publié le {{ formatDate(article.DatePost) }}
             </div>
           </div>
         </div>
@@ -122,6 +122,18 @@ const htmlContent = computed(() => {
   if (!article.value?.TextArticle) return ''
   return marked(article.value.TextArticle)
 })
+
+// Fonction de formatage de date
+const formatDate = (date) => {
+  if (!date) return ''
+  const dateObj = typeof date === 'string' ? new Date(date) : date
+  
+  return new Intl.DateTimeFormat('fr-FR', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  }).format(dateObj)
+}
 
 // Fonction de partage
 const shareArticle = () => {

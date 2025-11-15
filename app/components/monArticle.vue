@@ -47,12 +47,12 @@
                   {{ article.TextArticle }}
                 </p>
                 
-                <!-- Date -->
+                <!-- Date formatée -->
                 <div class="flex items-center text-sm text-gray-500 dark:text-gray-400 mb-4">
                   <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                   </svg>
-                  Publié le {{ article.DatePost }}
+                  Publié le {{ formatDate(article.DatePost) }}
                 </div>
                 
                 <!-- Bouton -->
@@ -95,6 +95,18 @@
 import { useFetch } from '#app'
 
 const { data: articles } = await useFetch('/api/articles')
+
+// Fonction de formatage de date
+const formatDate = (date) => {
+  if (!date) return ''
+  const dateObj = typeof date === 'string' ? new Date(date) : date
+  
+  return new Intl.DateTimeFormat('fr-FR', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  }).format(dateObj)
+}
 
 // SEO
 useSeoMeta({
