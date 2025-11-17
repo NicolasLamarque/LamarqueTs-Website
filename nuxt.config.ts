@@ -112,4 +112,9 @@ export default defineNuxtConfig({
     ],
   },
 },
+image: {
+    domains: ['5eqf1pkqjlprn7ya.public.blob.vercel-storage.com'],
+    // OU si vous utilisez Vercel Image Optimization
+    provider: 'vercel',
+  }
 })

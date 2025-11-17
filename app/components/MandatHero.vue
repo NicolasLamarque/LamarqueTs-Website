@@ -45,7 +45,7 @@ const props = defineProps({
   },
   imageSrc: {
     type: String,
-    default: "/service2.jpg"
+    default: "https://5eqf1pkqjlprn7ya.public.blob.vercel-storage.com/Service2.png"
   },
   imageAlt: {
     type: String,

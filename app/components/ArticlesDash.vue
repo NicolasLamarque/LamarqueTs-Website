@@ -2,16 +2,6 @@
   <div class="p-4 bg-gray-100 dark:bg-gray-800 rounded shadow">
     <div class="flex justify-between items-center mb-4">
       <h2 class="text-xl font-semibold text-gray-800 dark:text-gray-100">Gestion des Articles</h2>
-      
-      <!-- 🐛 BOUTON DEBUG
-      <button 
-        @click="forceReload" 
-        class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 text-sm"
-      >
-        🔄 FORCE RELOAD DB
-      </button>
-
-       -->
     </div>
 
     <div v-if="message" :class="message.type === 'success' ? 'bg-green-500' : 'bg-red-500'"
@@ -36,9 +26,60 @@
           <input v-model="form.CategoryArticle" type="text" class="w-full px-3 py-2 border rounded" :disabled="isLoading" />
         </div>
 
+        <!-- NOUVEAU : Upload d'image -->
         <div class="col-span-1 md:col-span-2 lg:col-span-3">
-          <label class="block font-medium mb-1">URL de l'image</label>
-          <input v-model="form.ImageArticle" type="text" class="w-full px-3 py-2 border rounded" :disabled="isLoading" />
+          <label class="block font-medium mb-1">Image de l'article</label>
+          
+          <!-- Aperçu de l'image -->
+          <div v-if="form.ImageArticle" class="mb-3">
+            <img 
+              :src="form.ImageArticle" 
+              alt="Aperçu" 
+              class="max-w-xs h-auto rounded-lg shadow-md"
+            />
+          </div>
+
+          <!-- Options : Upload ou URL -->
+          <div class="flex flex-col sm:flex-row gap-4">
+            <div class="flex-1">
+              <input 
+                v-model="form.ImageArticle" 
+                type="text" 
+                placeholder="OU collez l'URL de l'image"
+                class="w-full px-3 py-2 border rounded" 
+                :disabled="isLoading || isUploading" 
+              />
+            </div>
+            
+            <div class="relative">
+              <input
+                ref="fileInput"
+                type="file"
+                accept="image/*"
+                @change="handleImageUpload"
+                class="hidden"
+                :disabled="isLoading || isUploading"
+              />
+              <button
+                type="button"
+                @click="$refs.fileInput.click()"
+                class="bg-indigo-500 text-white px-4 py-2 rounded hover:bg-indigo-600 transition flex items-center gap-2 w-full sm:w-auto justify-center"
+                :disabled="isLoading || isUploading"
+              >
+                <svg v-if="!isUploading" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                </svg>
+                <svg v-else class="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                {{ isUploading ? 'Upload...' : 'Uploader une image' }}
+              </button>
+            </div>
+          </div>
+          <p class="text-xs text-gray-500 mt-1">
+            Uploadez une image (JPG, PNG, GIF, WebP) ou collez une URL existante
+          </p>
         </div>
 
         <div class="col-span-1 md:col-span-2 lg:col-span-3">
@@ -53,7 +94,7 @@
       </div>
 
       <div class="flex justify-between mt-4">
-        <button class="bg-sky-500 text-white px-4 py-2 rounded hover:bg-sky-600 transition" :disabled="isLoading">
+        <button class="bg-sky-500 text-white px-4 py-2 rounded hover:bg-sky-600 transition" :disabled="isLoading || isUploading">
           {{ isLoading ? 'Chargement...' : (editMode ? 'Modifier' : 'Ajouter') }}
         </button>
         <button v-if="editMode" type="button" @click="cancelEdit" class="bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500 transition" :disabled="isLoading">
@@ -64,7 +105,10 @@
 
     <div class="bg-white dark:bg-gray-700 p-4 rounded shadow">
       <div v-if="isLoading" class="text-center py-8">
-        <i class="fas fa-spinner fa-spin text-2xl text-gray-500"></i>
+        <svg class="animate-spin h-8 w-8 mx-auto text-gray-500" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
         <p class="mt-2 text-gray-500">Chargement...</p>
       </div>
       
@@ -76,9 +120,6 @@
             <th class="px-4 py-2 text-left">Auteur</th>
             <th class="px-4 py-2 text-left">Catégorie</th>
             <th class="px-4 py-2 text-left">Date</th>
-            <!-- 🐛 DEBUG
-            <th class="px-4 py-2 text-left bg-red-100">🐛 DEBUG</th>
-            -->
             <th class="px-4 py-2">Actions</th>
           </tr>
         </thead>
@@ -89,12 +130,6 @@
             <td class="px-4 py-2">{{ a.AuthorArticle }}</td>
             <td class="px-4 py-2">{{ a.CategoryArticle }}</td>
             <td class="px-4 py-2">{{ formatDate(a.DatePost) }}</td>
-            <!-- 🐛 DEBUG
-            <td class="px-4 py-2 bg-red-50 text-xs">
-              <div>created: {{ a.created_at ? '✅' : '❌' }}</div>
-              <div>updated: {{ a.updated_at ? '✅' : '❌' }}</div>
-            </td>
-            -->
             <td class="px-4 py-2 flex gap-2 justify-center">
               <button @click="editArticle(a)" class="bg-yellow-500 text-white px-2 py-1 rounded hover:bg-yellow-600">Modifier</button>
               <button @click="viewArticle(a)" class="bg-indigo-500 text-white px-2 py-1 rounded hover:bg-indigo-600">Voir</button>
@@ -108,6 +143,7 @@
       </table>
     </div>
 
+    <!-- Modal de visualisation -->
     <div v-if="showModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex justify-center items-center">
       <div class="relative p-8 border w-3/4 max-w-4xl shadow-lg rounded-md bg-white dark:bg-gray-700">
         <div class="mt-3 text-center">
@@ -115,7 +151,7 @@
           <p class="text-sm text-gray-500 dark:text-gray-300">
             Par {{ currentArticle?.AuthorArticle }} le {{ formatDate(currentArticle?.DatePost) }}
           </p>
-          <NuxtImg
+          <img
             v-if="currentArticle?.ImageArticle"
             :src="currentArticle.ImageArticle"
             alt="Image de l'article"
@@ -137,7 +173,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch, computed } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import { marked } from 'marked'
 import type { ArticleSelect } from '~/server/utils/schema'
 
@@ -157,11 +193,13 @@ const form = ref<Partial<ArticleSelect>>({
 })
 const editMode = ref(false)
 const isLoading = ref(false)
+const isUploading = ref(false)
 let editId: number | null = null
 const message = ref<Message | null>(null)
 const showModal = ref(false)
 const currentArticle = ref<ArticleSelect | null>(null)
 const renderedMarkdown = ref('')
+const fileInput = ref<HTMLInputElement | null>(null)
 
 const showMessage = (text: string, type: 'success' | 'error') => {
   message.value = { text, type }
@@ -170,13 +208,49 @@ const showMessage = (text: string, type: 'success' | 'error') => {
   }, 3000)
 }
 
+// Fonction pour uploader l'image vers Vercel BLOB
+const handleImageUpload = async (event: Event) => {
+  const target = event.target as HTMLInputElement
+  const file = target.files?.[0]
+  
+  if (!file) return
+
+  // Vérifier la taille du fichier (max 5MB)
+  if (file.size > 5 * 1024 * 1024) {
+    showMessage('L\'image est trop grande (max 5MB)', 'error')
+    return
+  }
+
+  try {
+    isUploading.value = true
+    
+    const formData = new FormData()
+    formData.append('file', file)
+
+    const response = await $fetch<{ success: boolean; url: string }>('/api/upload-image', {
+      method: 'POST',
+      body: formData
+    })
+
+    if (response.success) {
+      form.value.ImageArticle = response.url
+      showMessage('Image uploadée avec succès !', 'success')
+    }
+    
+  } catch (error: any) {
+    console.error('Erreur upload:', error)
+    showMessage(error.data?.message || 'Erreur lors de l\'upload de l\'image', 'error')
+  } finally {
+    isUploading.value = false
+    // Réinitialiser l'input pour permettre le même fichier
+    if (target) target.value = ''
+  }
+}
+
 const loadArticles = async () => {
   try {
     isLoading.value = true
     
-    console.log('🔄 Chargement articles...')
-    
-    // ✅ FORCE REFRESH depuis la DB
     const data = await $fetch<ArticleSelect[]>('/api/articles', {
       method: 'GET',
       headers: {
@@ -185,31 +259,15 @@ const loadArticles = async () => {
       }
     })
     
-    console.log('📥 Articles reçus depuis API:', data)
-    console.log('📊 Nombre:', data.length)
-    console.log('📋 IDs:', data.map(a => a.id))
-    console.log('📋 Titres:', data.map(a => a.titleArticle))
-    
-    // ✅ VÉRIFIER SI articles.value AVANT écrasement
-    console.log('🗂️ Articles AVANT mise à jour:', articles.value.length)
-    
     articles.value = data
     
-    console.log('✅ Articles APRÈS mise à jour:', articles.value.length)
-    
   } catch (error) {
-    console.error('❌ Erreur chargement articles:', error)
+    console.error('Erreur chargement articles:', error)
     showMessage('Erreur lors du chargement des articles.', 'error')
   } finally {
     isLoading.value = false
   }
 }
-
-// Convertir le Markdown en HTML
-const htmlContent = computed(() => {
-  if (!currentArticle.value?.TextArticle) return ''
-  return marked(currentArticle.value.TextArticle)
-})
 
 onMounted(loadArticles)
 
@@ -241,12 +299,10 @@ const submitArticle = async () => {
     }
     
     cancelEdit()
-    
-    // ✅ FORCE REFRESH après soumission
     await loadArticles()
     
   } catch (err) {
-    console.error('❌ Erreur soumission:', err)
+    console.error('Erreur soumission:', err)
     const apiError = (err as any)?.response?._data?.statusMessage || 'Une erreur est survenue.'
     showMessage(apiError, 'error')
   } finally {
@@ -282,46 +338,28 @@ const cancelEdit = () => {
 
 const deleteArticleConfirm = async (id?: number) => {
   if (!id) {
-    console.error('❌ ID invalide:', id)
     showMessage('ID invalide', 'error')
     return
   }
-  
-  console.log('🤔 Tentative suppression ID:', id)
-  console.log('📋 Articles actuels:', articles.value.map(a => ({ id: a.id, titre: a.titleArticle })))
   
   if (confirm('Voulez-vous vraiment supprimer cet article ?')) {
     try {
       isLoading.value = true
       
-      console.log('🗑️ Envoi requête DELETE pour ID:', id)
-      
-      const response = await $fetch(`/api/articles/${id}`, {
+      await $fetch(`/api/articles/${id}`, {
         method: 'DELETE'
       })
       
-      console.log('✅ Réponse serveur:', response)
-      
       showMessage('Article supprimé avec succès !', 'success')
-      
-      // ✅ FORCE REFRESH après suppression
-      console.log('🔄 Rechargement de la liste...')
       await loadArticles()
       
-      console.log('✅ Liste rechargée, nouveaux articles:', articles.value.length)
-      
     } catch (err: any) {
-      console.error('❌ Erreur complète:', err)
-      console.error('❌ Status:', err?.statusCode)
-      console.error('❌ Message:', err?.data?.message || err?.message)
-      
+      console.error('Erreur suppression:', err)
       const apiError = err?.data?.message || err?.message || 'Erreur lors de la suppression'
       showMessage(apiError, 'error')
     } finally {
       isLoading.value = false
     }
-  } else {
-    console.log('❌ Suppression annulée par l\'utilisateur')
   }
 }
 
@@ -345,14 +383,12 @@ watch(currentArticle, async (newArticle) => {
   }
 })
 
-// Formatage des dates avec gestion stricte de null
+// Formatage des dates
 const formatDate = (date: Date | string | null | undefined): string => {
   if (!date || date === null) return ''
   
   try {
     const d = date instanceof Date ? date : new Date(date)
-    
-    // Vérifier que la date est valide
     if (isNaN(d.getTime())) return ''
     
     return d.toLocaleDateString('fr-CA', { 
@@ -363,22 +399,6 @@ const formatDate = (date: Date | string | null | undefined): string => {
   } catch {
     return ''
   }
-}
-
-// 🐛 FONCTION DEBUG : Force reload
-const forceReload = async () => {
-  console.log('🔴 FORCE RELOAD DÉCLENCHÉ')
-  console.log('📋 Articles AVANT clear:', articles.value.length, articles.value)
-  
-  // Vider complètement
-  articles.value = []
-  
-  console.log('📋 Articles APRÈS clear:', articles.value.length)
-  
-  // Recharger
-  await loadArticles()
-  
-  console.log('📋 Articles APRÈS reload:', articles.value.length, articles.value)
 }
 </script>
 
@@ -392,7 +412,6 @@ const forceReload = async () => {
   animation: fadeIn 0.5s ease-in-out;
 }
 
-/* Styles pour le rendu Markdown */
 .prose {
   color: #374151;
 }

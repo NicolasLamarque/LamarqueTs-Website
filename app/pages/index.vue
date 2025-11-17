@@ -21,7 +21,7 @@
           >
             <div class="w-full flex justify-center mb-4 sm:mb-6">
               <ImgCard
-                src="/Intervention1.png"
+                src="https://5eqf1pkqjlprn7ya.public.blob.vercel-storage.com/Service1.png"
                 alt="Service 1"
                 :width="350"
                 :height="250"
@@ -49,7 +49,7 @@
           >
             <div class="w-full flex justify-center mb-4 sm:mb-6">
               <ImgCard
-                src="/service2.png"
+                src="https://5eqf1pkqjlprn7ya.public.blob.vercel-storage.com/Service2.png"
                 alt="Service 2"
                 :width="350"
                 :height="250"
@@ -61,8 +61,7 @@
               Homologation de mandat
             </h3>
             <p class="text-sm sm:text-base text-gray-600 dark:text-gray-300 leading-relaxed px-2">
-              Un prix unique incluant tout de bout en bout pour un service
-              d'homologation de mandat. Service accessible en Mauricie uniquement.
+              Un prix unique incluant toute la démarche d\'homologation, sans frais supplémentaire et accessible! Service accessible en Mauricie uniquement.
               Contactez-moi, les conseils sont gratuits!
             </p>
             <nuxt-link
@@ -78,7 +77,7 @@
           >
             <div class="w-full flex justify-center mb-4 sm:mb-6">
               <ImgCard
-                src="/LamarqueGroupe.png"
+                src="https://5eqf1pkqjlprn7ya.public.blob.vercel-storage.com/LamarqueGroupe.png"
                 alt="Service 3"
                 :width="350"
                 :height="250"
@@ -108,7 +107,9 @@
 </template>
 
 <script lang="ts" setup>
+
 import { useDarkMode } from "../composables/useDarkMode";
+
 
 const { initTheme } = useDarkMode();
 onMounted(() => {
