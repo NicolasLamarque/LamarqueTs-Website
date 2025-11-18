@@ -41,7 +41,7 @@ const props = defineProps({
   },
   description: {
     type: String,
-    default: "Confiez-moi l'homologation de votre mandat à Shawinigan. J'assure un accompagnement rigoureux et humain tout au long du processus légal, afin de garantir la reconnaissance officielle et sécuritaire de votre mandat. Contactez-moi dès aujourd'hui pour un soutien personnalisé et efficace."
+    default: "Confiez-moi l'évaluation psychosociale dans le cadre de l'homologation du mandat de votre proche à Shawinigan. J'assure un accompagnement rigoureux et humain tout au long du processus légal, afin de garantir la reconnaissance officielle et sécuritaire de votre mandat. Contactez-moi dès aujourd'hui pour un soutien personnalisé et efficace."
   },
   imageSrc: {
     type: String,

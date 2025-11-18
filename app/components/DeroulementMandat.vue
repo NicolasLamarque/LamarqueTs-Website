@@ -80,9 +80,9 @@ const etapes = [
     titre: "Évaluation médicale et psychosociale",
     description: "Collecte des rapports médicaux et psychosociaux confirmant l’inaptitude; ces documents sont centraux pour que le tribunal constate l’inaptitude (art. 2166 à 2174 C.c.Q.).",
     points: [
-      "Obtenir un rapport médical détaillé (diagnostic, répercussions fonctionnelles).",
-      "Rapport psychosocial (situation familiale, capacités au quotidien).",
-      "Attention aux délais : l’évaluation publique peut être longue (parfois plusieurs mois)."
+      "Obtenir un rapport médical détaillé (diagnostic, pronostics, répercussions fonctionnelles, déclaration d'inaptitude médicale).",
+      "Rapport psychosocial (situation familiale, capacités au quotidien, relations interpersonnelles, activités et loisirs, besoins bio-psychosociaux).",
+      "Attention aux délais : Bien qu'elle'soit gratuite, l’évaluation par le bias du secteur public peut être longue (parfois plusieurs mois)."
     ]
   },
   {
@@ -114,7 +114,7 @@ const etapes = [
     titre: "Examen par le tribunal (audience)",
     description: "Le tribunal vérifie l’inaptitude, la validité du mandat et la capacité du mandataire à agir (art. 2173 C.c.Q.).",
     points: [
-      "Le juge peut entendre témoins, ordonner expertises ou demander précisions.",
+      "Le juge peut désirer entendre des témoins et ordonner des expertises ou demander des précisions.",
       "S’assurer que la volonté du mandant est respectée autant que possible."
     ]
   },

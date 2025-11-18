@@ -94,7 +94,7 @@
             </p>
             <nuxt-link
               class="mt-4 sm:mt-6 inline-block bg-sky-700 text-white py-2 px-4 sm:px-5 rounded-xl font-semibold shadow hover:bg-sky-600 transition-colors text-sm sm:text-base"
-              to="/Contact-Page"
+              to="/Groupe-Homme"
             >
               faite connaitre votre intéret!
             </nuxt-link>

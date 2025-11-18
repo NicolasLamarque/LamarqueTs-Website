@@ -45,12 +45,12 @@
           
           <!-- Texte -->
           <div class="flex flex-col">
-            <span class="text-lg sm:text-xl md:text-2xl font-bold text-gray-800 dark:text-gray-100 transition-colors">
-              Nicolas Lamarque
-            </span>
-            <span class="text-xs sm:text-sm font-normal text-gray-600 dark:text-gray-400">
-              Travailleur social
-            </span>
+            <span class="text-lg sm:text-xl md:text-2xl font-bold text-white transition-colors">
+  Nicolas Lamarque, T.S.
+</span>
+<span class="text-xs sm:text-sm font-normal text-gray-100">
+  Travailleur social - Shawinigan | Homologation de mandat
+</span>
           </div>
         </NuxtLink>
      
@@ -63,7 +63,7 @@
 </NuxtLink>
       <NuxtLink to="/" class="hover:text-gray-200">Accueil</NuxtLink>
       
-      <NuxtLink to="/evenements" class="hover:text-gray-200">Évenements</NuxtLink>
+      <NuxtLink to="/Mandat" class="hover:text-gray-200">Homologation de mandat</NuxtLink>
       <NuxtLink to="/blog" class="hover:text-gray-200">Blog</NuxtLink>
       <NuxtLink to='Contact-Page' class="hover:text-gray-200">Contact</NuxtLink>
        <ThemeSwitch/>
@@ -83,7 +83,7 @@
     <NuxtLink to="/" class="block py-2">Accueil</NuxtLink>
     <NuxtLink to="/blog" class="block py-2">Blog</NuxtLink>
     <NuxtLink to="/contact-page" class="block py-2">Contact</NuxtLink>
-    <NuxtLink to="/evenements" class="block py-2">Évenements</NuxtLink>
+    <NuxtLink to="/Mandat" class="block py-2">Homologation de mandat</NuxtLink>
   </nav>
 </template>
 
