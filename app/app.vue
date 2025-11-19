@@ -17,28 +17,6 @@ onMounted(() => {
 </script>
 
 <style>
-/* Supprimer toutes les marges et paddings par défaut */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-body {
-  margin: 0 !important;
-  padding: 0 !important;
-  overflow-x: hidden;
-}
-
-html {
-  margin: 0;
-  padding: 0;
-}
-
-#__nuxt,
-#__layout {
-  margin: 0;
-  padding: 0;
-  width: 100%;
-}
+/* Laisse Nuxt/Tailwind gérer les resets automatiquement */
+/* Ne touche pas aux sélecteurs globaux comme * ou #__nuxt — ils cassent ton layout */
 </style>
