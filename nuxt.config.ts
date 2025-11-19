@@ -116,5 +116,15 @@ image: {
     domains: ['5eqf1pkqjlprn7ya.public.blob.vercel-storage.com'],
     // OU si vous utilisez Vercel Image Optimization
     provider: 'vercel',
+    screens: {
+      xs: 320,
+      sm: 640,
+      md: 768,
+      lg: 1024,
+      xl: 1280,
+      xxl: 1536,
+      custom350: 350,  // Ajoute cette ligne
+      custom700: 700   // Ajoute cette ligne
+    }
   }
 })

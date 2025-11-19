@@ -47,14 +47,14 @@
               <!-- Brice Colluci -->
               <div class="border-l-4 border-sky-600 pl-4 sm:pl-6 py-2">
                 <h3 class="text-lg sm:text-xl font-semibold text-gray-800 dark:text-gray-100 mb-2">
-                  Brice Colluci
+                  Mon ami Brice
                 </h3>
                 <p class="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mb-2 font-medium">
-                  Développeur Web Professionnel
+                  Un Développeur exceptionnel
                 </p>
                 <p class="text-sm sm:text-base text-gray-600 dark:text-gray-300 leading-relaxed">
                   Pour son mentorat généreux, son expertise technique et son enseignement des technologies web modernes. 
-                  Son accompagnement a été déterminant dans l'apprentissage et la réalisation de ce projet. 
+                  Son accompagnement a été déterminant dans l'apprentissage et la réalisation de ce projet.
                   <br >Merci mon ami! </br>              
                  </p>
               </div>
