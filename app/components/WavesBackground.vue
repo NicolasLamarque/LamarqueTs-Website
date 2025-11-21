@@ -1,17 +1,16 @@
 <template>
-  <div class="relative w-full h-full">
+  <div class="absolute inset-0">
     <canvas ref="canvasRef" class="absolute inset-0 w-full h-full" />
     
     <!-- Bouton de contrôles (optionnel) -->
     <button
       v-if="showControlsButton"
       @click="showControls = !showControls"
-      class="fixed bottom-6 right-6 z-20 bg-teal-600 hover:bg-teal-700 text-white p-4 rounded-full shadow-lg transition-all"
+      class="fixed bottom-6 right-6 z-20 bg-sky-600 hover:bg-sky-700 text-white p-4 rounded-full shadow-lg transition-all"
       aria-label="Paramètres"
     >
       ⚙️
     </button>
-
     <!-- Panneau de contrôles -->
     <div
       v-if="showControls"
@@ -111,13 +110,13 @@ const config = reactive({
   amplitude: 30,
   frequency: 0.015,
   waveCount: 2,
-  colors: [
-    'rgba(20, 184, 166, 0.15)',  // teal-500
-    'rgba(45, 212, 191, 0.12)',  // teal-400
-    'rgba(94, 234, 212, 0.1)',   // teal-300
-    'rgba(204, 251, 241, 0.08)', // teal-100
-  ],
-  goldAccent: 'rgba(251, 191, 36, 0.08)', // doré
+ colors: [
+  'rgba(14, 165, 233, 0.15)',  // sky-500
+  'rgba(56, 189, 248, 0.12)',  // sky-400
+  'rgba(125, 211, 252, 0.1)',  // sky-300
+  'rgba(224, 242, 254, 0.08)', // sky-100
+],
+ goldAccent: 'rgba(14, 165, 233, 0.08)',
 });
 
 let time = 0;

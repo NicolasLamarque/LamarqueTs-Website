@@ -9,6 +9,7 @@
   <NuxtImg 
     src="https://5eqf1pkqjlprn7ya.public.blob.vercel-storage.com/logo.jpg" 
     alt="Logo" 
+    
     class="w-12 h-12 sm:w-16 sm:h-16 rounded-full border-2 border-white group-hover:border-gray-300 transition-all duration-300"
   />
 </div>

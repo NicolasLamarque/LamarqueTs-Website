@@ -1,6 +1,7 @@
 // server/api/auth/login.post.ts
 
-import { defineEventHandler, readBody, createError } from 'h3'
+// 1. On ajoute setCookie aux imports
+import { defineEventHandler, readBody, createError, setCookie } from 'h3'
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 import { getUserByUsernameWithPassword } from '../../utils/users'
@@ -56,6 +57,24 @@ export default defineEventHandler(async (event) => {
     { expiresIn: '1h' }
   )
 
-  console.log('✅ Token généré :', token)
-  return { token }
+  console.log('✅ Token généré (mis dans le cookie) :', token)
+
+  // 5️⃣ NOUVEAU : On place le token dans un cookie sécurisé
+  setCookie(event, 'auth_token', token, {
+    httpOnly: true, // Le JavaScript ne peut pas le lire (Sécurité Max)
+    secure: process.env.NODE_ENV === 'production', // HTTPS seulement en prod
+    sameSite: 'lax', // Protection CSRF
+    maxAge: 60 * 60, // 1 heure (doit correspondre au expiresIn du JWT)
+    path: '/' // Accessible sur tout le site
+  })
+
+  // 6️⃣ IMPORTANT : On ne renvoie PLUS le token au front-end
+  // On renvoie juste les infos non-sensibles de l'utilisateur
+  return {
+    success: true,
+    user: {
+      username: user.username,
+      role: user.role
+    }
+  }
 })

@@ -1,13 +1,12 @@
 <template>
-  <div class="w-full">
-   <section
-  class="relative py-0 sm:py-16 md:py-24 text-gray-800 dark:text-gray-100 w-full overflow-hidden"
->
-  <!-- Arrière-plan avec vagues -->
+  <div class="w-full min-h-full">
+  <section
+      class="relative min-h-screen pt-0 sm:pt-16 md:pt-24 text-gray-800 dark:text-gray-100 w-full overflow-hidden"
+    >
   <div class="absolute inset-0 bg-slate-100 dark:bg-gray-900">
         <WavesBackground :show-controls-button="true" />
       </div>
-      <div class="relative w-full max-w-7xl sm:mx-auto px-3 sm:px-4 md:px-6">
+      <div class="relative w-full max-w-7xl sm:mx-auto px-3 sm:px-4 md:px-6 pb-12">
         <h2
           class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold text-center mb-8 sm:mb-12 md:mb-16 text-gray-800 dark:text-gray-100 tracking-tight"
         >

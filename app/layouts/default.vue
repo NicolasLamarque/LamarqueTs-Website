@@ -1,22 +1,34 @@
-<script setup lang="ts">
-import MainFooter from '../components/MainFooter.vue';
-import MainHeader from '../components/MainHeader.vue';
-
-</script>
-
 <template>
-  <div class="flex flex-col min-h-screen">
-    <MainHeader />
-    <main class="flex-1 p-0">
+  <div class="flex flex-col h-screen overflow-hidden">
+    <MainHeader class="flex-shrink-0" />
+    <main class="flex-1 overflow-y-auto">
       <slot />
     </main>
-    <MainFooter />
-    </div>
+    <MainFooter class="flex-shrink-0 mt-0" />
+  </div>
 </template>
-<style scoped>
-main {
+
+<style>
+html, body {
+  height: 100%;
   margin: 0;
   padding: 0;
-  width: 100%;
+  overflow-x: hidden;
+}
+
+#__nuxt {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Force la suppression de tout espace entre main et footer */
+main {
+  margin-bottom: 0 !important;
+  padding-bottom: 0 !important;
+}
+
+main > * {
+  margin-bottom: 0 !important;
 }
 </style>

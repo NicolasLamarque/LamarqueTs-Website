@@ -9,97 +9,306 @@
       {{ message.text }}
     </div>
 
-    <form @submit.prevent="submitArticle" class="mb-6 bg-white dark:bg-gray-700 p-4 rounded shadow">
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        <div class="col-span-1">
-          <label class="block font-medium mb-1">Titre de l'article</label>
-          <input v-model="form.titleArticle" type="text" class="w-full px-3 py-2 border rounded" required :disabled="isLoading" />
-        </div>
+    <form @submit.prevent="submitArticle" class="mb-6 bg-white dark:bg-gray-700 rounded-lg shadow-xl overflow-hidden">
+      
+      <div class="bg-gradient-to-r from-sky-600 to-sky-700 p-4 text-white">
+        <h3 class="text-lg font-bold flex items-center gap-2">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+          </svg>
+          {{ editMode ? 'Modifier l\'article' : 'Nouvel article' }}
+        </h3>
+      </div>
 
-        <div class="col-span-1">
-          <label class="block font-medium mb-1">Auteur</label>
-          <input v-model="form.AuthorArticle" type="text" class="w-full px-3 py-2 border rounded" required :disabled="isLoading" />
-        </div>
-        
-        <div class="col-span-1">
-          <label class="block font-medium mb-1">Catégorie</label>
-          <input v-model="form.CategoryArticle" type="text" class="w-full px-3 py-2 border rounded" :disabled="isLoading" />
-        </div>
-
-        <!-- NOUVEAU : Upload d'image -->
-        <div class="col-span-1 md:col-span-2 lg:col-span-3">
-          <label class="block font-medium mb-1">Image de l'article</label>
-          
-          <!-- Aperçu de l'image -->
-          <div v-if="form.ImageArticle" class="mb-3">
-            <img 
-              :src="form.ImageArticle" 
-              alt="Aperçu" 
-              class="max-w-xs h-auto rounded-lg shadow-md"
+      <div class="p-6 space-y-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block font-medium mb-2 text-gray-700 dark:text-gray-200">
+              <span class="flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"></path>
+                </svg>
+                Titre de l'article *
+              </span>
+            </label>
+            <input 
+              v-model="form.titleArticle" 
+              type="text" 
+              class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent dark:bg-gray-800 dark:text-white" 
+              placeholder="Ex: Les bienfaits de la méditation"
+              required 
+              :disabled="isLoading" 
             />
           </div>
 
-          <!-- Options : Upload ou URL -->
-          <div class="flex flex-col sm:flex-row gap-4">
-            <div class="flex-1">
-              <input 
-                v-model="form.ImageArticle" 
-                type="text" 
-                placeholder="OU collez l'URL de l'image"
-                class="w-full px-3 py-2 border rounded" 
-                :disabled="isLoading || isUploading" 
-              />
+          <div>
+            <label class="block font-medium mb-2 text-gray-700 dark:text-gray-200">
+              <span class="flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                </svg>
+                Auteur *
+              </span>
+            </label>
+            <input 
+              v-model="form.AuthorArticle" 
+              type="text" 
+              class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent dark:bg-gray-800 dark:text-white" 
+              placeholder="Nom de l'auteur"
+              required 
+              :disabled="isLoading" 
+            />
+          </div>
+
+          <div>
+            <label class="block font-medium mb-2 text-gray-700 dark:text-gray-200">
+              <span class="flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
+                </svg>
+                Catégorie
+              </span>
+            </label>
+            <input 
+              v-model="form.CategoryArticle" 
+              type="text" 
+              class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent dark:bg-gray-800 dark:text-white" 
+              placeholder="Ex: Santé mentale"
+              :disabled="isLoading" 
+            />
+          </div>
+
+          <div>
+            <label class="block font-medium mb-2 text-gray-700 dark:text-gray-200">
+              <span class="flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14"></path>
+                </svg>
+                Tags
+              </span>
+            </label>
+            <input 
+              v-model="form.TagsArticle" 
+              type="text" 
+              class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent dark:bg-gray-800 dark:text-white" 
+              placeholder="méditation, bien-être, santé"
+              :disabled="isLoading" 
+            />
+          </div>
+        </div>
+
+        <div class="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-600">
+          <label class="block font-medium mb-3 text-gray-700 dark:text-gray-200">
+            <span class="flex items-center gap-2">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+              </svg>
+              Image de l'article
+            </span>
+          </label>
+          
+          <div v-if="form.ImageArticle" class="mb-4 relative group">
+            <img 
+              :src="form.ImageArticle" 
+              alt="Aperçu" 
+              class="max-w-full h-64 object-cover rounded-lg shadow-lg mx-auto"
+            />
+            <button
+              type="button"
+              @click="form.ImageArticle = ''"
+              class="absolute top-2 right-2 bg-red-500 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+              </svg>
+            </button>
+          </div>
+
+          <div class="flex flex-col gap-3">
+            <input 
+              v-model="form.ImageArticle" 
+              type="text" 
+              placeholder="Collez l'URL de l'image"
+              class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-sky-500 dark:bg-gray-700 dark:text-white" 
+              :disabled="isLoading || isUploading" 
+            />
+            
+            <div class="flex items-center gap-3">
+              <div class="flex-1 h-px bg-gray-300 dark:bg-gray-600"></div>
+              <span class="text-sm text-gray-500 dark:text-gray-400">OU</span>
+              <div class="flex-1 h-px bg-gray-300 dark:bg-gray-600"></div>
+            </div>
+
+            <input
+              ref="fileInput"
+              type="file"
+              accept="image/*"
+              @change="handleImageUpload"
+              class="hidden"
+              :disabled="isLoading || isUploading"
+            />
+            <button
+              type="button"
+              @click="$refs.fileInput.click()"
+              class="bg-gradient-to-r from-indigo-500 to-indigo-600 text-white px-6 py-3 rounded-lg hover:from-indigo-600 hover:to-indigo-700 transition flex items-center justify-center gap-2 font-medium shadow-lg"
+              :disabled="isLoading || isUploading"
+            >
+              <svg v-if="!isUploading" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+              </svg>
+              <svg v-else class="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              {{ isUploading ? 'Upload en cours...' : 'Uploader une image' }}
+            </button>
+          </div>
+        </div>
+
+        <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-300 dark:border-gray-600 overflow-hidden">
+          <div class="bg-gray-100 dark:bg-gray-700 border-b border-gray-300 dark:border-gray-600 p-2">
+            <div class="flex items-center justify-between mb-2">
+              <label class="font-medium text-gray-700 dark:text-gray-200 flex items-center gap-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                </svg>
+                Contenu de l'article (Markdown) *
+              </label>
+              <div class="flex gap-2">
+                <button
+                  type="button"
+                  @click="showPreview = !showPreview"
+                  class="px-3 py-1 text-sm rounded bg-sky-100 dark:bg-sky-900 text-sky-700 dark:text-sky-300 hover:bg-sky-200 dark:hover:bg-sky-800 transition"
+                >
+                  {{ showPreview ? '📝 Édition' : '👁️ Aperçu' }}
+                </button>
+              </div>
             </div>
             
-            <div class="relative">
-              <input
-                ref="fileInput"
-                type="file"
-                accept="image/*"
-                @change="handleImageUpload"
-                class="hidden"
-                :disabled="isLoading || isUploading"
-              />
-              <button
-                type="button"
-                @click="$refs.fileInput.click()"
-                class="bg-indigo-500 text-white px-4 py-2 rounded hover:bg-indigo-600 transition flex items-center gap-2 w-full sm:w-auto justify-center"
-                :disabled="isLoading || isUploading"
-              >
-                <svg v-if="!isUploading" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+            <div class="flex flex-wrap gap-1">
+              <button type="button" @click="insertMarkdown('# ', '')" class="toolbar-btn" title="Titre 1">
+                <span class="font-bold">H1</span>
+              </button>
+              <button type="button" @click="insertMarkdown('## ', '')" class="toolbar-btn" title="Titre 2">
+                <span class="font-bold">H2</span>
+              </button>
+              <button type="button" @click="insertMarkdown('### ', '')" class="toolbar-btn" title="Titre 3">
+                <span class="font-bold">H3</span>
+              </button>
+              <div class="w-px bg-gray-300 dark:bg-gray-600 mx-1"></div>
+              <button type="button" @click="insertMarkdown('**', '**')" class="toolbar-btn" title="Gras">
+                <span class="font-bold">B</span>
+              </button>
+              <button type="button" @click="insertMarkdown('*', '*')" class="toolbar-btn" title="Italique">
+                <span class="italic">I</span>
+              </button>
+              <button type="button" @click="insertMarkdown('~~', '~~')" class="toolbar-btn" title="Barré">
+                <span class="line-through">S</span>
+              </button>
+              <div class="w-px bg-gray-300 dark:bg-gray-600 mx-1"></div>
+              <button type="button" @click="insertMarkdown('- ', '')" class="toolbar-btn" title="Liste à puces">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
                 </svg>
-                <svg v-else class="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
-                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </button>
+              <button type="button" @click="insertMarkdown('1. ', '')" class="toolbar-btn" title="Liste numérotée">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
                 </svg>
-                {{ isUploading ? 'Upload...' : 'Uploader une image' }}
+              </button>
+              <button type="button" @click="insertMarkdown('> ', '')" class="toolbar-btn" title="Citation">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path>
+                </svg>
+              </button>
+              <div class="w-px bg-gray-300 dark:bg-gray-600 mx-1"></div>
+              <button type="button" @click="insertMarkdown('[', '](url)')" class="toolbar-btn" title="Lien">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path>
+                </svg>
+              </button>
+              <button type="button" @click="insertMarkdown('`', '`')" class="toolbar-btn" title="Code inline">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path>
+                </svg>
+              </button>
+              <button type="button" @click="insertMarkdown('```\n', '\n```')" class="toolbar-btn" title="Bloc de code">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                </svg>
+              </button>
+              <button type="button" @click="insertMarkdown('---\n', '')" class="toolbar-btn" title="Ligne horizontale">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path>
+                </svg>
               </button>
             </div>
           </div>
-          <p class="text-xs text-gray-500 mt-1">
-            Uploadez une image (JPG, PNG, GIF, WebP) ou collez une URL existante
-          </p>
+
+          <div class="relative">
+            <textarea 
+              v-show="!showPreview"
+              ref="textareaRef"
+              v-model="form.TextArticle" 
+              class="w-full px-4 py-3 border-0 focus:ring-0 dark:bg-gray-800 dark:text-white font-mono text-sm resize-none"
+              style="min-height: 400px;"
+              placeholder="Rédigez votre article en Markdown...
+
+Exemples:
+# Titre principal
+## Sous-titre
+**Texte en gras**
+*Texte en italique*
+- Liste à puces
+1. Liste numérotée
+> Citation
+[Lien](https://exemple.com)"
+              required 
+              :disabled="isLoading"
+            ></textarea>
+
+            <div 
+              v-show="showPreview"
+              class="prose dark:prose-invert max-w-none p-4 markdown-content"
+              style="min-height: 400px;"
+              v-html="previewContent"
+            ></div>
+          </div>
+
+          <div class="bg-gray-50 dark:bg-gray-700 px-4 py-2 text-xs text-gray-500 dark:text-gray-400 flex justify-between items-center border-t border-gray-300 dark:border-gray-600">
+            <span>{{ wordCount }} mots • {{ charCount }} caractères</span>
+            <a href="https://www.markdownguide.org/basic-syntax/" target="_blank" class="text-sky-600 dark:text-sky-400 hover:underline">
+              📖 Guide Markdown
+            </a>
+          </div>
         </div>
 
-        <div class="col-span-1 md:col-span-2 lg:col-span-3">
-          <label class="block font-medium mb-1">Contenu de l'article (Markdown)</label>
-          <textarea v-model="form.TextArticle" class="w-full px-3 py-2 border rounded h-40" required :disabled="isLoading"></textarea>
+        <div class="flex justify-between items-center pt-4 border-t border-gray-200 dark:border-gray-600">
+          <button 
+            type="submit"
+            class="bg-gradient-to-r from-sky-600 to-sky-700 text-white px-8 py-3 rounded-lg hover:from-sky-700 hover:to-sky-800 transition font-semibold shadow-lg flex items-center gap-2" 
+            :disabled="isLoading || isUploading"
+          >
+            <svg v-if="!isLoading" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+            </svg>
+            <svg v-else class="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            {{ isLoading ? 'Enregistrement...' : (editMode ? 'Enregistrer les modifications' : 'Publier l\'article') }}
+          </button>
+          
+          <button 
+            v-if="editMode" 
+            type="button" 
+            @click="cancelEdit" 
+            class="bg-gray-400 dark:bg-gray-600 text-white px-6 py-3 rounded-lg hover:bg-gray-500 dark:hover:bg-gray-700 transition font-semibold" 
+            :disabled="isLoading"
+          >
+            Annuler
+          </button>
         </div>
-
-        <div class="col-span-1 md:col-span-2 lg:col-span-3">
-          <label class="block font-medium mb-1">Tags (séparés par des virgules)</label>
-          <input v-model="form.TagsArticle" type="text" class="w-full px-3 py-2 border rounded" :disabled="isLoading" />
-        </div>
-      </div>
-
-      <div class="flex justify-between mt-4">
-        <button class="bg-sky-500 text-white px-4 py-2 rounded hover:bg-sky-600 transition" :disabled="isLoading || isUploading">
-          {{ isLoading ? 'Chargement...' : (editMode ? 'Modifier' : 'Ajouter') }}
-        </button>
-        <button v-if="editMode" type="button" @click="cancelEdit" class="bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500 transition" :disabled="isLoading">
-          Annuler
-        </button>
       </div>
     </form>
 
@@ -143,7 +352,6 @@
       </table>
     </div>
 
-    <!-- Modal de visualisation -->
     <div v-if="showModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex justify-center items-center">
       <div class="relative p-8 border w-3/4 max-w-4xl shadow-lg rounded-md bg-white dark:bg-gray-700">
         <div class="mt-3 text-center">
@@ -173,7 +381,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch } from 'vue'
+import { ref, onMounted, watch, computed, nextTick } from 'vue' // <-- Correction: ajout de computed et nextTick
 import { marked } from 'marked'
 import type { ArticleSelect } from '~/server/utils/schema'
 
@@ -194,12 +402,58 @@ const form = ref<Partial<ArticleSelect>>({
 const editMode = ref(false)
 const isLoading = ref(false)
 const isUploading = ref(false)
+const showPreview = ref(false) // <-- Ajout de l'état de prévisualisation
 let editId: number | null = null
 const message = ref<Message | null>(null)
 const showModal = ref(false)
 const currentArticle = ref<ArticleSelect | null>(null)
 const renderedMarkdown = ref('')
 const fileInput = ref<HTMLInputElement | null>(null)
+const textareaRef = ref<HTMLTextAreaElement | null>(null) // <-- Ajout de la référence au textarea
+
+// Compteurs (computed)
+const wordCount = computed(() => {
+  return form.value.TextArticle?.trim().split(/\s+/).filter(w => w.length > 0).length || 0
+})
+
+const charCount = computed(() => {
+  return form.value.TextArticle?.length || 0
+})
+
+// Prévisualisation en temps réel (computed)
+const previewContent = computed(() => {
+  if (!form.value.TextArticle) return '<p class="text-gray-400 italic">Aucun contenu à prévisualiser...</p>'
+  return marked(form.value.TextArticle)
+})
+
+// Fonction pour insérer du Markdown (nouvelle fonction)
+const insertMarkdown = (before: string, after: string) => {
+  const textarea = textareaRef.value
+  if (!textarea) return
+
+  const start = textarea.selectionStart
+  const end = textarea.selectionEnd
+  const text = form.value.TextArticle || ''
+  const selectedText = text.substring(start, end)
+
+  // Si du texte est sélectionné, on l'entoure
+  const newText = text.substring(0, start) + before + selectedText + after + text.substring(end)
+  form.value.TextArticle = newText
+
+  // Repositionner le curseur
+  nextTick(() => {
+    if (selectedText) {
+      textarea.selectionStart = start + before.length
+      textarea.selectionEnd = end + before.length
+    } else {
+      const cursorPos = start + before.length
+      textarea.selectionStart = cursorPos
+      textarea.selectionEnd = cursorPos
+    }
+    textarea.focus()
+  })
+}
+
 
 const showMessage = (text: string, type: 'success' | 'error') => {
   message.value = { text, type }
@@ -227,6 +481,7 @@ const handleImageUpload = async (event: Event) => {
     const formData = new FormData()
     formData.append('file', file)
 
+    // Utilisation de $fetch de Nuxt pour l'appel API
     const response = await $fetch<{ success: boolean; url: string }>('/api/upload-image', {
       method: 'POST',
       body: formData
@@ -251,6 +506,7 @@ const loadArticles = async () => {
   try {
     isLoading.value = true
     
+    // Utilisation de $fetch de Nuxt pour l'appel API
     const data = await $fetch<ArticleSelect[]>('/api/articles', {
       method: 'GET',
       headers: {
@@ -285,12 +541,14 @@ const submitArticle = async () => {
     }
 
     if (editMode.value && editId !== null) {
+      // Utilisation de $fetch de Nuxt pour l'appel API
       await $fetch(`/api/articles/${editId}`, {
         method: 'PUT',
         body: articleData
       })
       showMessage('Article modifié avec succès !', 'success')
     } else {
+      // Utilisation de $fetch de Nuxt pour l'appel API
       await $fetch('/api/articles', {
         method: 'POST',
         body: articleData
@@ -321,6 +579,7 @@ const editArticle = (article: ArticleSelect) => {
   }
   editMode.value = true
   editId = article.id ?? null
+  showPreview.value = false // Revenir à l'édition lors de la modification
 }
 
 const cancelEdit = () => {
@@ -334,6 +593,7 @@ const cancelEdit = () => {
   }
   editMode.value = false
   editId = null
+  showPreview.value = false // Réinitialiser la prévisualisation
 }
 
 const deleteArticleConfirm = async (id?: number) => {
@@ -346,6 +606,7 @@ const deleteArticleConfirm = async (id?: number) => {
     try {
       isLoading.value = true
       
+      // Utilisation de $fetch de Nuxt pour l'appel API
       await $fetch(`/api/articles/${id}`, {
         method: 'DELETE'
       })
@@ -403,6 +664,7 @@ const formatDate = (date: Date | string | null | undefined): string => {
 </script>
 
 <style scoped>
+/* Les styles sont inchangés, j'ajoute juste les styles pour les boutons de la toolbar */
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(-10px); }
   to { opacity: 1; transform: translateY(0); }
@@ -514,5 +776,9 @@ const formatDate = (date: Date | string | null | undefined): string => {
 
 .markdown-content :deep(a) {
   @apply text-sky-700 dark:text-sky-400 hover:underline font-medium;
+}
+
+.toolbar-btn {
+  @apply p-2 rounded text-sm text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition;
 }
 </style>
