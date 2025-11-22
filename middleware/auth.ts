@@ -1,5 +1,4 @@
-// middleware/auth.ts
-
+// middleware/auth.ts IL N'EST PAS DANS LE SERVEUR OK
 export default defineNuxtRouteMiddleware(async (to) => {
   // Routes publiques (pas besoin de connexion)
   const publicRoutes = ['/', '/login', '/register']
@@ -8,7 +7,6 @@ export default defineNuxtRouteMiddleware(async (to) => {
   if (publicRoutes.includes(to.path)) {
     return
   }
-
   // Pour toutes les autres pages, vérifier si connecté
   try {
     const response = await $fetch('/api/auth/verify', {

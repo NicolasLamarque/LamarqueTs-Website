@@ -8,7 +8,6 @@
         <h1 class="text-2xl font-bold text-gray-800 dark:text-gray-100">
           Dashboard
         </h1>
-     
         <BtnDaisyUi @click="logout" label="Déconnexion" />
       </div>
 
@@ -26,7 +25,7 @@
     </div>
   </div>
   
-  <!-- Écran si non authentifié (ne devrait jamais s'afficher car on redirige) -->
+  <!-- Écran si non authentifié -->
   <div v-else class="flex items-center justify-center h-screen bg-gray-900">
     <div class="text-white text-xl">Redirection vers la page de connexion...</div>
   </div>
@@ -51,7 +50,7 @@ const section = ref('articles')
 const isChecking = ref(true)
 const isAuthenticated = ref(false)
 
-// 🔒 VÉRIFICATION DE L'AUTHENTIFICATION AU CHARGEMENT
+// 🔐 VÉRIFICATION DE L'AUTHENTIFICATION AU CHARGEMENT
 onMounted(async () => {
   console.log('🔍 Vérification de l\'authentification...')
   

@@ -50,7 +50,7 @@
   </header>
 
   <!-- Menu mobile déroulant -->
-  <nav v-if="isMenuOpen" class="md:hidden bg-teal-500 text-white shadow-md p-2">
+  <nav v-if="isMenuOpen" class="md:hidden bg-sky-600 text-white shadow-md p-2">
     <NuxtLink to="/" class="block py-2">Accueil</NuxtLink>
     <NuxtLink to="/blog" class="block py-2">Blog</NuxtLink>
     <NuxtLink to="/contact-page" class="block py-2">Contact</NuxtLink>

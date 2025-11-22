@@ -1,325 +1,3 @@
-<template>
-  <div class="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 dark:from-gray-900 dark:to-gray-800 p-6">
-    <div class="max-w-7xl mx-auto">
-      
-      <!-- Notification -->
-      <Transition name="slide">
-        <div v-if="notification" 
-             :class="['fixed top-4 right-4 px-6 py-3 rounded-lg shadow-lg z-50', notification.type === 'success' ? 'bg-green-500' : 'bg-red-500', 'text-white']">
-          {{ notification.text }}
-        </div>
-      </Transition>
-
-      <!-- Header -->
-      <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-6 mb-6">
-        <div class="flex items-center justify-between mb-6">
-          <div class="flex items-center gap-4">
-            <div class="w-14 h-14 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg">
-              <i class="fas fa-envelope text-white text-2xl"></i>
-            </div>
-            <div>
-              <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Messages</h1>
-              <p class="text-sm text-gray-500 dark:text-gray-400">Gestion centralisée des contacts</p>
-            </div>
-          </div>
-          <button @click="fetchMessages" :disabled="loading"
-                  class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors disabled:opacity-50">
-            <i :class="['fas fa-sync', loading ? 'fa-spin' : '']"></i>
-            {{ loading ? 'Chargement...' : 'Actualiser' }}
-          </button>
-        </div>
-
-        <!-- Stats Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div class="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900 dark:to-blue-800 p-4 rounded-xl">
-            <div class="flex items-center justify-between">
-              <div>
-                <p class="text-sm text-blue-600 dark:text-blue-300 font-medium">Total</p>
-                <p class="text-3xl font-bold text-blue-900 dark:text-white">{{ stats.total }}</p>
-              </div>
-              <i class="fas fa-inbox text-blue-500 opacity-50 text-4xl"></i>
-            </div>
-          </div>
-          
-          <div class="bg-gradient-to-br from-yellow-50 to-yellow-100 dark:from-yellow-900 dark:to-yellow-800 p-4 rounded-xl">
-            <div class="flex items-center justify-between">
-              <div>
-                <p class="text-sm text-yellow-600 dark:text-yellow-300 font-medium">Non lus</p>
-                <p class="text-3xl font-bold text-yellow-900 dark:text-white">{{ stats.unread }}</p>
-              </div>
-              <i class="fas fa-exclamation-circle text-yellow-500 opacity-50 text-4xl"></i>
-            </div>
-          </div>
-          
-          <div class="bg-gradient-to-br from-red-50 to-red-100 dark:from-red-900 dark:to-red-800 p-4 rounded-xl">
-            <div class="flex items-center justify-between">
-              <div>
-                <p class="text-sm text-red-600 dark:text-red-300 font-medium">Urgents</p>
-                <p class="text-3xl font-bold text-red-900 dark:text-white">{{ stats.urgent }}</p>
-              </div>
-              <i class="fas fa-star text-red-500 opacity-50 text-4xl"></i>
-            </div>
-          </div>
-          
-          <div class="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900 dark:to-green-800 p-4 rounded-xl">
-            <div class="flex items-center justify-between">
-              <div>
-                <p class="text-sm text-green-600 dark:text-green-300 font-medium">Cryptés</p>
-                <p class="text-3xl font-bold text-green-900 dark:text-white">{{ stats.encrypted }}</p>
-              </div>
-              <i class="fas fa-lock text-green-500 opacity-50 text-4xl"></i>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Filtres et recherche -->
-      <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-6 mb-6">
-        <div class="flex flex-col md:flex-row flex-wrap gap-4">
-          <div class="flex-1 min-w-[300px] relative">
-            <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
-            <input v-model="searchQuery" type="text"
-                   placeholder="Rechercher par nom, email, message..."
-                   class="w-full pl-10 pr-4 py-2.5 border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-          </div>
-          
-          <select v-model="filterStatus" 
-                  class="px-4 py-2.5 border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500">
-            <option value="all">Tous les statuts</option>
-            <option value="new">Nouveaux</option>
-            <option value="read">Lus</option>
-            <option value="replied">Répondus</option>
-            <option value="archived">Archivés</option>
-          </select>
-          
-          <select v-model="filterPriority" 
-                  class="px-4 py-2.5 border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500">
-            <option value="all">Toutes priorités</option>
-            <option value="urgent">Urgent</option>
-            <option value="high">Haute</option>
-            <option value="normal">Normale</option>
-          </select>
-          
-          <select v-model="sortBy" 
-                  class="px-4 py-2.5 border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500">
-            <option value="date-desc">Plus récents</option>
-            <option value="date-asc">Plus anciens</option>
-            <option value="priority">Par priorité</option>
-            <option value="name">Par nom</option>
-          </select>
-        </div>
-      </div>
-
-      <!-- Liste des messages -->
-      <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm overflow-hidden">
-        <div class="p-6 border-b border-gray-100 dark:border-gray-700">
-          <h2 class="text-xl font-bold text-gray-900 dark:text-white">
-            {{ filteredMessages.length }} message{{ filteredMessages.length > 1 ? 's' : '' }}
-          </h2>
-        </div>
-
-        <div v-if="loading" class="p-12 text-center">
-          <i class="fas fa-spinner fa-spin text-4xl text-gray-400 mb-4"></i>
-          <p class="text-gray-500 dark:text-gray-400">Chargement des messages...</p>
-        </div>
-
-        <div v-else-if="filteredMessages.length === 0" class="p-12 text-center">
-          <i class="fas fa-inbox text-4xl text-gray-400 mb-4"></i>
-          <p class="text-gray-500 dark:text-gray-400">Aucun message trouvé</p>
-        </div>
-
-        <div v-else class="divide-y divide-gray-100 dark:divide-gray-700">
-          <div v-for="msg in filteredMessages" :key="msg.id"
-               @click="openMessage(msg)"
-               class="p-6 hover:bg-blue-50 dark:hover:bg-gray-700 transition-all cursor-pointer group">
-            <div class="flex items-start gap-4">
-              <!-- Avatar -->
-              <div :class="['w-12 h-12 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center flex-shrink-0', msg.status === 'new' ? 'ring-4 ring-yellow-300' : '']">
-                <i class="fas fa-user text-white text-lg"></i>
-              </div>
-              
-              <div class="flex-1 min-w-0">
-                <div class="flex items-center gap-3 mb-2 flex-wrap">
-                  <h3 class="font-semibold text-gray-900 dark:text-white">{{ msg.sender_name }}</h3>
-                  <span :class="['px-2 py-0.5 text-xs font-medium rounded-full', getStatusColor(msg.status)]">
-                    {{ getStatusLabel(msg.status) }}
-                  </span>
-                  <span v-if="msg.priority !== 'normal'" :class="['px-2 py-0.5 text-xs font-medium rounded-full', getPriorityColor(msg.priority)]">
-                    {{ getPriorityLabel(msg.priority) }}
-                  </span>
-                  <i v-if="msg.encrypted" class="fas fa-lock text-green-500 text-sm"></i>
-                </div>
-                
-                <p class="text-sm text-gray-500 dark:text-gray-400 mb-2">{{ msg.sender_email }}</p>
-                <p class="text-gray-700 dark:text-gray-300 line-clamp-2 mb-3">{{ msg.message }}</p>
-                
-                <div class="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
-                  <span class="flex items-center gap-1">
-                    <i class="fas fa-clock"></i>
-                    {{ formatDate(msg.created_at) }}
-                  </span>
-                  <span class="flex items-center gap-1">
-                    <i class="fas fa-tag"></i>
-                    {{ msg.category }}
-                  </span>
-                </div>
-              </div>
-              
-              <!-- Actions rapides -->
-              <div class="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                <button @click.stop="archiveMessage(msg.id)"
-                        class="p-2 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-lg transition-colors"
-                        title="Archiver">
-                  <i class="fas fa-archive text-gray-600 dark:text-gray-300"></i>
-                </button>
-                <button @click.stop="deleteMessage(msg.id)"
-                        class="p-2 hover:bg-red-50 dark:hover:bg-red-900 rounded-lg transition-colors"
-                        title="Supprimer">
-                  <i class="fas fa-trash text-red-600"></i>
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Modal de lecture -->
-      <Transition name="modal">
-        <div v-if="showModal && selectedMessage"
-             @click.self="closeModal"
-             class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
-            
-            <!-- Header du modal -->
-            <div class="bg-gradient-to-r from-blue-500 to-blue-600 p-6 text-white">
-              <div class="flex items-center justify-between mb-4">
-                <div class="flex items-center gap-4">
-                  <div class="w-16 h-16 rounded-full bg-white/20 backdrop-blur flex items-center justify-center">
-                    <i class="fas fa-user text-2xl"></i>
-                  </div>
-                  <div>
-                    <h2 class="text-2xl font-bold">{{ selectedMessage.sender_name }}</h2>
-                    <p class="text-blue-100">{{ selectedMessage.sender_email }}</p>
-                  </div>
-                </div>
-                <button @click="closeModal" class="p-2 hover:bg-white/20 rounded-lg transition-colors">
-                  <i class="fas fa-times text-xl"></i>
-                </button>
-              </div>
-              
-              <div class="flex items-center gap-3 flex-wrap">
-                <span :class="['px-3 py-1 text-sm font-medium rounded-full bg-white/90 text-gray-700', getStatusColor(selectedMessage.status)]">
-                  {{ getStatusLabel(selectedMessage.status) }}
-                </span>
-                <span :class="['px-3 py-1 text-sm font-medium rounded-full bg-white/90 text-gray-700', getPriorityColor(selectedMessage.priority)]">
-                  {{ getPriorityLabel(selectedMessage.priority) }}
-                </span>
-                <span class="px-3 py-1 text-sm font-medium rounded-full bg-white/20">
-                  {{ selectedMessage.category }}
-                </span>
-                <span v-if="selectedMessage.encrypted" class="flex items-center gap-1 px-3 py-1 text-sm font-medium rounded-full bg-white/20">
-                  <i class="fas fa-lock text-sm"></i>
-                  Crypté
-                </span>
-              </div>
-            </div>
-
-            <!-- Corps du modal -->
-            <div class="p-6 max-h-[60vh] overflow-y-auto">
-              
-              <!-- Informations -->
-              <div class="bg-gray-50 dark:bg-gray-900 rounded-xl p-4 mb-6">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                  <div class="flex items-center gap-2">
-                    <i class="fas fa-calendar text-gray-400"></i>
-                    <span class="text-gray-600 dark:text-gray-400">Date:</span>
-                    <span class="font-medium dark:text-white">{{ formatDateFull(selectedMessage.created_at) }}</span>
-                  </div>
-                  <div class="flex items-center gap-2">
-                    <i class="fas fa-eye text-gray-400"></i>
-                    <span class="text-gray-600 dark:text-gray-400">Statut:</span>
-                    <span class="font-medium dark:text-white">{{ getStatusLabel(selectedMessage.status) }}</span>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Message -->
-              <div class="mb-6">
-                <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
-                  <i class="fas fa-envelope text-blue-500"></i>
-                  Message
-                </h3>
-                <div class="bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl p-6 shadow-sm">
-                  <p class="text-gray-800 dark:text-gray-200 whitespace-pre-wrap leading-relaxed">{{ decryptedMessage || selectedMessage.message }}</p>
-                </div>
-              </div>
-
-              <!-- Historique des réponses -->
-              <div v-if="selectedMessage.reply_history && selectedMessage.reply_history.length > 0" class="mb-6">
-                <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
-                  <i class="fas fa-reply text-blue-500"></i>
-                  Historique ({{ selectedMessage.reply_history.length }})
-                </h3>
-                <div class="space-y-3">
-                  <div v-for="(reply, idx) in selectedMessage.reply_history" :key="idx"
-                       class="bg-blue-50 dark:bg-blue-900 rounded-xl p-4 border-l-4 border-blue-500">
-                    <div class="flex items-center justify-between mb-2">
-                      <span class="font-medium text-blue-900 dark:text-blue-100">{{ reply.author }}</span>
-                      <span class="text-sm text-gray-600 dark:text-gray-300">{{ formatDateFull(reply.date) }}</span>
-                    </div>
-                    <p class="text-gray-700 dark:text-gray-200">{{ reply.content }}</p>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Zone de réponse -->
-              <div>
-                <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
-                  <i class="fas fa-paper-plane text-blue-500"></i>
-                  Répondre
-                </h3>
-                <textarea v-model="replyText"
-                          placeholder="Votre réponse..."
-                          rows="5"
-                          class="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"></textarea>
-              </div>
-            </div>
-
-            <!-- Footer du modal -->
-            <div class="p-6 bg-gray-50 dark:bg-gray-900 border-t border-gray-100 dark:border-gray-700 flex flex-col md:flex-row justify-between items-center gap-4">
-              <div class="flex gap-2">
-                <button @click="updateStatus('archived')"
-                        class="px-4 py-2 text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors flex items-center gap-2">
-                  <i class="fas fa-archive"></i>
-                  Archiver
-                </button>
-                <button @click="deleteMessageAndClose()"
-                        class="px-4 py-2 text-red-700 bg-white dark:bg-gray-700 border border-red-300 dark:border-red-600 rounded-lg hover:bg-red-50 dark:hover:bg-red-900 transition-colors flex items-center gap-2">
-                  <i class="fas fa-trash"></i>
-                  Supprimer
-                </button>
-              </div>
-              <div class="flex gap-3">
-                <button @click="closeModal"
-                        class="px-6 py-2.5 text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors">
-                  Fermer
-                </button>
-                <button @click="sendReply"
-                        :disabled="!replyText.trim()"
-                        class="px-6 py-2.5 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
-                  <i class="fas fa-paper-plane"></i>
-                  Envoyer
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </Transition>
-
-    </div>
-  </div>
-</template>
-
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 
@@ -342,6 +20,8 @@ interface ContactMessage {
   }>
   mail_log?: any[]
   deleted: boolean
+  deleted_at?: string
+  deleted_by?: string
   created_at: string
   updated_at?: string
 }
@@ -364,17 +44,32 @@ const selectedMessage = ref<ContactMessage | null>(null)
 const decryptedMessage = ref('')
 const replyText = ref('')
 
-// Statistiques
-const stats = computed(() => ({
-  total: messages.value.length,
-  unread: messages.value.filter(m => m.status === 'new').length,
-  urgent: messages.value.filter(m => m.priority === 'high' || m.priority === 'urgent').length,
-  encrypted: messages.value.filter(m => m.encrypted).length
-}))
+// 🗑️ NOUVEAU : Filtre pour afficher/masquer les messages supprimés
+const showDeleted = ref(false)
 
-// Messages filtrés
+// Statistiques (exclut les supprimés sauf si showDeleted est activé)
+const stats = computed(() => {
+  const activeMessages = showDeleted.value 
+    ? messages.value 
+    : messages.value.filter(m => !m.deleted)
+  
+  return {
+    total: activeMessages.length,
+    unread: activeMessages.filter(m => m.status === 'new').length,
+    urgent: activeMessages.filter(m => m.priority === 'high' || m.priority === 'urgent').length,
+    encrypted: activeMessages.filter(m => m.encrypted).length,
+    deleted: messages.value.filter(m => m.deleted).length // Toujours afficher le nombre de supprimés
+  }
+})
+
+// Messages filtrés (masque les supprimés par défaut)
 const filteredMessages = computed(() => {
   let filtered = [...messages.value]
+
+  // 🗑️ Filtrer les messages supprimés (sauf si showDeleted est activé)
+  if (!showDeleted.value) {
+    filtered = filtered.filter(m => !m.deleted)
+  }
 
   if (searchQuery.value) {
     const query = searchQuery.value.toLowerCase()
@@ -438,7 +133,6 @@ const openMessage = async (msg: ContactMessage) => {
   showModal.value = true
   decryptedMessage.value = ''
 
-  // Décrypter si nécessaire
   if (msg.encrypted) {
     try {
       const data = await $fetch<ContactMessage>(`/api/mail/${msg.id}`)
@@ -449,7 +143,6 @@ const openMessage = async (msg: ContactMessage) => {
     }
   }
 
-  // Marquer comme lu
   if (msg.status === 'new') {
     await markAsRead(msg.id)
   }
@@ -508,7 +201,11 @@ const deleteMessage = async (id: number) => {
   if (!confirm('Supprimer ce message ?')) return
   try {
     await $fetch(`/api/mail/${id}`, { method: 'DELETE' })
-    messages.value = messages.value.filter(m => m.id !== id)
+    const msg = messages.value.find(m => m.id === id)
+    if (msg) {
+      msg.deleted = true
+      msg.deleted_at = new Date().toISOString()
+    }
     showNotification('Message supprimé', 'success')
   } catch (error) {
     console.error('Erreur:', error)
@@ -623,6 +320,387 @@ onMounted(() => {
   fetchMessages()
 })
 </script>
+
+<template>
+  <div class="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 dark:from-gray-900 dark:to-gray-800 p-6">
+    <div class="max-w-7xl mx-auto">
+      
+      <!-- Notification -->
+      <Transition name="slide">
+        <div v-if="notification" 
+             :class="['fixed top-4 right-4 px-6 py-3 rounded-lg shadow-lg z-50', notification.type === 'success' ? 'bg-green-500' : 'bg-red-500', 'text-white']">
+          {{ notification.text }}
+        </div>
+      </Transition>
+
+      <!-- Header -->
+      <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-6 mb-6">
+        <div class="flex items-center justify-between mb-6">
+          <div class="flex items-center gap-4">
+            <div class="w-14 h-14 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg">
+              <i class="fas fa-envelope text-white text-2xl"></i>
+            </div>
+            <div>
+              <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Messages</h1>
+              <p class="text-sm text-gray-500 dark:text-gray-400">Gestion centralisée des contacts</p>
+            </div>
+          </div>
+          <button @click="fetchMessages" :disabled="loading"
+                  class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors disabled:opacity-50">
+            <i :class="['fas fa-sync', loading ? 'fa-spin' : '']"></i>
+            {{ loading ? 'Chargement...' : 'Actualiser' }}
+          </button>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+          <div class="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900 dark:to-blue-800 p-4 rounded-xl">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-sm text-blue-600 dark:text-blue-300 font-medium">Total</p>
+                <p class="text-3xl font-bold text-blue-900 dark:text-white">{{ stats.total }}</p>
+              </div>
+              <i class="fas fa-inbox text-blue-500 opacity-50 text-4xl"></i>
+            </div>
+          </div>
+          
+          <div class="bg-gradient-to-br from-yellow-50 to-yellow-100 dark:from-yellow-900 dark:to-yellow-800 p-4 rounded-xl">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-sm text-yellow-600 dark:text-yellow-300 font-medium">Non lus</p>
+                <p class="text-3xl font-bold text-yellow-900 dark:text-white">{{ stats.unread }}</p>
+              </div>
+              <i class="fas fa-exclamation-circle text-yellow-500 opacity-50 text-4xl"></i>
+            </div>
+          </div>
+          
+          <div class="bg-gradient-to-br from-red-50 to-red-100 dark:from-red-900 dark:to-red-800 p-4 rounded-xl">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-sm text-red-600 dark:text-red-300 font-medium">Urgents</p>
+                <p class="text-3xl font-bold text-red-900 dark:text-white">{{ stats.urgent }}</p>
+              </div>
+              <i class="fas fa-star text-red-500 opacity-50 text-4xl"></i>
+            </div>
+          </div>
+          
+          <div class="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900 dark:to-green-800 p-4 rounded-xl">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-sm text-green-600 dark:text-green-300 font-medium">Cryptés</p>
+                <p class="text-3xl font-bold text-green-900 dark:text-white">{{ stats.encrypted }}</p>
+              </div>
+              <i class="fas fa-lock text-green-500 opacity-50 text-4xl"></i>
+            </div>
+          </div>
+
+          <!-- 🗑️ NOUVEAU : Card pour les messages supprimés -->
+          <div class="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-600 p-4 rounded-xl">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-sm text-gray-600 dark:text-gray-300 font-medium">Supprimés</p>
+                <p class="text-3xl font-bold text-gray-900 dark:text-white">{{ stats.deleted }}</p>
+              </div>
+              <i class="fas fa-trash text-gray-500 opacity-50 text-4xl"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Filtres et recherche -->
+      <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-6 mb-6">
+        <div class="flex flex-col md:flex-row flex-wrap gap-4">
+          <div class="flex-1 min-w-[300px] relative">
+            <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+            <input v-model="searchQuery" type="text"
+                   placeholder="Rechercher par nom, email, message..."
+                   class="w-full pl-10 pr-4 py-2.5 border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+          </div>
+          
+          <select v-model="filterStatus" 
+                  class="px-4 py-2.5 border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500">
+            <option value="all">Tous les statuts</option>
+            <option value="new">Nouveaux</option>
+            <option value="read">Lus</option>
+            <option value="replied">Répondus</option>
+            <option value="archived">Archivés</option>
+          </select>
+          
+          <select v-model="filterPriority" 
+                  class="px-4 py-2.5 border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500">
+            <option value="all">Toutes priorités</option>
+            <option value="urgent">Urgent</option>
+            <option value="high">Haute</option>
+            <option value="normal">Normale</option>
+          </select>
+          
+          <select v-model="sortBy" 
+                  class="px-4 py-2.5 border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500">
+            <option value="date-desc">Plus récents</option>
+            <option value="date-asc">Plus anciens</option>
+            <option value="priority">Par priorité</option>
+            <option value="name">Par nom</option>
+          </select>
+
+          <!-- 🗑️ NOUVEAU : Toggle pour afficher les supprimés -->
+          <button @click="showDeleted = !showDeleted"
+                  :class="['px-4 py-2.5 rounded-lg font-medium transition-all flex items-center gap-2',
+                           showDeleted 
+                           ? 'bg-red-500 text-white hover:bg-red-600' 
+                           : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600']">
+            <i :class="['fas', showDeleted ? 'fa-eye-slash' : 'fa-trash']"></i>
+            {{ showDeleted ? 'Masquer supprimés' : 'Voir supprimés' }}
+            <span v-if="stats.deleted > 0" class="px-2 py-0.5 bg-white/20 rounded-full text-xs font-bold">
+              {{ stats.deleted }}
+            </span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Liste des messages -->
+      <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm overflow-hidden">
+        <div class="p-6 border-b border-gray-100 dark:border-gray-700">
+          <h2 class="text-xl font-bold text-gray-900 dark:text-white">
+            {{ filteredMessages.length }} message{{ filteredMessages.length > 1 ? 's' : '' }}
+            <span v-if="showDeleted" class="text-sm font-normal text-red-500 ml-2">
+              (incluant {{ stats.deleted }} supprimé{{ stats.deleted > 1 ? 's' : '' }})
+            </span>
+          </h2>
+        </div>
+
+        <div v-if="loading" class="p-12 text-center">
+          <i class="fas fa-spinner fa-spin text-4xl text-gray-400 mb-4"></i>
+          <p class="text-gray-500 dark:text-gray-400">Chargement des messages...</p>
+        </div>
+
+        <div v-else-if="filteredMessages.length === 0" class="p-12 text-center">
+          <i class="fas fa-inbox text-4xl text-gray-400 mb-4"></i>
+          <p class="text-gray-500 dark:text-gray-400">Aucun message trouvé</p>
+        </div>
+
+        <div v-else class="divide-y divide-gray-100 dark:divide-gray-700">
+          <div v-for="msg in filteredMessages" :key="msg.id"
+               @click="openMessage(msg)"
+               :class="['p-6 hover:bg-blue-50 dark:hover:bg-gray-700 transition-all cursor-pointer group',
+                        msg.deleted ? 'opacity-60 bg-red-50 dark:bg-red-900/10' : '']">
+            <div class="flex items-start gap-4">
+              <!-- Avatar -->
+              <div :class="['w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0',
+                            msg.deleted ? 'bg-gray-400' : 'bg-gradient-to-br from-blue-400 to-blue-600',
+                            msg.status === 'new' && !msg.deleted ? 'ring-4 ring-yellow-300' : '']">
+                <i :class="['text-white text-lg', msg.deleted ? 'fas fa-user-slash' : 'fas fa-user']"></i>
+              </div>
+              
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-3 mb-2 flex-wrap">
+                  <h3 class="font-semibold text-gray-900 dark:text-white">{{ msg.sender_name }}</h3>
+                  
+                  <!-- 🗑️ Badge supprimé -->
+                  <span v-if="msg.deleted" class="px-2 py-0.5 text-xs font-medium rounded-full bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200 flex items-center gap-1">
+                    <i class="fas fa-trash text-xs"></i>
+                    Supprimé
+                  </span>
+                  
+                  <span :class="['px-2 py-0.5 text-xs font-medium rounded-full', getStatusColor(msg.status)]">
+                    {{ getStatusLabel(msg.status) }}
+                  </span>
+                  <span v-if="msg.priority !== 'normal'" :class="['px-2 py-0.5 text-xs font-medium rounded-full', getPriorityColor(msg.priority)]">
+                    {{ getPriorityLabel(msg.priority) }}
+                  </span>
+                  <i v-if="msg.encrypted" class="fas fa-lock text-green-500 text-sm"></i>
+                </div>
+                
+                <p class="text-sm text-gray-500 dark:text-gray-400 mb-2">{{ msg.sender_email }}</p>
+                <p class="text-gray-700 dark:text-gray-300 line-clamp-2 mb-3">{{ msg.message }}</p>
+                
+                <div class="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
+                  <span class="flex items-center gap-1">
+                    <i class="fas fa-clock"></i>
+                    {{ formatDate(msg.created_at) }}
+                  </span>
+                  <span class="flex items-center gap-1">
+                    <i class="fas fa-tag"></i>
+                    {{ msg.category }}
+                  </span>
+                  <span v-if="msg.deleted && msg.deleted_at" class="flex items-center gap-1 text-red-500">
+                    <i class="fas fa-trash"></i>
+                    Supprimé le {{ formatDate(msg.deleted_at) }}
+                  </span>
+                </div>
+              </div>
+              
+              <!-- Actions rapides (masquées pour les messages supprimés) -->
+              <div v-if="!msg.deleted" class="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                <button @click.stop="archiveMessage(msg.id)"
+                        class="p-2 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-lg transition-colors"
+                        title="Archiver">
+                  <i class="fas fa-archive text-gray-600 dark:text-gray-300"></i>
+                </button>
+                <button @click.stop="deleteMessage(msg.id)"
+                        class="p-2 hover:bg-red-50 dark:hover:bg-red-900 rounded-lg transition-colors"
+                        title="Supprimer">
+                  <i class="fas fa-trash text-red-600"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal de lecture (inchangé) -->
+      <Transition name="modal">
+        <div v-if="showModal && selectedMessage"
+             @click.self="closeModal"
+             class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
+            
+            <!-- Header du modal -->
+            <div class="bg-gradient-to-r from-blue-500 to-blue-600 p-6 text-white">
+              <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center gap-4">
+                  <div class="w-16 h-16 rounded-full bg-white/20 backdrop-blur flex items-center justify-center">
+                    <i class="fas fa-user text-2xl"></i>
+                  </div>
+                  <div>
+                    <h2 class="text-2xl font-bold">{{ selectedMessage.sender_name }}</h2>
+                    <p class="text-blue-100">{{ selectedMessage.sender_email }}</p>
+                  </div>
+                </div>
+                <button @click="closeModal" class="p-2 hover:bg-white/20 rounded-lg transition-colors">
+                  <i class="fas fa-times text-xl"></i>
+                </button>
+              </div>
+              
+              <div class="flex items-center gap-3 flex-wrap">
+                <span v-if="selectedMessage.deleted" class="px-3 py-1 text-sm font-medium rounded-full bg-red-500 text-white">
+                  <i class="fas fa-trash mr-1"></i>
+                  Message supprimé
+                </span>
+                <span :class="['px-3 py-1 text-sm font-medium rounded-full bg-white/90 text-gray-700', getStatusColor(selectedMessage.status)]">
+                  {{ getStatusLabel(selectedMessage.status) }}
+                </span>
+                <span :class="['px-3 py-1 text-sm font-medium rounded-full bg-white/90 text-gray-700', getPriorityColor(selectedMessage.priority)]">
+                  {{ getPriorityLabel(selectedMessage.priority) }}
+                </span>
+                <span class="px-3 py-1 text-sm font-medium rounded-full bg-white/20">
+                  {{ selectedMessage.category }}
+                </span>
+                <span v-if="selectedMessage.encrypted" class="flex items-center gap-1 px-3 py-1 text-sm font-medium rounded-full bg-white/20">
+                  <i class="fas fa-lock text-sm"></i>
+                  Crypté
+                </span>
+              </div>
+            </div>
+
+            <!-- Corps du modal -->
+            <div class="p-6 max-h-[60vh] overflow-y-auto">
+              
+              <!-- Informations -->
+              <div class="bg-gray-50 dark:bg-gray-900 rounded-xl p-4 mb-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                  <div class="flex items-center gap-2">
+                    <i class="fas fa-calendar text-gray-400"></i>
+                    <span class="text-gray-600 dark:text-gray-400">Date:</span>
+                    <span class="font-medium dark:text-white">{{ formatDateFull(selectedMessage.created_at) }}</span>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <i class="fas fa-eye text-gray-400"></i>
+                    <span class="text-gray-600 dark:text-gray-400">Statut:</span>
+                    <span class="font-medium dark:text-white">{{ getStatusLabel(selectedMessage.status) }}</span>
+                  </div>
+                  <div v-if="selectedMessage.deleted && selectedMessage.deleted_at" class="flex items-center gap-2 col-span-2">
+                    <i class="fas fa-trash text-red-400"></i>
+                    <span class="text-red-600 dark:text-red-400">Supprimé le:</span>
+                    <span class="font-medium text-red-600 dark:text-red-400">{{ formatDateFull(selectedMessage.deleted_at) }}</span>
+                    <span v-if="selectedMessage.deleted_by" class="text-sm text-gray-500">par {{ selectedMessage.deleted_by }}</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Message -->
+              <div class="mb-6">
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
+                  <i class="fas fa-envelope text-blue-500"></i>
+                  Message
+                </h3>
+                <div class="bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl p-6 shadow-sm">
+                  <p class="text-gray-800 dark:text-gray-200 whitespace-pre-wrap leading-relaxed">{{ decryptedMessage || selectedMessage.message }}</p>
+                </div>
+              </div>
+
+              <!-- Historique des réponses -->
+              <div v-if="selectedMessage.reply_history && selectedMessage.reply_history.length > 0" class="mb-6">
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
+                  <i class="fas fa-reply text-blue-500"></i>
+                  Historique ({{ selectedMessage.reply_history.length }})
+                </h3>
+                <div class="space-y-3">
+                  <div v-for="(reply, idx) in selectedMessage.reply_history" :key="idx"
+                       class="bg-blue-50 dark:bg-blue-900 rounded-xl p-4 border-l-4 border-blue-500">
+                    <div class="flex items-center justify-between mb-2">
+                      <span class="font-medium text-blue-900 dark:text-blue-100">{{ reply.author }}</span>
+                      <span class="text-sm text-gray-600 dark:text-gray-300">{{ formatDateFull(reply.date) }}</span>
+                    </div>
+                    <p class="text-gray-700 dark:text-gray-200">{{ reply.content }}</p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Zone de réponse (désactivée si message supprimé) -->
+              <div v-if="!selectedMessage.deleted">
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
+                  <i class="fas fa-paper-plane text-blue-500"></i>
+                  Répondre
+                </h3>
+                <textarea v-model="replyText"
+                          placeholder="Votre réponse..."
+                          rows="5"
+                          class="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"></textarea>
+              </div>
+              <div v-else class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-4">
+                <div class="flex items-center gap-3">
+                  <i class="fas fa-exclamation-triangle text-red-500 text-xl"></i>
+                  <p class="text-red-700 dark:text-red-300">
+                    Ce message a été supprimé. Vous ne pouvez plus y répondre.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Footer du modal -->
+            <div class="p-6 bg-gray-50 dark:bg-gray-900 border-t border-gray-100 dark:border-gray-700 flex flex-col md:flex-row justify-between items-center gap-4">
+              <div class="flex gap-2">
+                <button v-if="!selectedMessage.deleted" @click="updateStatus('archived')"
+                        class="px-4 py-2 text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors flex items-center gap-2">
+                  <i class="fas fa-archive"></i>
+                  Archiver
+                </button>
+                <button v-if="!selectedMessage.deleted" @click="deleteMessageAndClose()"
+                        class="px-4 py-2 text-red-700 bg-white dark:bg-gray-700 border border-red-300 dark:border-red-600 rounded-lg hover:bg-red-50 dark:hover:bg-red-900 transition-colors flex items-center gap-2">
+                  <i class="fas fa-trash"></i>
+                  Supprimer
+                </button>
+              </div>
+              <div class="flex gap-3">
+                <button @click="closeModal"
+                        class="px-6 py-2.5 text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors">
+                  Fermer
+                </button>
+                <button v-if="!selectedMessage.deleted" @click="sendReply"
+                        :disabled="!replyText.trim()"
+                        class="px-6 py-2.5 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
+                  <i class="fas fa-paper-plane"></i>
+                  Envoyer
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </Transition>
+
+    </div>
+  </div>
+</template>
 
 <style scoped>
 .slide-enter-active,

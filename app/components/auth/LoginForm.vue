@@ -1,4 +1,3 @@
-
 <template>
   <div class="flex items-center justify-center h-screen">
     <form @submit.prevent="handleLogin" class="w-full max-w-sm mx-auto p-4 bg-gray-800 dark:bg-gray-800 shadow rounded animate-fade-in">
@@ -55,15 +54,6 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { navigateTo } from '#app'
-
-interface LoginResponse {
-  success: boolean
-  user?: { 
-    username: string
-    role: string 
-  }
-}
 
 const username = ref('')
 const password = ref('')
@@ -84,31 +74,37 @@ const handleLogin = async () => {
   isLoading.value = true
   
   try {
-    const response = await $fetch<LoginResponse>('/api/auth/login', {
+    const response = await $fetch('/api/auth/login', {
       method: 'POST',
       body: { 
         username: username.value, 
         password: password.value 
       },
-      credentials: 'include' // ✅ CRUCIAL : Permet d'envoyer/recevoir les cookies
+      credentials: 'include'
     })
 
+    console.log('✅ Réponse login:', response)
+
     if (response.success) {
-      console.log('✅ Connexion réussie :', response.user)
-      // Le cookie est automatiquement géré par le navigateur
+      console.log('✅ Connexion réussie, redirection...')
       await navigateTo('/dashboard')
     } else {
       error.value = 'Erreur de connexion'
     }
     
   } catch (err: any) {
-    console.error('❌ Erreur login:', err)
+    console.error('❌ Erreur complète:', err)
+    console.error('❌ err.data:', err.data)
+    console.error('❌ err.statusCode:', err.statusCode)
+    console.error('❌ err.statusMessage:', err.statusMessage)
     
-    // Gestion des erreurs propre
+    // Gestion des erreurs
     if (err.data?.statusMessage) {
       error.value = err.data.statusMessage
     } else if (err.statusMessage) {
       error.value = err.statusMessage
+    } else if (err.message) {
+      error.value = err.message
     } else {
       error.value = 'Erreur de connexion. Veuillez réessayer.'
     }

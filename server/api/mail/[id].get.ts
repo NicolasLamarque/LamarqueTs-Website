@@ -1,47 +1,48 @@
 // ============================================
-// server/api/contact/messages/[id].get.ts
-// Récupérer un message par ID (décrypté)
+// 📁 server/api/mail/[id].get.ts
+// Récupérer UN message par ID (déchiffré automatiquement)
 // ============================================
-// server/api/mail/[id].get.ts
 import { defineEventHandler, getRouterParam, createError } from 'h3'
-import { getMessageById } from '../../utils/contact'  // ✅ Bon chemin
+import { getMessageById } from '../../utils/contact'
 
 export default defineEventHandler(async (event) => {
-  const id = parseInt(getRouterParam(event, 'id') || '0')
+  const id = getRouterParam(event, 'id')
   
-  if (!id || isNaN(id)) {
-    throw createError({ 
-      statusCode: 400, 
-      statusMessage: "ID invalide" 
-    })
+  if (!id) {
+    throw createError({ statusCode: 400, statusMessage: 'ID manquant' })
   }
 
-  console.log(`📬 Récupération message ID: ${id}`)
+  console.log(`📬 Récupération message #${id}...`)
   
   try {
-    const message = await getMessageById(id)
+    // ✅ getMessageById() déchiffre TOUT automatiquement :
+    // - sender_name
+    // - sender_email
+    // - message  
+    // - category
+    const message = await getMessageById(parseInt(id))
     
     if (!message) {
-      throw createError({ 
-        statusCode: 404, 
-        statusMessage: "Message non trouvé" 
-      })
+      throw createError({ statusCode: 404, statusMessage: 'Message introuvable' })
     }
-    
-    console.log('✅ Message récupéré et décrypté')
-    
+
+    console.log(`✅ Message #${id} récupéré et déchiffré`)
     return message
     
   } catch (error: any) {
-    console.error('❌ Erreur récupération message:', error)
+    console.error(`❌ Erreur récupération message #${id}:`, error)
     
-    if (error.statusCode) {
-      throw error
+    // Si c'est une erreur de déchiffrement
+    if (error.message.includes('déchiffrer')) {
+      throw createError({ 
+        statusCode: 500, 
+        statusMessage: 'Erreur de déchiffrement. Vérifiez votre clé ENCRYPTION_KEY.' 
+      })
     }
     
     throw createError({ 
-      statusCode: 500, 
-      statusMessage: `Erreur: ${error.message}` 
+      statusCode: error.statusCode || 500, 
+      statusMessage: error.statusMessage || `Erreur: ${error.message}` 
     })
   }
 })

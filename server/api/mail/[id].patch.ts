@@ -1,6 +1,6 @@
 // ============================================
-// server/api/contact/messages/[id].patch.ts
-// Mettre à jour le statut d'un message
+// 📁 server/api/mail/[id].patch.ts  
+// Mettre à jour un message (status, priority, etc.)
 // ============================================
 import { defineEventHandler, getRouterParam, readBody, createError } from 'h3'
 import { db } from '../../utils/db'
@@ -18,7 +18,7 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  console.log(`🔄 Mise à jour message ID: ${id}`, body)
+  console.log(`📝 Mise à jour message ID: ${id}`, body)
   
   try {
     // Vérifier que le message existe
@@ -40,11 +40,17 @@ export default defineEventHandler(async (event) => {
       updated_at: new Date()
     }
 
-    // Champs autorisés à être mis à jour
+    // ⚠️ IMPORTANT : On ne modifie PAS les données chiffrées ici
+    // Seuls les champs de métadonnées (non sensibles) peuvent être modifiés
     if (body.status) updateData.status = body.status
     if (body.assigned_to !== undefined) updateData.assigned_to = body.assigned_to
     if (body.priority) updateData.priority = body.priority
-    if (body.category) updateData.category = body.category
+    
+    // ❌ Ne PAS permettre de modifier ces champs chiffrés via PATCH
+    // (utiliser updateMessage() de contact.ts si vraiment nécessaire)
+    // if (body.category) updateData.category = body.category
+    // if (body.sender_name) updateData.sender_name = body.sender_name
+    // etc.
 
     // Mettre à jour
     const [updated] = await db

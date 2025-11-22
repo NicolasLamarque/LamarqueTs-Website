@@ -1,16 +1,14 @@
 // ============================================
-// server/api/contact/messages/[id].delete.ts
-// Supprimer un message (soft delete ou hard delete)
+// 📁 server/api/mail/[id].delete.ts
+// Supprimer un message (soft ou hard delete)
 // ============================================
 import { defineEventHandler, getRouterParam, getQuery, createError } from 'h3'
-import { db } from '../../utils/db'
-import { contacts_messages } from '../../utils/schema'
-import { eq } from 'drizzle-orm'
+import { softDeleteMessage, hardDeleteMessage } from '../../utils/contact'
 
 export default defineEventHandler(async (event) => {
   const id = parseInt(getRouterParam(event, 'id') || '0')
   const query = getQuery(event)
-  const hardDelete = query.hard === 'true' // ?hard=true pour suppression définitive
+  const hardDelete = query.hard === 'true'
   
   if (!id || isNaN(id)) {
     throw createError({ 
@@ -22,40 +20,23 @@ export default defineEventHandler(async (event) => {
   console.log(`🗑️ Suppression message ID: ${id} (hard: ${hardDelete})`)
   
   try {
-    // Vérifier que le message existe
-    const [existingMessage] = await db
-      .select()
-      .from(contacts_messages)
-      .where(eq(contacts_messages.id, id))
-      .limit(1)
+    let success: boolean
+    
+    if (hardDelete) {
+      // Suppression définitive (⚠️ DANGEREUX - les données chiffrées seront perdues)
+      success = await hardDeleteMessage(id)
+      console.log('✅ Message supprimé définitivement')
+    } else {
+      // Soft delete (recommandé - garde les données chiffrées)
+      success = await softDeleteMessage(id, 'admin')
+      console.log('✅ Message marqué comme supprimé (soft delete)')
+    }
 
-    if (!existingMessage) {
+    if (!success) {
       throw createError({ 
         statusCode: 404, 
         statusMessage: "Message non trouvé" 
       })
-    }
-
-    if (hardDelete) {
-      // Suppression définitive
-      await db
-        .delete(contacts_messages)
-        .where(eq(contacts_messages.id, id))
-      
-      console.log('✅ Message supprimé définitivement')
-    } else {
-      // Soft delete
-      await db
-        .update(contacts_messages)
-        .set({
-          deleted: true,
-          deleted_at: new Date(),
-          deleted_by: 'admin', // À remplacer par l'utilisateur connecté
-          updated_at: new Date()
-        })
-        .where(eq(contacts_messages.id, id))
-      
-      console.log('✅ Message marqué comme supprimé (soft delete)')
     }
 
     return { 

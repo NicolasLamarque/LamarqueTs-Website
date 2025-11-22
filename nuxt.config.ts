@@ -1,7 +1,7 @@
 import { fileURLToPath } from 'node:url'
 
 export default defineNuxtConfig({
-  compatibilityDate: '2024-11-20', // ✅ Corrige la date
+  compatibilityDate: '2024-11-20',
   components: true,
   
   devtools: {
@@ -12,7 +12,11 @@ export default defineNuxtConfig({
     compatibilityVersion: 4,
   },
   
-  // ✅ AJOUT : Force Nuxt à scanner le dossier middleware
+  // ✅ AJOUT : Force les auto-imports pour les middlewares
+  imports: {
+    autoImport: true,
+  },
+  
   dir: {
     middleware: 'middleware',
     pages: 'pages',

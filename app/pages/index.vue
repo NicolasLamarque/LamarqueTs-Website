@@ -60,7 +60,7 @@
               Homologation de mandat
             </h3>
             <p class="text-sm sm:text-base text-gray-600 dark:text-gray-300 leading-relaxed px-2">
-              Un prix unique incluant toute la démarche d\'homologation, sans frais supplémentaire et accessible! Service accessible en Mauricie uniquement.
+              Un prix unique incluant toute la démarche d'homologation, sans frais supplémentaire et accessible! Service accessible en Mauricie uniquement.
               Contactez-moi, les conseils sont gratuits!
             </p>
             <nuxt-link
