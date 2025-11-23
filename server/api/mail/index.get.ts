@@ -7,6 +7,9 @@ import { getAllMessages } from '../../utils/contact'
 
 export default defineEventHandler(async (event) => {
   console.log('📬 Récupération de tous les messages...')
+   // 🧪 DIAGNOSTIC
+  console.log('🔑 ENCRYPTION_KEY existe:', !!process.env.ENCRYPTION_KEY)
+  console.log('🔑 Valeur:', process.env.ENCRYPTION_KEY?.substring(0, 10))
   
   try {
     // ✅ getAllMessages() déchiffre TOUT automatiquement :
