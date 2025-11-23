@@ -1,22 +1,33 @@
 // ============================================
-// 📁 server/api/mail/[id].patch.ts  
-// Mettre à jour un message (status, priority, etc.)
+// 📁 server/api/mail/[id].patch.ts
+// ✅ CORRIGÉ POUR PROD
 // ============================================
-import { defineEventHandler, getRouterParam, readBody, createError } from 'h3'
+import { defineEventHandler, readBody, createError } from 'h3'
 import { db } from '../../utils/db'
 import { contacts_messages } from '../../utils/schema'
 import { eq } from 'drizzle-orm'
 
 export default defineEventHandler(async (event) => {
-  const id = parseInt(getRouterParam(event, 'id') || '0')
-  const body = await readBody(event)
+  // ✅ CORRECTION : Utiliser event.context.params
+  const idParam = event.context.params?.id
   
-  if (!id || isNaN(id)) {
+  if (!idParam) {
+    throw createError({ 
+      statusCode: 400, 
+      statusMessage: "ID manquant" 
+    })
+  }
+
+  const id = parseInt(idParam)
+  
+  if (isNaN(id)) {
     throw createError({ 
       statusCode: 400, 
       statusMessage: "ID invalide" 
     })
   }
+
+  const body = await readBody(event)
 
   console.log(`📝 Mise à jour message ID: ${id}`, body)
   
@@ -40,17 +51,9 @@ export default defineEventHandler(async (event) => {
       updated_at: new Date()
     }
 
-    // ⚠️ IMPORTANT : On ne modifie PAS les données chiffrées ici
-    // Seuls les champs de métadonnées (non sensibles) peuvent être modifiés
     if (body.status) updateData.status = body.status
     if (body.assigned_to !== undefined) updateData.assigned_to = body.assigned_to
     if (body.priority) updateData.priority = body.priority
-    
-    // ❌ Ne PAS permettre de modifier ces champs chiffrés via PATCH
-    // (utiliser updateMessage() de contact.ts si vraiment nécessaire)
-    // if (body.category) updateData.category = body.category
-    // if (body.sender_name) updateData.sender_name = body.sender_name
-    // etc.
 
     // Mettre à jour
     const [updated] = await db

@@ -1,21 +1,32 @@
 // ============================================
 // 📁 server/api/mail/[id].delete.ts
-// Supprimer un message (soft ou hard delete)
+// ✅ CORRIGÉ POUR PROD
 // ============================================
-import { defineEventHandler, getRouterParam, getQuery, createError } from 'h3'
+import { defineEventHandler, getQuery, createError } from 'h3'
 import { softDeleteMessage, hardDeleteMessage } from '../../utils/contact'
 
 export default defineEventHandler(async (event) => {
-  const id = parseInt(getRouterParam(event, 'id') || '0')
-  const query = getQuery(event)
-  const hardDelete = query.hard === 'true'
+  // ✅ CORRECTION : Utiliser event.context.params
+  const idParam = event.context.params?.id
   
-  if (!id || isNaN(id)) {
+  if (!idParam) {
+    throw createError({ 
+      statusCode: 400, 
+      statusMessage: "ID manquant" 
+    })
+  }
+
+  const id = parseInt(idParam)
+  
+  if (isNaN(id)) {
     throw createError({ 
       statusCode: 400, 
       statusMessage: "ID invalide" 
     })
   }
+
+  const query = getQuery(event)
+  const hardDelete = query.hard === 'true'
 
   console.log(`🗑️ Suppression message ID: ${id} (hard: ${hardDelete})`)
   
@@ -23,11 +34,9 @@ export default defineEventHandler(async (event) => {
     let success: boolean
     
     if (hardDelete) {
-      // Suppression définitive (⚠️ DANGEREUX - les données chiffrées seront perdues)
       success = await hardDeleteMessage(id)
       console.log('✅ Message supprimé définitivement')
     } else {
-      // Soft delete (recommandé - garde les données chiffrées)
       success = await softDeleteMessage(id, 'admin')
       console.log('✅ Message marqué comme supprimé (soft delete)')
     }

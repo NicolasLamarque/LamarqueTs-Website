@@ -95,7 +95,7 @@ import { ref, reactive, onMounted, onUnmounted, watch } from 'vue';
 const props = defineProps({
   showControlsButton: {
     type: Boolean,
-    default: true
+    default: false
   }
 });
 

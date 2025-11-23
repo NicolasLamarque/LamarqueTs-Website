@@ -1,13 +1,17 @@
 <template>
-  <div class="flex flex-col h-screen overflow-hidden">
+  <div class="flex flex-col h-screen"> 
+    
     <MainHeader class="flex-shrink-0" />
-    <main class="flex-1 overflow-y-auto">
-      <slot />
-    </main>
-    <MainFooter class="flex-shrink-0 mt-0" />
-  </div>
-</template>
+    
+    <main class="flex-1 overflow-y-auto pt-16">
+      <slot /> 
 
+      <MainFooter class="flex-shrink-0 mt-0" />
+      
+    </main>
+    
+    </div>
+</template>
 <style>
 html, body {
   height: 100%;

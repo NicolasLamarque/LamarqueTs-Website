@@ -4,7 +4,7 @@
       class="relative min-h-screen pt-0 sm:pt-16 md:pt-24 text-gray-800 dark:text-gray-100 w-full overflow-hidden"
     >
   <div class="absolute inset-0 bg-slate-100 dark:bg-gray-900">
-        <WavesBackground :show-controls-button="true" />
+        <WavesBackground :show-controls-button="false" />
       </div>
       <div class="relative w-full max-w-7xl sm:mx-auto px-3 sm:px-4 md:px-6 pb-12">
         <h2

@@ -1,5 +1,6 @@
 <template>
   <section class="relative py-20 px-4">
+
     <div class="max-w-6xl mx-auto">
       <div class="text-center mb-12">
         <h1
@@ -29,6 +30,7 @@
           class="w-full h-auto"
         />
       </div>
+      
     </div>
   </section>
 </template>
