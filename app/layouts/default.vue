@@ -3,7 +3,7 @@
     
     <MainHeader class="flex-shrink-0" />
     
-    <main class="flex-1 overflow-y-auto pt-0">
+    <main class="flex-1 overflow-y-auto pt-16">
       <slot /> 
 
       <MainFooter class="flex-shrink-0 mt-0" />

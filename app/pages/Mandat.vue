@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen relative">
+  <div lang="fr" class="min-h-screen bg-slate-100 dark:bg-gray-900">
     
     <!-- Background fixe avec fond foncé + vagues (derrière TOUT) -->
     <div class="fixed inset-0 bg-gray-900 z-0">

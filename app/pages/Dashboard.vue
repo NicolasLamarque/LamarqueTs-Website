@@ -1,12 +1,12 @@
 <template>
   <!-- Afficher seulement si la vérification est terminée ET l'utilisateur est authentifié -->
   <div v-if="!isChecking && isAuthenticated" class="flex h-screen bg-gray-100 dark:bg-gray-800">
-    <SideBar :activeSection="section" @select="section = $event" class="w-64 bg-gray-900 text-white" />
+    <SideBar :activeSection="section" @select="section = $event" class="w-64 bg-gray-900 text-white pt-16" />
 
-    <div class="flex-1 p-6 overflow-auto">
+    <div class="flex-1 p-6 overflow-auto pt-16">
       <div class="flex justify-between items-center mb-6">
-        <h1 class="text-2xl font-bold text-gray-800 dark:text-gray-100">
-          Dashboard
+        <h1 class="text-4xl font-bold text-gray-800 dark:text-gray-100">
+          LamarqueTS - Dashboard
         </h1>
         <BtnDaisyUi @click="logout" label="Déconnexion" />
       </div>

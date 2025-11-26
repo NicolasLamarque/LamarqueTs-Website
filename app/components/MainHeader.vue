@@ -1,7 +1,7 @@
 <template>
   <!-- Header global -->
   <header
-    class="bg-sky-800 text-white shadow-xl p-4 flex justify-between items-center"
+    class="bg-sky-800 text-white shadow-xl p-4 flex justify-between items-center fixed top-0 left-0 right-0 w-full z-50"
   >
     <!-- Logo / titre -->
     <NuxtLink to="/" class="flex items-center gap-3 sm:gap-4 group">
