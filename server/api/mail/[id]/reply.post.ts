@@ -1,15 +1,12 @@
-// ============================================
-// 📁 server/api/mail/[id]/reply.post.ts
-// ✅ CORRIGÉ POUR PROD
-// ============================================
+// server/api/mail/[id]/reply.post.ts
 import { defineEventHandler, readBody, createError } from 'h3'
 import { getMessageById } from '../../../utils/contact'
 import { db } from '../../../utils/db'
 import { contacts_messages } from '../../../utils/schema'
 import { eq } from 'drizzle-orm'
+import { resend } from '../../../utils/resend'
 
 export default defineEventHandler(async (event) => {
-  // ✅ CORRECTION : Utiliser event.context.params
   const idParam = event.context.params?.id
   
   if (!idParam) {
@@ -37,7 +34,7 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  console.log(`📧 Réponse au message ID: ${id}`)
+  //console.log(`📧 Réponse au message ID: ${id}`)
 
   try {
     // Récupérer le message (DÉCHIFFRÉ AUTOMATIQUEMENT)
@@ -50,7 +47,14 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    console.log(`📬 Message de: ${message.sender_name} <${message.sender_email}>`)
+    if (message.deleted) {
+      throw createError({ 
+        statusCode: 400, 
+        statusMessage: "Impossible de répondre à un message supprimé" 
+      })
+    }
+
+    //console.log(`📬 Message de: ${message.sender_name} <${message.sender_email}>`)
 
     // Préparer l'historique de réponse
     const replyEntry = {
@@ -74,65 +78,129 @@ export default defineEventHandler(async (event) => {
       })
       .where(eq(contacts_messages.id, id))
 
-    console.log('✅ Réponse enregistrée dans l\'historique')
+    //console.log('✅ Réponse enregistrée dans l\'historique')
 
-    // Envoi email (si configuré)
-    if (process.env.DEV_MAIL_USER && process.env.DEV_MAIL_PASS) {
+    // ============================================
+    // 📧 ENVOI EMAIL via RESEND
+    // ============================================
+    let emailSent = false
+    
+    if (process.env.RESEND_API_KEY) {
       try {
-        const nodemailer = require('nodemailer')
+        //console.log(`📧 Envoi de la réponse à ${message.sender_email}...`)
         
-        const transporter = nodemailer.createTransport({
-          service: "gmail",
-          auth: {
-            user: process.env.DEV_MAIL_USER,
-            pass: process.env.DEV_MAIL_PASS
-          }
-        })
-
-        await transporter.sendMail({
-          from: `"LamarqueTs" <${process.env.DEV_MAIL_USER}>`,
+        const emailResult = await resend.emails.send({
+          from: `LamarqueTs <${process.env.RESEND_FROM_EMAIL || 'infos@lamarquets.com'}>`,
           to: message.sender_email,
+          replyTo: process.env.ADMIN_EMAIL || 'lamarquets@outlook.com',
           subject: `Réponse à votre message - ${message.category}`,
           html: `
-            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-              <div style="background: linear-gradient(135deg, #0ea5e9 0%, #2563eb 100%); padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
-                <h1 style="color: white; margin: 0;">💬 Réponse à votre message</h1>
-              </div>
-              
-              <div style="background: #f9fafb; padding: 30px; border-radius: 0 0 10px 10px;">
-                <p style="color: #1f2937; font-size: 16px;">Bonjour <strong>${message.sender_name}</strong>,</p>
+            <!DOCTYPE html>
+            <html>
+            <head>
+              <meta charset="UTF-8">
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            </head>
+            <body style="margin: 0; padding: 0; background-color: #f0f9ff; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+              <div style="max-width: 650px; margin: 40px auto; background: white; border-radius: 20px; overflow: hidden; box-shadow: 0 10px 40px rgba(7, 89, 133, 0.15);">
                 
-                <div style="background: white; padding: 20px; border-radius: 10px; margin: 20px 0; border-left: 4px solid #10b981;">
-                  <p style="white-space: pre-wrap; line-height: 1.6; color: #1f2937;">${reply}</p>
+                <!-- Header avec logo -->
+                <div style="background: linear-gradient(135deg, #0369a1 0%, #075985 100%); padding: 50px 40px; text-align: center; position: relative;">
+                  <img src="https://5eqf1pkqjlprn7ya.public.blob.vercel-storage.com/logo.jpg" alt="LamarqueTs" style="width: 120px; height: auto; border-radius: 12px; margin-bottom: 24px; border: 4px solid rgba(255,255,255,0.2); box-shadow: 0 4px 12px rgba(0,0,0,0.2);">
+                  <h1 style="color: white; margin: 0; font-size: 32px; font-weight: 700; letter-spacing: -0.5px;">Réponse à votre message</h1>
+                  <div style="width: 60px; height: 4px; background: #14b8a6; margin: 16px auto 0; border-radius: 2px;"></div>
                 </div>
+                
+                <!-- Contenu -->
+                <div style="padding: 45px 40px;">
+                  
+                  <!-- Salutation -->
+                  <p style="color: #1e293b; font-size: 18px; line-height: 1.6; margin: 0 0 32px 0; font-weight: 500;">
+                    Bonjour <strong style="color: #0369a1;">${message.sender_name}</strong>,
+                  </p>
+                  
+                  <!-- Réponse -->
+                  <div style="background: white; border: 2px solid #14b8a6; border-left: 5px solid #14b8a6; border-radius: 16px; padding: 28px; margin-bottom: 28px; box-shadow: 0 2px 8px rgba(20, 184, 166, 0.12);">
+                    <h2 style="color: #115e59; margin: 0 0 20px 0; font-size: 20px; font-weight: 700; display: flex; align-items: center;">
+                      <span style="margin-right: 12px; font-size: 24px;">📝</span>
+                      Ma réponse
+                    </h2>
+                    <p style="white-space: pre-wrap; line-height: 1.8; color: #1e293b; margin: 0; font-size: 16px;">${reply}</p>
+                  </div>
 
-                <div style="background: #e0f2fe; border: 1px solid #7dd3fc; padding: 15px; border-radius: 10px; margin-top: 20px;">
-                  <p style="margin: 0; color: #0c4a6e; font-size: 14px;">
-                    📋 <strong>Votre message original:</strong><br>
-                    <span style="color: #075985;">${message.category}</span>
+                  <!-- Message original -->
+                  <div style="background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); border-radius: 16px; padding: 24px; margin-bottom: 28px; border: 1px solid #bae6fd;">
+                    <h3 style="color: #0c4a6e; margin: 0 0 16px 0; font-size: 15px; text-transform: uppercase; letter-spacing: 0.8px; font-weight: 700;">
+                      📋 Votre message original
+                    </h3>
+                    <p style="color: #075985; font-size: 15px; margin: 0 0 10px 0; font-weight: 600;">
+                      <strong>Sujet:</strong> ${message.category}
+                    </p>
+                    <p style="color: #0c4a6e; font-size: 14px; line-height: 1.7; margin: 0; white-space: pre-wrap;">${message.message.substring(0, 200)}${message.message.length > 200 ? '...' : ''}</p>
+                  </div>
+                  
+                  <!-- CTA -->
+                  <div style="background: linear-gradient(135deg, #ccfbf1 0%, #99f6e4 100%); border-radius: 16px; padding: 28px; text-align: center; border: 2px solid #5eead4;">
+                    <p style="color: #115e59; font-size: 16px; margin: 0 0 20px 0; font-weight: 600;">
+                      💡 <strong>Besoin d'informations supplémentaires ?</strong>
+                    </p>
+                    <a href="mailto:${process.env.ADMIN_EMAIL || 'lamarquets@outlook.com'}" style="display: inline-block; background: linear-gradient(135deg, #0369a1 0%, #075985 100%); color: white; padding: 16px 36px; text-decoration: none; border-radius: 12px; font-weight: 700; font-size: 16px; box-shadow: 0 4px 12px rgba(3, 105, 161, 0.3);">
+                      📧 Répondre à cet email
+                    </a>
+                  </div>
+                  
+                </div>
+                
+                <!-- Footer -->
+                <div style="background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); padding: 32px 40px; border-top: 3px solid #14b8a6; text-align: center;">
+                  <img src="https://5eqf1pkqjlprn7ya.public.blob.vercel-storage.com/logo.jpg" alt="LamarqueTs" style="width: 80px; height: auto; border-radius: 8px; margin-bottom: 16px; opacity: 0.9;">
+                  <p style="color: #0c4a6e; font-size: 14px; margin: 0 0 10px 0; font-weight: 500;">
+                    Vous recevez cet email en réponse à votre message du ${new Date(message.created_at).toLocaleDateString('fr-FR', {
+                      day: 'numeric',
+                      month: 'long',
+                      year: 'numeric'
+                    })}
+                  </p>
+                  <p style="color: #0369a1; font-size: 13px; margin: 0 0 8px 0; font-weight: 600;">
+                    LamarqueTs
+                  </p>
+                  <p style="color: #0c4a6e; font-size: 12px; margin: 0;">
+                    ${process.env.SITE_URL || 'https://lamarquets.com'}
                   </p>
                 </div>
                 
-                <p style="text-align: center; color: #6b7280; font-size: 12px; margin-top: 30px;">
-                  Si vous avez d'autres questions, n'hésitez pas à répondre à cet email.
-                </p>
               </div>
-            </div>
-          `,
-          replyTo: process.env.ADMIN_EMAIL || process.env.DEV_MAIL_USER
+            </body>
+            </html>
+          `
         })
 
-        console.log(`✅ Email envoyé à : ${message.sender_email}`)
+        console.log(`✅ Email envoyé via Resend: ${emailResult.data?.id}`)
+        emailSent = true
+        
       } catch (emailError: any) {
         console.error('⚠️ Erreur envoi email:', emailError.message)
+        console.error('Détails:', emailError)
+        
+        // Si l'erreur concerne le domaine non vérifié
+        if (emailError.message?.includes('domain') || emailError.message?.includes('verified')) {
+          throw createError({
+            statusCode: 500,
+            statusMessage: "Domaine email non vérifié sur Resend. Veuillez configurer vos DNS."
+          })
+        }
       }
+    } else {
+      console.log('⚠️ RESEND_API_KEY non configurée')
     }
 
     return { 
       success: true, 
-      message: "Réponse enregistrée avec succès",
-      email_sent: !!(process.env.DEV_MAIL_USER || process.env.RESEND_API_KEY),
-      note: "Les données du destinataire sont déchiffrées uniquement en mémoire pour l'envoi"
+      message: emailSent 
+        ? "Réponse envoyée avec succès par email" 
+        : "Réponse enregistrée (email non configuré)",
+      email_sent: emailSent,
+      recipient: message.sender_email
     }
 
   } catch (error: any) {

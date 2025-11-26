@@ -157,7 +157,7 @@
           <h3 class="font-semibold text-gray-100 text-sm sm:text-base">Courriel</h3>
         </div>
         <p class="text-gray-300 ml-13 text-sm sm:text-base break-all">
-          lamarquets@outlook.com
+          infos@lamarquets.com
         </p>
       </div>
 

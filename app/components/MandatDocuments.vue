@@ -1,5 +1,6 @@
 <template>
-  <section class="py-16 px-4 bg-white dark:bg-gray-800">
+  
+  <section class="py-16 px-4 bg-transparent">
     <div class="max-w-3xl mx-auto">
       <div
         class="bg-slate-100 dark:bg-gray-900 rounded-2xl shadow-xl p-8 border border-teal-100 dark:border-sky-700"
@@ -25,14 +26,12 @@
             </a>
           </li>
         </ul>
-        <div v-if="showPdfButton" class="text-center mt-10">
-          <nuxt-link
-            :to="pdfUrl"
-            target="_blank"
-            class="inline-block bg-sky-700 text-white py-3 px-8 rounded-xl font-semibold shadow-xl hover:shadow-2xl hover:bg-sky-600 transition-all duration-500"
-            download
+        <div  class="text-center mt-10">
+         <nuxt-link
+            to="/Contact-Page"
+            class="inline-block bg-sky-700 text-white px-6 py-3 rounded-full font-semibold hover:bg-sky-800 transition"
           >
-            {{ pdfButtonText }}
+            Contactez-nous pour assistance
           </nuxt-link>
         </div>
       </div>
@@ -66,17 +65,5 @@ const props = defineProps({
       }
     ]
   },
-  showPdfButton: {
-    type: Boolean,
-    default: true
-  },
-  pdfUrl: {
-    type: String,
-    default: "/docs/homologation.pdf"
-  },
-  pdfButtonText: {
-    type: String,
-    default: "Télécharger le guide PDF"
-  }
 })
 </script>

@@ -17,10 +17,12 @@
       </p>
     </div>
 
-    <!-- Bouton PDF en dessous du texte, aligné à gauche -->
-    <div class="mt-4 flex flex-col sm:flex-row gap-3">
+    <!-- Bouton PDF en dessous du texte, centrer -->
+    <div class="flex justify-center pt-5">
       <ToLegisPdf/>
     </div>
+     
+    
   </div>
 </template>
 

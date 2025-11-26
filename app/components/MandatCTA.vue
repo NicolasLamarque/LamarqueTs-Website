@@ -1,6 +1,6 @@
 <template>
-  <section class="py-20 px-4 bg-white dark:bg-gray-800">
-    <div class="max-w-4xl mx-auto text-center">
+  <section class="py-16 px-4 bg-transparent">
+    <div class="max-w-3xl mx-auto">
       <h2
         class="text-3xl md:text-4xl font-extrabold text-gray-800 dark:text-gray-100 mb-6 tracking-tight"
       >

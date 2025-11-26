@@ -1,24 +1,33 @@
 <template>
-  <div class="min-h-screen bg-slate-100 dark:bg-gray-900">
-    <!-- Hero Section -->
-    <MandatHero />
+  <div class="min-h-screen relative">
+    
+    <!-- Background fixe avec fond foncé + vagues (derrière TOUT) -->
+    <div class="fixed inset-0 bg-gray-900 z-0">
+      <WavesBackground />
+    </div>
+    
+    <!-- Contenu principal au-dessus du background -->
+    <div class="relative z-[1]">
+      <!-- Hero Section -->
+      <MandatHero />
 
-    <!-- Section Présentation -->
-    <MandatPresentation />
+      <!-- Section Présentation -->
+      <MandatPresentation />
 
-    <!-- Section Bénéfices -->
-    <MandatAvantages />
+      <!-- Section Bénéfices -->
+      <MandatAvantages />
 
-    <!-- Section Déroulement -->
-    <section class="py-16 px-4">
-      <DeroulementMandat :show-links="true" />
-    </section>
+      <!-- Section Déroulement -->
+      <section class="py-16 px-4">
+        <DeroulementMandat :show-links="true" />
+      </section>
 
-    <!-- Section CTA -->
-    <MandatCTA primary-button-link="/Contact-Page" />
+      <!-- Section CTA -->
+      <MandatCTA primary-button-link="/Contact-Page" />
 
-    <!-- Section Documents requis -->
-    <MandatDocuments />
+      <!-- Section Documents requis -->
+      <MandatDocuments />
+    </div>
   </div>
 </template>
 

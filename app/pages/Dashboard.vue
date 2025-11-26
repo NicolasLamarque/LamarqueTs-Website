@@ -46,6 +46,7 @@ const CalendarDash = defineAsyncComponent(() => import('../components/CalendarDa
 const GestSupaBaseDash = defineAsyncComponent(() => import('../components/GestDatabaseDash.vue'))
 const mailsDash = defineAsyncComponent(() => import('../components/GestMailsDash.vue'))
 
+
 const section = ref('articles')
 const isChecking = ref(true)
 const isAuthenticated = ref(false)
@@ -98,7 +99,7 @@ const componentMap: Record<string, any> = {
   calendar: CalendarDash,
   supabase: GestSupaBaseDash,
   mails: mailsDash
-}
+  }
 
 // Propriété calculée qui retourne le composant à afficher
 const activeComponent = computed(() => {

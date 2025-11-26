@@ -1,8 +1,8 @@
 <template>
-  <section class="py-16 px-4 bg-white dark:bg-gray-800">
+  <section class="py-16 px-4 bg-transparent">
     <div class="max-w-6xl mx-auto">
       <h2
-        class="text-3xl md:text-4xl font-extrabold text-center text-gray-800 dark:text-gray-100 mb-12 tracking-tight"
+        class="text-3xl md:text-4xl font-extrabold text-center text-gray-100 mb-12 tracking-tight"
       >
         {{ titre }}
       </h2>
@@ -10,7 +10,7 @@
         <div
           v-for="(avantage, index) in avantages"
           :key="index"
-          class="group bg-slate-100 dark:bg-gray-900 rounded-2xl p-8 shadow-xl hover:shadow-2xl transition-all duration-500 border border-teal-100 dark:border-sky-700 hover:-translate-y-1"
+          class="group bg-gray-800/90 backdrop-blur-sm rounded-2xl p-8 shadow-xl hover:shadow-2xl transition-all duration-500 border border-sky-700/50 hover:-translate-y-1"
         >
           <div
             class="w-14 h-14 bg-sky-700 dark:bg-sky-600 rounded-full flex items-center justify-center mb-6 mx-auto group-hover:scale-110 transition-transform duration-300"
@@ -129,12 +129,12 @@
             </svg>
           </div>
           <h3
-            class="text-xl font-semibold text-gray-800 dark:text-gray-100 mb-3 text-center"
+            class="text-xl font-semibold text-gray-100 mb-3 text-center"
           >
             {{ avantage.titre }}
           </h3>
           <p
-            class="text-gray-600 dark:text-gray-300 text-center leading-relaxed"
+            class="text-gray-300 text-center leading-relaxed"
           >
             {{ avantage.description }}
           </p>

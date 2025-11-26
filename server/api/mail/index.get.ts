@@ -6,10 +6,10 @@ import { defineEventHandler, createError } from 'h3'
 import { getAllMessages } from '../../utils/contact'
 
 export default defineEventHandler(async (event) => {
-  console.log('📬 Récupération de tous les messages...')
+  //console.log('📬 Récupération de tous les messages...')
    // 🧪 DIAGNOSTIC
-  console.log('🔑 ENCRYPTION_KEY existe:', !!process.env.ENCRYPTION_KEY)
-  console.log('🔑 Valeur:', process.env.ENCRYPTION_KEY?.substring(0, 10))
+  //console.log('🔑 ENCRYPTION_KEY existe:', !!process.env.ENCRYPTION_KEY)
+ // console.log('🔑 Valeur:', process.env.ENCRYPTION_KEY?.substring(0, 10))
   
   try {
     // ✅ getAllMessages() déchiffre TOUT automatiquement :
@@ -19,7 +19,7 @@ export default defineEventHandler(async (event) => {
     // - category
     const messages = await getAllMessages()
     
-    console.log(`✅ ${messages.length} messages récupérés et déchiffrés`)
+    //console.log(`✅ ${messages.length} messages récupérés et déchiffrés`)
     
     return messages
     

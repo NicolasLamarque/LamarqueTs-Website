@@ -57,7 +57,7 @@ export default defineEventHandler(async (event) => {
     { expiresIn: '1h' }
   )
 
-  console.log('✅ Token généré (mis dans le cookie) :', token)
+  //console.log('✅ Token généré (mis dans le cookie) :', token)
 
   // 5️⃣ NOUVEAU : On place le token dans un cookie sécurisé
   setCookie(event, 'auth_token', token, {

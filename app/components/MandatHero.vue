@@ -11,7 +11,9 @@
         <p
           class="text-lg md:text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto leading-relaxed"
         >
-          Pour votre proche en perte d'autonomie, chaque instant compte. Je vous accompagne pas à pas dans l'homologation de son mandat à Shawinigan, avec écoute, rigueur et bienveillance. Ensemble, nous assurons que ses droits et sa sécurité soient pleinement respectés. Respirez un instant… vous êtes entre de bonnes mains. 
+          Votre proche est en perte d'autonomie et chaque instant compte. Je vous accompagne pas à pas dans l'homologation de son mandat à Shawinigan, 
+          avec écoute, rigueur et bienveillance. Ensemble, nous assurons que ses droits sa sécurité et ses volontés soient respectés. 
+          Respirez un instant… vous êtes entre de bonnes mains. 
           <NuxtLink 
             to="/contact-page" 
             class="text-sky-700 dark:text-sky-500 underline hover:text-sky-900 dark:hover:text-sky-300 transition-colors font-semibold"
@@ -39,11 +41,11 @@
 const props = defineProps({
   titre: {
     type: String,
-    default: "Service d'homologation de mandat en Mauricie"
+    default: "Service d'évaluation psychosociale en vue de l'homologation de mandat en Mauricie"
   },
   description: {
     type: String,
-    default: "Confiez-moi l'évaluation psychosociale dans le cadre de l'homologation du mandat de votre proche à Shawinigan. J'assure un accompagnement rigoureux et humain tout au long du processus légal, afin de garantir la reconnaissance officielle et sécuritaire de votre mandat. Contactez-moi dès aujourd'hui pour un soutien personnalisé et efficace."
+    default: "Confiez-moi l'évaluation psychosociale dans le cadre de l'homologation du mandat de votre proche à Shawinigan ou dans le régions avoisinantes. J'assure un accompagnement rigoureux et humain tout au long du processus légal, afin de garantir la reconnaissance officielle et sécuritaire de votre mandat. Contactez-moi dès aujourd'hui pour un soutien personnalisé et efficace."
   },
   imageSrc: {
     type: String,

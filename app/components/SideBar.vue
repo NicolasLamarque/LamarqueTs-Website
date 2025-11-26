@@ -1,10 +1,7 @@
-
-
 <!-- components/SideBar.vue -->
 <template>
   <div class="w-64 bg-gray-900 text-white h-full flex flex-col p-4">
     <h2 class="text-xl font-bold mb-6">Menu</h2>
-
     <button
       v-for="item in sections"
       :key="item.key"
@@ -28,14 +25,14 @@ interface Section {
 }
 
 defineProps<{ activeSection: string }>()
+defineEmits<{ select: [key: string] }>()
 
-const sections: Section[] = [
+const sections = [
   { key: 'articles', label: 'Articles', icon: '📝' },
   { key: 'users', label: 'Utilisateurs', icon: '👥' },
   { key: 'services', label: 'Services', icon: '🛠️' },
   { key: 'calendar', label: 'Calendrier', icon: '📅' },
   { key: 'supabase', label: 'Monitoring DB', icon: '🗄️' },
   { key: 'mails', label: 'Gestion mails', icon: '📧' }
-  
 ]
 </script>

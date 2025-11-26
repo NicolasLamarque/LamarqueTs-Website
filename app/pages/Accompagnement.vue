@@ -299,7 +299,8 @@
       </div>
     </section>
 
-    <!-- Section Déroulement -->
+<!-- Section Déroulement -->
+
     <section class="py-12 sm:py-16 px-3 sm:px-4">
       <div class="max-w-5xl mx-auto">
         <h2
@@ -307,7 +308,9 @@
         >
           Comment se déroule l'accompagnement?
         </h2>
+       
         <div class="space-y-4 sm:space-y-6">
+<!-- Étape 1 -->
           <div
             class="bg-white dark:bg-gray-800 rounded-xl sm:rounded-2xl p-5 sm:p-6 md:p-8 shadow-lg border-l-4 border-sky-700 dark:border-sky-600"
           >
@@ -321,11 +324,11 @@
             >
               Nous prenons le temps de faire connaissance et d'explorer ensemble
               vos besoins, vos attentes et vos objectifs. Cette rencontre nous
-              permet d'établir une relation de confiance et de définir le cadre
-              de notre collaboration.
+              permet d'établir si une relation de confiance peut s'établir et de définir le cadre
+              de notre collaboration. Cette rencontre initiale est essentielle pour poser les bases de notre travail ensemble.
             </p>
           </div>
-
+<!-- Étape 2 -->
           <div
             class="bg-white dark:bg-gray-800 rounded-xl sm:rounded-2xl p-5 sm:p-6 md:p-8 shadow-lg border-l-4 border-sky-700 dark:border-sky-600"
           >
@@ -338,12 +341,12 @@
               class="text-sm sm:text-base text-gray-600 dark:text-gray-300 leading-relaxed"
             >
               Les rencontres se déroulent à un rythme qui vous convient.
-              Ensemble, nous explorons vos défis, identifions vos ressources et
-              développons des stratégies concrètes adaptées à votre situation
-              unique.
+              Ensemble, nous identifions vos ressources, ciblons vos objectifs,
+              développons et explorons vos défis, et explorons ensemble des stratégies concrètes adaptées à votre situation
+              unique. Chaque séance est un espace sécurisé où vous pouvez vous exprimer librement en toute confiance.
             </p>
           </div>
-
+<!-- Étape 3 -->
           <div
             class="bg-white dark:bg-gray-800 rounded-xl sm:rounded-2xl p-5 sm:p-6 md:p-8 shadow-lg border-l-4 border-sky-700 dark:border-sky-600"
           >
@@ -360,6 +363,29 @@
               s'adapte à votre cheminement personnel.
             </p>
           </div>
+<!-- Étape 4 -->
+          <div
+            class="bg-white dark:bg-gray-800 rounded-xl sm:rounded-2xl p-5 sm:p-6 md:p-8 shadow-lg border-l-4 border-sky-700 dark:border-sky-600"
+          >
+            <h3
+              class="text-lg sm:text-xl md:text-2xl font-semibold text-gray-800 dark:text-gray-100 mb-2 sm:mb-3"
+            >
+              4. Fermeture de l'accompagnement
+            </h3>
+            <p
+              class="text-sm sm:text-base text-gray-600 dark:text-gray-300 leading-relaxed"
+            >
+              Lorsque vous vous sentez prêt, nous planifions la fin de
+              l'accompagnement en récapitulant vos acquis et en discutant des
+              stratégies que nous avons pu mettre en place et qui vous aideront à maintenir vos progrès à long terme.
+            </p>
+          </div>
+
+
+
+
+
+
         </div>
       </div>
     </section>
@@ -403,10 +429,13 @@
 </template>
 
 <script setup>
+
+
+
 const situations = [
   {
     image: "https://5eqf1pkqjlprn7ya.public.blob.vercel-storage.com/TI1.png",
-    titre: "Emcombrement et transition de vie",
+    titre: "Situations complexes",
     description:
       "Service d’accompagnement psychosocial spécialisé pour les personnes vivant avec situation qui implique une transition de vie. " +
       "Nous offrons des interventions respectueuses et graduelles pour rétablir la sécurité, le bien-être et la dignité dans le milieu de vie.",
