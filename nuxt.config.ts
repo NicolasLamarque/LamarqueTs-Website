@@ -61,32 +61,31 @@ export default defineNuxtConfig({
   },
 
   modules: [
-    "@nuxtjs/tailwindcss",
-    "@nuxt/image",
-    "@vesp/nuxt-fontawesome",
-    "@nuxtjs/sitemap", // ✅ NOUVEAU : Ajout du module sitemap
+    "@nuxtjs/tailwindcss", // module tailwindcss
+    "@nuxt/image", // module image
+    "@vesp/nuxt-fontawesome", // module fontawesome
+    "@nuxtjs/sitemap", // module sitemap
   ],
 
-  // ✅ NOUVEAU : Configuration du sitemap
+  //  Configuration du sitemap
   sitemap: {
     // Exclure les pages du dashboard et admin
     exclude: [
-      "/dashboard/**",
-      "/Dashboard",
-      "/admin/**",
-      "/api/**",
-      "/auth/**",
-      "/profile/**",
-      "/settings/**",
-      "/login",
-      "/register",
-      "/Calendrier",
-      "/Evenements",
-      "/Groupe-Homme",
-      "/Procedure",
-      "/Contact-Page",
-      "/credits",
-      "/0", // Cette page bizarre avec la date
+      "/dashboard/**",  // Exclure toutes les URLs commencant par "/dashboard/"
+      "/Dashboard", // Exclure la page Dashboard principale
+      "/admin/**", // Exclure toutes les URLs commencant par "/admin/"
+      "/api/**", // Exclure les routes API
+      "/auth/**", // Exclure les routes d'authentification
+      "/profile/**", // Exclure les pages de profil utilisateur
+      "/settings/**", // Exclure les pages de configuration utilisateur
+      "/login",   // Exclure la page de login
+      "/register", // Exclure la page d'inscription
+      "/Calendrier",  // Exclure la page Calendrier
+      "/Evenements", // Exclure la page Evenements
+      "/Groupe-Homme", // Exclure la page Groupe Homme
+      "/Procedure", // Exclure la page Procedure
+      "/Contact-Page", // Exclure la page Contact
+      "/blog*", // Exclure les pages de blog
     ],
 
     // Configuration par défaut pour toutes les URLs
