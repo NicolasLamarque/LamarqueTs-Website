@@ -2,6 +2,7 @@
   <NuxtLayout>
     <NuxtRouteAnnouncer />
     <NuxtPage />
+    <CookieBanner />
   </NuxtLayout>
 </template>
 

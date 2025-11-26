@@ -1,17 +1,20 @@
 <template>
-  <div class="flex flex-col h-screen"> 
+  <div class="flex flex-col min-h-screen"> 
     
+    <!-- Header fixe en haut -->
     <MainHeader class="flex-shrink-0" />
     
-    <main class="flex-1 overflow-y-auto pt-16">
+    <!-- Contenu principal qui prend tout l'espace disponible -->
+    <main class="flex-1 pt-16">
       <slot /> 
-
-      <MainFooter class="flex-shrink-0 mt-0" />
-      
     </main>
     
-    </div>
+    <!-- Footer toujours en bas -->
+    <MainFooter class="flex-shrink-0" />
+    
+  </div>
 </template>
+
 <style>
 html, body {
   height: 100%;
@@ -24,15 +27,5 @@ html, body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-}
-
-/* Force la suppression de tout espace entre main et footer */
-main {
-  margin-bottom: 0 !important;
-  padding-bottom: 0 !important;
-}
-
-main > * {
-  margin-bottom: 0 !important;
 }
 </style>

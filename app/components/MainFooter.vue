@@ -30,10 +30,19 @@
 
       <div class="flex flex-col sm:flex-row justify-between items-center text-xs text-gray-400 space-y-1 sm:space-y-0">
         
-        <nav class="flex space-x-2">
+        <nav class="flex flex-wrap justify-center sm:justify-start space-x-2">
           <NuxtLink to="/" class="hover:text-white transition-colors duration-200">Accueil</NuxtLink>
           <span class="text-gray-600">·</span>
           <NuxtLink to="/Contact-Page" class="hover:text-white transition-colors duration-200">Contact</NuxtLink>
+          <span class="text-gray-600">·</span>
+          <NuxtLink to="/politique-confidentialite" class="hover:text-white transition-colors duration-200">Confidentialité</NuxtLink>
+          <span class="text-gray-600">·</span>
+          <button 
+            @click="openCookieSettings" 
+            class="hover:text-white transition-colors duration-200"
+          >
+            Cookies
+          </button>
         </nav>
         
         <span class="text-center">
@@ -44,3 +53,15 @@
     </div>
   </footer>
 </template>
+
+<script setup>
+// Fonction pour rouvrir la bannière de cookies
+const openCookieSettings = () => {
+  // Supprimer le cookie pour faire réapparaître la bannière
+  const consent = useCookie('cookie-consent')
+  consent.value = null
+  
+  // Recharger la page pour afficher la bannière
+  window.location.reload()
+}
+</script>

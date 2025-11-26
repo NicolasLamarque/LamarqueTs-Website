@@ -12,7 +12,6 @@ export default defineNuxtConfig({
     compatibilityVersion: 4,
   },
 
-  // ✅ AJOUT : Force les auto-imports pour les middlewares
   imports: {
     autoImport: true,
   },
@@ -37,9 +36,8 @@ export default defineNuxtConfig({
     },
   },
 
-  // ✅ NOUVEAU : Configuration du site
   site: {
-    url: "https://lamarquets.com", // ⚠️ Remplace par ton vrai domaine
+    url: "https://lamarquets.com",
   },
 
   alias: {
@@ -61,40 +59,36 @@ export default defineNuxtConfig({
   },
 
   modules: [
-    "@nuxtjs/tailwindcss", // module tailwindcss
-    "@nuxt/image", // module image
-    "@vesp/nuxt-fontawesome", // module fontawesome
-    "@nuxtjs/sitemap", // module sitemap
+    "@nuxtjs/tailwindcss",
+    "@nuxt/image",
+    "@vesp/nuxt-fontawesome",
+    "@nuxtjs/sitemap",
   ],
 
-  //  Configuration du sitemap
   sitemap: {
-    // Exclure les pages du dashboard et admin
     exclude: [
-      "/dashboard/**",  // Exclure toutes les URLs commencant par "/dashboard/"
-      "/Dashboard", // Exclure la page Dashboard principale
-      "/admin/**", // Exclure toutes les URLs commencant par "/admin/"
-      "/api/**", // Exclure les routes API
-      "/auth/**", // Exclure les routes d'authentification
-      "/profile/**", // Exclure les pages de profil utilisateur
-      "/settings/**", // Exclure les pages de configuration utilisateur
-      "/login",   // Exclure la page de login
-      "/register", // Exclure la page d'inscription
-      "/Calendrier",  // Exclure la page Calendrier
-      "/Evenements", // Exclure la page Evenements
-      "/Groupe-Homme", // Exclure la page Groupe Homme
-      "/Procedure", // Exclure la page Procedure
-      "/Contact-Page", // Exclure la page Contact
-      "/blog*", // Exclure les pages de blog
+      "/dashboard/**",
+      "/Dashboard",
+      "/admin/**",
+      "/api/**",
+      "/auth/**",
+      "/profile/**",
+      "/settings/**",
+      "/login",
+      "/register",
+      "/Calendrier",
+      "/Evenements",
+      "/Groupe-Homme",
+      "/Procedure",
+      "/Contact-Page",
+      "/blog*",
     ],
 
-    // Configuration par défaut pour toutes les URLs
     defaults: {
       changefreq: "weekly",
       priority: 0.8,
     },
 
-    // Détection automatique des routes publiques
     autoLastmod: true,
   },
 
