@@ -1,5 +1,5 @@
-# Interdire l'accès aux pages du dashboard et zones sécurisées
 User-agent: *
+# Interdire l'accès aux pages du dashboard et zones sécurisées
 Disallow: /dashboard/
 Disallow: /admin/
 Disallow: /api/
@@ -9,11 +9,14 @@ Disallow: /register
 
 # Interdire l'accès aux fichiers sensibles
 Disallow: /*.json$
-Disallow: /*.xml$        # attention : si tu as un sitemap.xml, il doit rester accessible !
+Disallow: /*.xml$      # ⚠️ attention : cela inclurait sitemap.xml — je le retire ci-dessous
 Disallow: /config/
 Disallow: /.env
 
-# Autoriser l'accès aux pages publiques
+# Autoriser explicitement l'accès au sitemap
+Allow: /sitemap.xml
+
+# Autoriser les pages publiques
 Allow: /
 Allow: /about
 Allow: /contact
