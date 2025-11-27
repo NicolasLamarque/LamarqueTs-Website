@@ -23,21 +23,65 @@ export default defineNuxtConfig({
 
   app: {
     head: {
-      title: "My Nuxt 3 Project",
+      title: "Lamarque TS - Services Psychosociaux",
+      titleTemplate: "%s | Lamarque TS",
       meta: [
         { name: "viewport", content: "width=device-width, initial-scale=1" },
         {
           name: "description",
-          content: "A Nuxt 3 project with Tailwind CSS and Content module",
+          content: "Services psychosociaux professionnels par un travailleur social membre de l'OTSTCFQ. Suivi individuel et homologation de mandat en protection.",
         },
         { name: "color-scheme", content: "dark light" },
+        { property: "og:title", content: "Lamarque TS - Services Psychosociaux" },
+        { property: "og:description", content: "Services psychosociaux professionnels par un travailleur social membre de l'OTSTCFQ" },
+        { property: "og:url", content: "https://lamarquets.com" },
+        { property: "og:type", content: "website" },
+        { name: "keywords", content: "travailleur social, OTSTCFQ, services psychosociaux, suivi individuel, homologation de mandat, Québec" },
       ],
-      link: [{ rel: "icon", type: "image/x-icon", href: "/favicon.ico" }],
+      link: [
+        { rel: "icon", type: "image/png", href: "https://5eqf1pkqjlprn7ya.public.blob.vercel-storage.com/favicon.png" },
+        { rel: "apple-touch-icon", href: "https://5eqf1pkqjlprn7ya.public.blob.vercel-storage.com/favicon.png" }
+      ],
+      script: [
+        {
+          type: 'application/ld+json',
+          innerHTML: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "ProfessionalService",
+            "name": "Lamarque TS",
+            "description": "Services psychosociaux professionnels par un travailleur social membre de l'OTSTCFQ. Suivi individuel et homologation de mandat.",
+            "url": "https://lamarquets.com",
+            "areaServed": {
+              "@type": "State",
+              "name": "Québec"
+            },
+            "serviceType": [
+              "Services psychosociaux",
+              "Suivi individuel",
+              "Homologation de mandat"
+            ],
+            "provider": {
+              "@type": "Person",
+              "name": "Lamarque",
+              "jobTitle": "Travailleur social",
+              "memberOf": {
+                "@type": "Organization",
+                "name": "OTSTCFQ"
+              }
+            }
+          })
+        }
+      ],
+      htmlAttrs: {
+        lang: 'fr-CA'
+      }
     },
   },
 
   site: {
     url: "https://lamarquets.com",
+    name: "Lamarque TS",
+    description: "Services psychosociaux professionnels par un travailleur social membre de l'OTSTCFQ",
   },
 
   alias: {
@@ -140,10 +184,10 @@ export default defineNuxtConfig({
         "sign-out-alt",
         "sign-in-alt",
         "xmark",
-        "faStethoscope",
-        "faUserDoctor",
-        "faHospital",
-        "faProcedures",
+        "stethoscope",
+        "user-doctor",
+        "hospital",
+        "procedures",
       ],
     },
   },
