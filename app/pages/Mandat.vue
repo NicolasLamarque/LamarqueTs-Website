@@ -36,7 +36,7 @@
 // Pas besoin d'import manuel
 
 useHead({
-  title: "Homologation de Mandat à Shawinigan | Service professionnel",
+  title: "Service d'Evaluation Psychosociale en vue de l'Homologation de Mandat à Shawinigan | Service professionnel",
   meta: [
     {
       name: "description",

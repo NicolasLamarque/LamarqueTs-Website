@@ -32,7 +32,8 @@
             </h3>
             <p class="text-sm sm:text-base text-gray-600 dark:text-gray-300 leading-relaxed px-2">
               Service de soutien individuel par un travailleur social professionnel. Le service est offert à domicile ou en ligne pour
-              vous accompagner dans vos défis de vie.
+              vous accompagner dans vos défis de vie. N'hésitez pas à me contacter il me fera plaisir de vous écouter pour comprendre votre situation. 
+              
             </p>
             <nuxt-link
               class="mt-4 sm:mt-6 inline-block bg-sky-700 text-white py-2 px-4 sm:px-5 rounded-xl font-semibold shadow hover:bg-sky-600 transition-colors text-sm sm:text-base"
@@ -57,10 +58,10 @@
             </div>
 
             <h3 class="text-lg sm:text-xl md:text-2xl font-semibold text-gray-800 dark:text-gray-100 mb-3 sm:mb-4 px-2 sm:px-4 break-words">
-              Homologation de mandat
+              Évaluation Psychosociale pour Mandat
             </h3>
             <p class="text-sm sm:text-base text-gray-600 dark:text-gray-300 leading-relaxed px-2">
-              Un prix unique incluant toute la démarche d'homologation, sans frais supplémentaire et accessible! Service accessible en Mauricie uniquement.
+              Un prix unique incluant toute la démarche d'évaluation psychosociale en vue de l'homologation de mandat sans frais supplémentaire et accessible! Service accessible en Mauricie uniquement.
               Contactez-moi, les conseils sont gratuits!
             </p>
             <nuxt-link
@@ -88,7 +89,7 @@
               Groupes de soutien
             </h3>
             <p class="text-sm sm:text-base text-gray-600 dark:text-gray-300 leading-relaxed px-2">
-              Groupes de soutien en Mauricie qui seront possiblement offerts en 2026. 
+              Groupes de soutien en Mauricie qui seront possiblement offerts en 2026. Plusieurs sujets sont possibles selon l'intérêt des participants.
               N'hésitez pas à me contacter pour faire connaitre votre intérêt.
             </p>
             <nuxt-link
@@ -114,4 +115,16 @@ const { initTheme } = useDarkMode();
 onMounted(() => {
   initTheme();
 });
+
+// 2. Définir les balises SEO
+useHead({
+  // CECI est votre Balise Titre
+  title: 'Évaluation psychosociale dans le cadre de l’homologation de mandat à Shawinigan | Nicolas Lamarque, TS', 
+  meta: [
+    { 
+      name: 'description', 
+      content: 'Travailleur Social Évaluateur à Shawinigan. Service d’évaluation psychosociale rapide et professionnel pour l’homologation de mandat de protection en Mauricie.' 
+    }
+  ],
+})
 </script>

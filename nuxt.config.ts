@@ -122,11 +122,8 @@ export default defineNuxtConfig({
       "/register",
       "/Calendrier",
       "/Evenements",
-      "/Groupe-Homme",
       "/Procedure",
-      "/Contact-Page",
-      "/blog*",
-    ],
+          ],
 
     defaults: {
       changefreq: "weekly",

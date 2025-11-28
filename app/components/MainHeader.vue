@@ -22,26 +22,28 @@
           Nicolas Lamarque, T.S.
         </span>
         <span class="text-xs sm:text-sm font-normal text-gray-100">
-          Travailleur social - Shawinigan | Homologation de mandat
+          Travailleur social - Shawinigan | Évaluation psychosociale - Homologation de mandat
         </span>
       </div>
     </NuxtLink>
 
     <!-- Menu desktop -->
-    <nav class="hidden md:flex space-x-6">
+    <nav class="hidden md:flex space-x-6 md:text-xl">
       <NuxtLink
         to="/login"
         class="hover:text-gray-200 flex items-center justify-center"
       >
         <LoginIcon size="24" primaryColor="#00c2b2" accentColor="#80e0d8" />
       </NuxtLink>
-      <NuxtLink to="/" class="hover:text-gray-200">Accueil</NuxtLink>
+      <NuxtLink to="/" class="hover:text-sky-300">Accueil</NuxtLink>
 
-      <NuxtLink to="/Mandat" class="hover:text-gray-200"
-        >Homologation de mandat</NuxtLink
+      <NuxtLink to="/Mandat" class="hover:text-sky-300"
+        >Homolgation de mandat</NuxtLink
       >
-      <NuxtLink to="/blog" class="hover:text-gray-200">Blog</NuxtLink>
-      <NuxtLink to="Contact-Page" class="hover:text-gray-200">Contact</NuxtLink>
+      <NuxtLink to="/Accompagnement" class="hover:text-sky-300"
+        >Suivi Psychosocial</NuxtLink>
+      <NuxtLink to="/blog" class="hover:text-sky-300">Blog</NuxtLink>
+      <NuxtLink to="Contact-Page" class="hover:text-sky-300">Contact</NuxtLink>
       <ThemeSwitch />
     </nav>
 
@@ -68,7 +70,8 @@
     <NuxtLink to="/" class="block py-2">Accueil</NuxtLink>
     <NuxtLink to="/blog" class="block py-2">Blog</NuxtLink>
     <NuxtLink to="/contact-page" class="block py-2">Contact</NuxtLink>
-    <NuxtLink to="/Mandat" class="block py-2">Homologation de mandat</NuxtLink>
+    <NuxtLink to="/Mandat" class="block py-2">Homologation de Mandat</NuxtLink>
+    <NuxtLink to="/Accompagnement" class="block py-2">Suivi Psychosocial</NuxtLink>
   </nav>
 </template>
 

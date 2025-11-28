@@ -1,4 +1,6 @@
 User-agent: *
+# Laissez l'accès à toutes les pages par défaut (l'absence de Disallow: / le fait, mais c'est plus clair)
+
 # Interdire l'accès aux pages du dashboard et zones sécurisées
 Disallow: /dashboard/
 Disallow: /admin/
@@ -7,24 +9,15 @@ Disallow: /auth/
 Disallow: /login
 Disallow: /register
 
-# Interdire l'accès aux fichiers sensibles
+# Interdire l'accès aux fichiers sensibles (gardez-le simple)
 Disallow: /*.json$
-Disallow: /*.xml$      # ⚠️ attention : cela inclurait sitemap.xml — je le retire ci-dessous
 Disallow: /config/
 Disallow: /.env
-
-# Autoriser explicitement l'accès au sitemap
-Allow: /sitemap.xml
-
-# Autoriser les pages publiques
-Allow: /
-Allow: /about
-Allow: /contact
 
 # Empêcher l'indexation des paramètres d'URL sensibles
 Disallow: /*?token=
 Disallow: /*?session=
 Disallow: /*?key=
 
-# Sitemap pour aider Google à découvrir les pages
+# Sitemap (C'est ainsi que Google le découvre)
 Sitemap: https://lamarquets.com/sitemap.xml
