@@ -1,14 +1,17 @@
+<!-- ========================================= -->
+<!-- MandatPresentation.vue - Version corrigée -->
+<!-- ========================================= -->
 <template>
   <section class="py-16 px-4">
     <div class="max-w-5xl mx-auto">
       <div
-        class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 md:p-10 border border-teal-100 dark:border-sky-700"
+        class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 md:p-10 border border-gray-200 dark:border-sky-700"
       >
         <h2 class="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-6">
           {{ titre }}
         </h2>
         <div
-          class="space-y-4 text-gray-600 dark:text-gray-300 leading-relaxed"
+          class="space-y-4 text-gray-700 dark:text-gray-300 leading-relaxed"
         >
           <p v-for="(paragraphe, index) in paragraphes" :key="index">
             {{ paragraphe }}

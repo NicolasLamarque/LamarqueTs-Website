@@ -1,8 +1,9 @@
+<!-- Mandat.vue - Version corrigée -->
 <template>
   <div lang="fr" class="min-h-screen bg-slate-100 dark:bg-gray-900">
     
-    <!-- Background fixe avec fond foncé + vagues (derrière TOUT) -->
-    <div class="fixed inset-0 bg-gray-900 z-0">
+    <!-- Background fixe avec vagues -->
+    <div class="fixed inset-0 bg-slate-100 dark:bg-gray-900 z-0">
       <WavesBackground />
     </div>
     
@@ -32,16 +33,13 @@
 </template>
 
 <script setup>
-// Nuxt 4 auto-importe les composants du dossier /components
-// Pas besoin d'import manuel
-
 useHead({
-  title: "Service d'Evaluation Psychosociale en vue de l'Homologation de Mandat à Shawinigan | Service professionnel",
+  title: "Service d'Evaluation Psychosociale en vue de l'Homologation de Mandat a Shawinigan | Service professionnel",
   meta: [
     {
       name: "description",
       content:
-        "Accompagnement complet pour l'homologation de mandat à Shawinigan. Service professionnel, humain et structuré pour faciliter vos démarches légales.",
+        "Accompagnement complet pour l'homologation de mandat a Shawinigan. Service professionnel, humain et structure pour faciliter vos demarches legales.",
     },
   ],
 })

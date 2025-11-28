@@ -16,7 +16,7 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 md:gap-10">
           <!-- Carte 1 -->
           <div
-            class="group bg-white dark:bg-gray-800 rounded-xl sm:rounded-2xl shadow-lg hover:shadow-xl transition-all duration-500 p-5 sm:p-6 md:p-8 text-center border border-teal-100 dark:border-sky-700 w-full"
+            class="group bg-white dark:bg-gray-800 rounded-xl sm:rounded-2xl shadow-lg hover:shadow-xl transition-all duration-500 p-5 sm:p-6 md:p-8 text-center border border-teal-100 dark:border-sky-700 w-full flex flex-col"
           >
             <div class="w-full flex justify-center mb-4 sm:mb-6">
               <ImgCard
@@ -30,7 +30,7 @@
             <h3 class="text-lg sm:text-xl md:text-2xl font-semibold text-gray-800 dark:text-gray-100 mb-3 sm:mb-4 px-2 sm:px-4">
               Suivi individuel
             </h3>
-            <p class="text-sm sm:text-base text-gray-600 dark:text-gray-300 leading-relaxed px-2">
+            <p class="text-sm sm:text-base text-gray-600 dark:text-gray-300 leading-relaxed px-2 flex-grow">
               Service de soutien individuel par un travailleur social professionnel. Le service est offert à domicile ou en ligne pour
               vous accompagner dans vos défis de vie. N'hésitez pas à me contacter il me fera plaisir de vous écouter pour comprendre votre situation. 
               
@@ -45,7 +45,7 @@
 
           <!-- Carte 2 -->
           <div
-            class="group bg-white dark:bg-gray-800 rounded-xl sm:rounded-2xl shadow-lg hover:shadow-xl transition-all duration-500 p-5 sm:p-6 md:p-8 text-center border border-teal-100 dark:border-sky-700 w-full"
+            class="group bg-white dark:bg-gray-800 rounded-xl sm:rounded-2xl shadow-lg hover:shadow-xl transition-all duration-500 p-5 sm:p-6 md:p-8 text-center border border-teal-100 dark:border-sky-700 w-full flex flex-col"
           >
             <div class="w-full flex justify-center mb-4 sm:mb-6">
               <ImgCard
@@ -58,11 +58,11 @@
             </div>
 
             <h3 class="text-lg sm:text-xl md:text-2xl font-semibold text-gray-800 dark:text-gray-100 mb-3 sm:mb-4 px-2 sm:px-4 break-words">
-              Évaluation Psychosociale pour Mandat
+              Évaluation : Homologation de Mandat
             </h3>
-            <p class="text-sm sm:text-base text-gray-600 dark:text-gray-300 leading-relaxed px-2">
-              Un prix unique incluant toute la démarche d'évaluation psychosociale en vue de l'homologation de mandat sans frais supplémentaire et accessible! Service accessible en Mauricie uniquement.
-              Contactez-moi, les conseils sont gratuits!
+            <p class="text-sm sm:text-base text-gray-600 dark:text-gray-300 leading-relaxed px-2 flex-grow">
+              Un prix unique couvrant l'ensemble de la démarche d'évaluation psychosociale en vue de l'homologation d'un mandat de protection. Service offert exclusivement en Mauricie. Contactez-moi : les conseils sont gratuits!
+
             </p>
             <nuxt-link
               class="mt-4 sm:mt-6 inline-block bg-sky-700 text-white py-2 px-4 sm:px-5 rounded-xl font-semibold shadow hover:bg-sky-600 transition-colors text-sm sm:text-base"
@@ -73,7 +73,7 @@
 
           <!-- Carte 3 -->
           <div
-            class="group bg-white dark:bg-gray-800 rounded-xl sm:rounded-2xl shadow-lg hover:shadow-xl transition-all duration-500 p-5 sm:p-6 md:p-8 text-center border border-teal-100 dark:border-sky-700 w-full"
+            class="group bg-white dark:bg-gray-800 rounded-xl sm:rounded-2xl shadow-lg hover:shadow-xl transition-all duration-500 p-5 sm:p-6 md:p-8 text-center border border-teal-100 dark:border-sky-700 w-full flex flex-col"
           >
             <div class="w-full flex justify-center mb-4 sm:mb-6">
               <ImgCard
@@ -88,7 +88,7 @@
             <h3 class="text-lg sm:text-xl md:text-2xl font-semibold text-gray-800 dark:text-gray-100 mb-3 sm:mb-4 px-2 sm:px-4">
               Groupes de soutien
             </h3>
-            <p class="text-sm sm:text-base text-gray-600 dark:text-gray-300 leading-relaxed px-2">
+            <p class="text-sm sm:text-base text-gray-600 dark:text-gray-300 leading-relaxed px-2 flex-grow">
               Groupes de soutien en Mauricie qui seront possiblement offerts en 2026. Plusieurs sujets sont possibles selon l'intérêt des participants.
               N'hésitez pas à me contacter pour faire connaitre votre intérêt.
             </p>
@@ -96,7 +96,7 @@
               class="mt-4 sm:mt-6 inline-block bg-sky-700 text-white py-2 px-4 sm:px-5 rounded-xl font-semibold shadow hover:bg-sky-600 transition-colors text-sm sm:text-base"
               to="/Groupe-Homme"
             >
-              faites connaître votre intérêt!
+              Faites connaître votre intérêt!
             </nuxt-link>
           </div>
         </div>
@@ -116,14 +116,14 @@ onMounted(() => {
   initTheme();
 });
 
-// 2. Définir les balises SEO
+// 2. Definir les balises SEO
 useHead({
   // CECI est votre Balise Titre
-  title: 'Évaluation psychosociale dans le cadre de l’homologation de mandat à Shawinigan | Nicolas Lamarque, TS', 
+  title: 'Evaluation psychosociale dans le cadre de l\'homologation de mandat a Shawinigan | Nicolas Lamarque, TS', 
   meta: [
     { 
       name: 'description', 
-      content: 'Travailleur Social Évaluateur à Shawinigan. Service d’évaluation psychosociale rapide et professionnel pour l’homologation de mandat de protection en Mauricie.' 
+      content: 'Travailleur Social Evaluateur a Shawinigan. Service d\'evaluation psychosociale rapide et professionnel pour l\'homologation de mandat de protection en Mauricie.' 
     }
   ],
 })
