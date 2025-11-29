@@ -1,21 +1,22 @@
 <template>
-  <div class="w-full max-w-4xl mx-auto">
-    <!-- En-tête -->
-    <div class="text-center mb-8 sm:mb-12">
-      <h1 class="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-100 mb-3 sm:mb-4">
+  <div class="w-full max-w-4xl mx-auto px-3 sm:px-4">
+    <!-- En-tête - OPTIMISÉ -->
+    <div class="text-center mb-6 sm:mb-8 md:mb-12 landscape:short:mb-4">
+      <h1 class="text-2xl sm:text-3xl md:text-4xl landscape:short:text-xl font-bold text-gray-100 mb-2 sm:mb-3 md:mb-4 landscape:short:mb-2">
         Contactez-moi
       </h1>
-      <p class="text-sm sm:text-base md:text-lg text-gray-300 max-w-2xl mx-auto leading-relaxed px-2">
+      <p class="text-sm sm:text-base md:text-lg landscape:short:text-sm text-gray-300 max-w-2xl mx-auto leading-relaxed px-2">
         Je suis là pour vous écouter et vous accompagner. N'hésitez pas à me contacter pour toute question ou pour prendre rendez-vous.
       </p>
     </div>
 
-    <!-- Carte du formulaire -->
-    <div class="bg-gray-800 rounded-xl sm:rounded-2xl shadow-2xl p-5 sm:p-8 md:p-10 border border-gray-700">
-      <form @submit.prevent="handleSubmit" class="space-y-5 sm:space-y-6">
+    <!-- Carte du formulaire - RESPONSIVE -->
+    <div class="bg-gray-800 rounded-xl sm:rounded-2xl shadow-2xl p-4 sm:p-6 md:p-8 lg:p-10 landscape:short:p-4 border border-gray-700">
+      <form @submit.prevent="handleSubmit" class="space-y-4 sm:space-y-5 md:space-y-6 landscape:short:space-y-3">
+        
         <!-- Nom complet -->
         <div>
-          <label for="name" class="block text-sm font-medium text-gray-300 mb-2">
+          <label for="name" class="block text-xs sm:text-sm font-medium text-gray-300 mb-1.5 sm:mb-2">
             Nom complet <span class="text-rose-400">*</span>
           </label>
           <input
@@ -23,14 +24,14 @@
             id="name"
             v-model="formData.name"
             required
-            class="w-full px-4 py-3 rounded-lg border border-gray-600 bg-gray-900 text-gray-100 placeholder-gray-500 focus:ring-2 focus:ring-sky-500 focus:border-transparent transition-all outline-none text-sm sm:text-base"
+            class="w-full px-3 sm:px-4 py-2.5 sm:py-3 landscape:short:py-2 rounded-lg border border-gray-600 bg-gray-900 text-gray-100 placeholder-gray-500 focus:ring-2 focus:ring-sky-500 focus:border-transparent transition-all outline-none text-sm sm:text-base"
             placeholder="Votre nom"
           />
         </div>
 
         <!-- Email -->
         <div>
-          <label for="email" class="block text-sm font-medium text-gray-300 mb-2">
+          <label for="email" class="block text-xs sm:text-sm font-medium text-gray-300 mb-1.5 sm:mb-2">
             Adresse courriel <span class="text-rose-400">*</span>
           </label>
           <input
@@ -38,35 +39,35 @@
             id="email"
             v-model="formData.email"
             required
-            class="w-full px-4 py-3 rounded-lg border border-gray-600 bg-gray-900 text-gray-100 placeholder-gray-500 focus:ring-2 focus:ring-sky-500 focus:border-transparent transition-all outline-none text-sm sm:text-base"
+            class="w-full px-3 sm:px-4 py-2.5 sm:py-3 landscape:short:py-2 rounded-lg border border-gray-600 bg-gray-900 text-gray-100 placeholder-gray-500 focus:ring-2 focus:ring-sky-500 focus:border-transparent transition-all outline-none text-sm sm:text-base"
             placeholder="votre@email.com"
           />
         </div>
 
         <!-- Téléphone -->
         <div>
-          <label for="phone" class="block text-sm font-medium text-gray-300 mb-2">
+          <label for="phone" class="block text-xs sm:text-sm font-medium text-gray-300 mb-1.5 sm:mb-2">
             Téléphone <span class="text-gray-500 text-xs">(optionnel)</span>
           </label>
           <input
             type="tel"
             id="phone"
             v-model="formData.phone"
-            class="w-full px-4 py-3 rounded-lg border border-gray-600 bg-gray-900 text-gray-100 placeholder-gray-500 focus:ring-2 focus:ring-sky-500 focus:border-transparent transition-all outline-none text-sm sm:text-base"
+            class="w-full px-3 sm:px-4 py-2.5 sm:py-3 landscape:short:py-2 rounded-lg border border-gray-600 bg-gray-900 text-gray-100 placeholder-gray-500 focus:ring-2 focus:ring-sky-500 focus:border-transparent transition-all outline-none text-sm sm:text-base"
             placeholder="(819) 123-4567"
           />
         </div>
 
         <!-- Sujet -->
         <div>
-          <label for="subject" class="block text-sm font-medium text-gray-300 mb-2">
+          <label for="subject" class="block text-xs sm:text-sm font-medium text-gray-300 mb-1.5 sm:mb-2">
             Sujet <span class="text-rose-400">*</span>
           </label>
           <select
             id="subject"
             v-model="formData.subject"
             required
-            class="w-full px-4 py-3 rounded-lg border border-gray-600 bg-gray-900 text-gray-100 focus:ring-2 focus:ring-sky-500 focus:border-transparent transition-all outline-none text-sm sm:text-base"
+            class="w-full px-3 sm:px-4 py-2.5 sm:py-3 landscape:short:py-2 rounded-lg border border-gray-600 bg-gray-900 text-gray-100 focus:ring-2 focus:ring-sky-500 focus:border-transparent transition-all outline-none text-sm sm:text-base"
           >
             <option value="">Sélectionnez un sujet</option>
             <option value="accompagnement">Accompagnement individuel</option>
@@ -77,66 +78,66 @@
           </select>
         </div>
 
-        <!-- Message -->
+        <!-- Message - HAUTEUR ADAPTATIVE -->
         <div>
-          <label for="message" class="block text-sm font-medium text-gray-300 mb-2">
+          <label for="message" class="block text-xs sm:text-sm font-medium text-gray-300 mb-1.5 sm:mb-2">
             Message <span class="text-rose-400">*</span>
           </label>
           <textarea
             id="message"
             v-model="formData.message"
             required
-            rows="6"
-            class="w-full px-4 py-3 rounded-lg border border-gray-600 bg-gray-900 text-gray-100 placeholder-gray-500 focus:ring-2 focus:ring-sky-500 focus:border-transparent transition-all outline-none resize-y text-sm sm:text-base"
+            :rows="windowHeight < 500 ? 3 : 6"
+            class="w-full px-3 sm:px-4 py-2.5 sm:py-3 landscape:short:py-2 rounded-lg border border-gray-600 bg-gray-900 text-gray-100 placeholder-gray-500 focus:ring-2 focus:ring-sky-500 focus:border-transparent transition-all outline-none resize-y text-sm sm:text-base"
             placeholder="Décrivez brièvement votre demande..."
           ></textarea>
         </div>
 
-        <!-- Note de confidentialité -->
-        <div class="bg-teal-900/20 border border-teal-800 rounded-lg p-4">
-          <div class="flex items-start gap-3">
-            <svg class="w-5 h-5 text-sky-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <!-- Note de confidentialité - COMPACTE -->
+        <div class="bg-teal-900/20 border border-teal-800 rounded-lg p-3 sm:p-4 landscape:short:p-2">
+          <div class="flex items-start gap-2 sm:gap-3">
+            <svg class="w-4 h-4 sm:w-5 sm:h-5 landscape:short:w-4 landscape:short:h-4 text-sky-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
             </svg>
-            <p class="text-xs sm:text-sm text-sky-300 leading-relaxed">
+            <p class="text-xs sm:text-sm landscape:short:text-xs text-sky-300 leading-relaxed">
               Vos informations sont sécurisées et traitées de manière confidentielle et ne seront utilisées que pour répondre à votre demande.
             </p>
           </div>
         </div>
 
-        <!-- Boutons -->
-        <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-2">
+        <!-- Boutons - RESPONSIVE -->
+        <div class="flex flex-col sm:flex-row landscape:short:flex-row gap-2 sm:gap-3 md:gap-4 landscape:short:gap-2 pt-2">
           <button
             type="submit"
             :disabled="isSubmitting"
-            class="flex-1 bg-sky-600 hover:bg-sky-700 text-white font-semibold py-3 px-6 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
+            class="flex-1 bg-sky-600 hover:bg-sky-700 text-white font-semibold py-2.5 sm:py-3 landscape:short:py-2 px-4 sm:px-6 landscape:short:px-4 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
           >
-         
             <span v-if="!isSubmitting">Envoyer le message</span>
             <span v-else class="flex items-center justify-center gap-2">
-              <svg class="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
+              <svg class="animate-spin h-4 w-4 sm:h-5 sm:w-5" fill="none" viewBox="0 0 24 24">
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
               </svg>
-              Envoi en cours...
+              <span class="hidden sm:inline">Envoi en cours...</span>
+              <span class="sm:hidden">Envoi...</span>
             </span>
           </button>
           
           <nuxt-link
             to="/"
-            class="flex-1 bg-gray-700 hover:bg-gray-600 text-gray-200 font-semibold py-3 px-6 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 text-center text-sm sm:text-base"
+            class="flex-1 bg-gray-700 hover:bg-gray-600 text-gray-200 font-semibold py-2.5 sm:py-3 landscape:short:py-2 px-4 sm:px-6 landscape:short:px-4 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 text-center text-sm sm:text-base"
           >
             Retour à l'accueil
           </nuxt-link>
         </div>
 
-        <!-- Message d'erreur inline -->
-        <div v-if="showError" class="bg-red-900/20 border border-red-800 rounded-lg p-4">
-          <div class="flex items-start gap-3">
-            <svg class="w-5 h-5 text-red-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <!-- Message d'erreur inline - COMPACT -->
+        <div v-if="showError" class="bg-red-900/20 border border-red-800 rounded-lg p-3 sm:p-4 landscape:short:p-2">
+          <div class="flex items-start gap-2 sm:gap-3">
+            <svg class="w-4 h-4 sm:w-5 sm:h-5 landscape:short:w-4 landscape:short:h-4 text-red-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
             </svg>
-            <p class="text-sm text-red-300">
+            <p class="text-xs sm:text-sm text-red-300">
               {{ errorMessage }}
             </p>
           </div>
@@ -144,60 +145,62 @@
       </form>
     </div>
 
-    <!-- Informations de contact -->
-    <div class="mt-8 sm:mt-12 grid sm:grid-cols-2 gap-4 sm:gap-6">
+    <!-- Informations de contact - GRILLE RESPONSIVE -->
+    <div class="mt-6 sm:mt-8 md:mt-12 landscape:short:mt-4 grid sm:grid-cols-2 landscape:short:grid-cols-2 gap-3 sm:gap-4 md:gap-6 landscape:short:gap-3">
+      
       <!-- Email -->
-      <div class="bg-gray-800 rounded-lg sm:rounded-xl shadow-lg p-5 sm:p-6 border border-gray-700">
-        <div class="flex items-center gap-3 mb-2">
-          <div class="w-10 h-10 bg-teal-900/30 rounded-full flex items-center justify-center flex-shrink-0">
-            <svg class="w-5 h-5 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <div class="bg-gray-800 rounded-lg sm:rounded-xl shadow-lg p-4 sm:p-5 md:p-6 landscape:short:p-3 border border-gray-700">
+        <div class="flex items-center gap-2 sm:gap-3 mb-2 landscape:short:mb-1">
+          <div class="w-8 h-8 sm:w-10 sm:h-10 landscape:short:w-8 landscape:short:h-8 bg-teal-900/30 rounded-full flex items-center justify-center flex-shrink-0">
+            <svg class="w-4 h-4 sm:w-5 sm:h-5 landscape:short:w-4 landscape:short:h-4 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
             </svg>
           </div>
-          <h3 class="font-semibold text-gray-100 text-sm sm:text-base">Courriel</h3>
+          <h3 class="font-semibold text-gray-100 text-xs sm:text-sm md:text-base">Courriel</h3>
         </div>
-        <p class="text-gray-300 ml-13 text-sm sm:text-base break-all">
+        <p class="text-gray-300 text-xs sm:text-sm md:text-base break-all ml-10 sm:ml-13 landscape:short:ml-10">
           infos@lamarquets.com
         </p>
       </div>
 
       <!-- Téléphone -->
-      <div class="bg-gray-800 rounded-lg sm:rounded-xl shadow-lg p-5 sm:p-6 border border-gray-700">
-        <div class="flex items-center gap-3 mb-2">
-          <div class="w-10 h-10 bg-teal-900/30 rounded-full flex items-center justify-center flex-shrink-0">
-            <svg class="w-5 h-5 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <div class="bg-gray-800 rounded-lg sm:rounded-xl shadow-lg p-4 sm:p-5 md:p-6 landscape:short:p-3 border border-gray-700">
+        <div class="flex items-center gap-2 sm:gap-3 mb-2 landscape:short:mb-1">
+          <div class="w-8 h-8 sm:w-10 sm:h-10 landscape:short:w-8 landscape:short:h-8 bg-teal-900/30 rounded-full flex items-center justify-center flex-shrink-0">
+            <svg class="w-4 h-4 sm:w-5 sm:h-5 landscape:short:w-4 landscape:short:h-4 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path>
             </svg>
           </div>
-          <h3 class="font-semibold text-gray-100 text-sm sm:text-base">Téléphone</h3>
+          <h3 class="font-semibold text-gray-100 text-xs sm:text-sm md:text-base">Téléphone</h3>
         </div>
-        <p class="text-gray-300 ml-13 text-sm sm:text-base">
+        <p class="text-gray-300 text-xs sm:text-sm md:text-base ml-10 sm:ml-13 landscape:short:ml-10">
           (418) 931-6786
         </p>
       </div>
     </div>
 
-    <!-- Localisation -->
-    <div class="mt-4 sm:mt-6 bg-gray-800 rounded-lg sm:rounded-xl shadow-lg p-5 sm:p-6 border border-gray-700">
-      <div class="flex items-center gap-3 mb-2">
-        <div class="w-10 h-10 bg-teal-900/30 rounded-full flex items-center justify-center flex-shrink-0">
-          <svg class="w-5 h-5 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <!-- Localisation - COMPACT -->
+    <div class="mt-3 sm:mt-4 md:mt-6 landscape:short:mt-3 bg-gray-800 rounded-lg sm:rounded-xl shadow-lg p-4 sm:p-5 md:p-6 landscape:short:p-3 border border-gray-700">
+      <div class="flex items-center gap-2 sm:gap-3 mb-2 landscape:short:mb-1">
+        <div class="w-8 h-8 sm:w-10 sm:h-10 landscape:short:w-8 landscape:short:h-8 bg-teal-900/30 rounded-full flex items-center justify-center flex-shrink-0">
+          <svg class="w-4 h-4 sm:w-5 sm:h-5 landscape:short:w-4 landscape:short:h-4 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
           </svg>
         </div>
-        <h3 class="font-semibold text-gray-100 text-sm sm:text-base">Localisation</h3>
+        <h3 class="font-semibold text-gray-100 text-xs sm:text-sm md:text-base">Localisation</h3>
       </div>
-      <p class="text-gray-300 ml-13 text-sm sm:text-base">
+      <p class="text-gray-300 text-xs sm:text-sm md:text-base ml-10 sm:ml-13 landscape:short:ml-10">
         Shawinigan, Mauricie, Québec
       </p>
     </div>
   </div>
-<SuccessModale v-model="showSuccess" />
+
+  <SuccessModale v-model="showSuccess" />
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 
 defineProps<{
   isDark: boolean
@@ -215,11 +218,21 @@ const isSubmitting = ref(false)
 const showSuccess = ref(false)
 const showError = ref(false)
 const errorMessage = ref('')
+const windowHeight = ref(0)
 
-// Fermer la modale de succès
-const closeSuccessModal = () => {
-  showSuccess.value = false
+// Détecter la hauteur de la fenêtre
+const updateWindowHeight = () => {
+  windowHeight.value = window.innerHeight
 }
+
+onMounted(() => {
+  updateWindowHeight()
+  window.addEventListener('resize', updateWindowHeight)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('resize', updateWindowHeight)
+})
 
 const handleSubmit = async () => {
   isSubmitting.value = true
@@ -227,23 +240,20 @@ const handleSubmit = async () => {
   showSuccess.value = false
   
   try {
-    // 🔥 APPEL API RÉEL - Correspond exactement à /api/mail/index.post.ts
     const response = await $fetch('/api/mail', {
       method: 'POST',
       body: {
-        nom: formData.value.name,           // ✅ Correspond à l'API
-        email: formData.value.email,        // ✅
-        telephone: formData.value.phone,    // ✅ Sera ajouté au message
-        sujet: formData.value.subject,      // ✅
-        message: formData.value.message     // ✅
+        nom: formData.value.name,
+        email: formData.value.email,
+        telephone: formData.value.phone,
+        sujet: formData.value.subject,
+        message: formData.value.message
       }
     })
 
     console.log('✅ Message envoyé et chiffré:', response)
     
-    // Afficher la modale de succès
     showSuccess.value = true
-
     
     // Réinitialiser le formulaire
     formData.value = {
@@ -254,7 +264,6 @@ const handleSubmit = async () => {
       message: ''
     }
     
-    // Masquer automatiquement après 8 secondes (optionnel)
     setTimeout(() => {
       showSuccess.value = false
     }, 8000)
@@ -288,19 +297,5 @@ const handleSubmit = async () => {
 .modal-enter-from > div,
 .modal-leave-to > div {
   transform: scale(0.9) translateY(-20px);
-}
-
-/* Animation de bounce ralentie */
-@keyframes bounce-slow {
-  0%, 100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-10px);
-  }
-}
-
-.animate-bounce-slow {
-  animation: bounce-slow 2s ease-in-out infinite;
 }
 </style>

@@ -1,18 +1,14 @@
 <!-- ========================================= -->
-<!-- MandatHero.vue - Version corrigée -->
+<!-- MandatHero.vue - VERSION PRO -->
 <!-- ========================================= -->
 <template>
-  <section class="relative py-20 px-4">
+  <section class="relative py-12 sm:py-16 md:py-20 landscape:short:py-6 px-4">
     <div class="max-w-6xl mx-auto">
-      <div class="text-center mb-12">
-        <h1
-          class="text-4xl md:text-5xl font-extrabold text-gray-800 dark:text-gray-100 mb-6 tracking-tight"
-        >
+      <div class="text-center mb-8 sm:mb-12 landscape:short:mb-6">
+        <h1 class="text-3xl sm:text-4xl md:text-5xl landscape:short:text-2xl font-extrabold text-gray-800 dark:text-gray-100 mb-4 sm:mb-6 landscape:short:mb-3 tracking-tight">
           {{ titre }}
         </h1>
-        <p
-          class="text-lg md:text-xl text-gray-700 dark:text-gray-300 max-w-3xl mx-auto leading-relaxed"
-        >
+        <p class="text-base sm:text-lg md:text-xl landscape:short:text-sm text-gray-700 dark:text-gray-300 max-w-3xl mx-auto leading-relaxed">
           Votre proche est en perte d'autonomie et chaque instant compte. Je vous accompagne pas à pas dans l'homologation de son mandat à Shawinigan, 
           avec écoute, rigueur et bienveillance. Ensemble, nous assurons que ses droits sa sécurité et ses volontés soient respectés. 
           Respirez un instant… vous êtes entre de bonnes mains. 
@@ -26,12 +22,13 @@
         </p>
       </div>
 
-      <!-- Image principale -->
-      <div class="max-w-4xl mx-auto rounded-2xl overflow-hidden shadow-xl">
+      <!-- Image principale - HAUTEUR ADAPTATIVE -->
+      <div class="max-w-4xl mx-auto rounded-xl sm:rounded-2xl overflow-hidden shadow-xl">
         <img
           :src="imageSrc"
           :alt="imageAlt"
-          class="w-full h-auto"
+          class="w-full h-auto max-h-[400px] sm:max-h-[500px] landscape:short:max-h-[300px] object-cover"
+          loading="lazy"
         />
       </div>
     </div>

@@ -1,3 +1,154 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* =============================================
+   CLASSES UTILITAIRES OPTIONNELLES
+   Tu peux les utiliser ou pas, c'est toi qui choisis !
+   ============================================= */
+
+@layer components {
+  
+  /* 📦 CONTENEURS */
+  .container-safe {
+    @apply w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+  
+  .container-narrow {
+    @apply w-full max-w-4xl mx-auto px-4 sm:px-6;
+  }
+  
+  /* 📏 SECTIONS */
+  .section-spacing {
+    @apply py-12 sm:py-16 md:py-20 landscape:short:py-6;
+  }
+  
+  .section-spacing-tight {
+    @apply py-8 sm:py-12 md:py-16 landscape:short:py-4;
+  }
+  
+  /* 🃏 CARTES */
+  .card-responsive {
+    @apply bg-white dark:bg-gray-800 rounded-xl sm:rounded-2xl;
+    @apply shadow-lg hover:shadow-xl transition-all duration-300;
+    @apply border border-teal-100 dark:border-sky-700;
+    @apply p-6 sm:p-8 md:p-10 landscape:short:p-4;
+  }
+  
+  /* 🎯 GRILLES */
+  .grid-auto-responsive {
+    @apply grid gap-6 sm:gap-8 md:gap-10 landscape:short:gap-4;
+    @apply grid-cols-1 sm:grid-cols-2 lg:grid-cols-3;
+  }
+  
+  /* 🦸 HERO SECTIONS */
+  .hero-responsive {
+    @apply relative min-h-screen landscape:short:min-h-0 landscape:short:h-auto;
+    @apply flex items-center justify-center;
+    @apply py-12 sm:py-16 md:py-20 landscape:short:py-6;
+  }
+  
+  /* 🖼️ IMAGES */
+  .img-responsive {
+    @apply w-full h-auto object-cover landscape:short:max-h-[50vh];
+  }
+  
+  /* 🔘 BOUTONS */
+  .btn-responsive {
+    @apply py-3 px-6 sm:px-8 landscape:short:py-2 landscape:short:px-5;
+    @apply text-sm sm:text-base;
+    @apply rounded-xl font-semibold shadow-lg;
+    @apply transition-all duration-300;
+  }
+  
+  .btn-primary-responsive {
+    @apply btn-responsive;
+    @apply bg-sky-700 text-white hover:bg-sky-600 hover:shadow-xl;
+  }
+  
+  .btn-secondary-responsive {
+    @apply btn-responsive;
+    @apply bg-slate-100 dark:bg-gray-900;
+    @apply text-gray-800 dark:text-gray-100;
+    @apply border border-teal-100 dark:border-sky-700 hover:shadow-xl;
+  }
+}
+
+@layer utilities {
+  
+  /* ✍️ TEXTES FLUIDES */
+  .text-responsive-sm {
+    @apply text-fluid-sm;
+  }
+  
+  .text-responsive-base {
+    @apply text-fluid-base;
+  }
+  
+  .text-responsive-lg {
+    @apply text-fluid-lg;
+  }
+  
+  .text-responsive-xl {
+    @apply text-fluid-xl;
+  }
+  
+  .text-responsive-2xl {
+    @apply text-fluid-2xl;
+  }
+  
+  .text-responsive-3xl {
+    @apply text-fluid-3xl;
+  }
+  
+  .text-responsive-4xl {
+    @apply text-fluid-4xl;
+  }
+  
+  /* 📐 ESPACEMENTS */
+  .gap-responsive {
+    @apply gap-4 sm:gap-6 md:gap-8 landscape:short:gap-3;
+  }
+  
+  .mb-responsive {
+    @apply mb-6 sm:mb-8 md:mb-12 landscape:short:mb-4;
+  }
+  
+  .mb-responsive-lg {
+    @apply mb-8 sm:mb-12 md:mb-16 landscape:short:mb-4;
+  }
+  
+  /* 📏 HAUTEURS */
+  .h-hero {
+    @apply h-[400px] md:h-[500px] landscape:short:h-[250px];
+  }
+}
+
+/* =============================================
+   RÈGLES GLOBALES MODE PAYSAGE
+   S'appliquent automatiquement partout
+   ============================================= */
+
+@media (orientation: landscape) and (max-height: 500px) {
+  /* Limiter les images */
+  img:not([class*="logo"]) {
+    max-height: 60vh;
+    object-fit: cover;
+  }
+  
+  /* Réduire espaces entre sections */
+  section + section {
+    margin-top: 2rem;
+  }
+}
+
+/* Mode TRÈS court */
+@media (orientation: landscape) and (max-height: 400px) {
+  h1 {
+    font-size: clamp(1.25rem, 4vh, 2rem) !important;
+  }
+  
+  h2 {
+    font-size: clamp(1.1rem, 3.5vh, 1.75rem) !important;
+  }
+}
