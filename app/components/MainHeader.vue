@@ -37,13 +37,14 @@
       </NuxtLink>
       <NuxtLink to="/" class="hover:text-sky-300">Accueil</NuxtLink>
 
-      <NuxtLink to="/Mandat" class="hover:text-sky-300"
+      <NuxtLink to="/mandat" class="hover:text-sky-300"
         >Homolgation de mandat</NuxtLink
       >
-      <NuxtLink to="/Accompagnement" class="hover:text-sky-300"
+      <NuxtLink to="/accompagnement" class="hover:text-sky-300"
         >Suivi Psychosocial</NuxtLink>
       <NuxtLink to="/blog" class="hover:text-sky-300">Blog</NuxtLink>
-      <NuxtLink to="Contact-Page" class="hover:text-sky-300">Contact</NuxtLink>
+      <!-- 🔥 CORRECTION : Ajout du / au début -->
+      <NuxtLink to="/contact-page" class="hover:text-sky-300">Contact</NuxtLink>
       <ThemeSwitch />
     </nav>
 
@@ -69,9 +70,10 @@
   <nav v-if="isMenuOpen" class="md:hidden bg-sky-600 text-white shadow-md p-2">
     <NuxtLink to="/" class="block py-2">Accueil</NuxtLink>
     <NuxtLink to="/blog" class="block py-2">Blog</NuxtLink>
+    <!-- 🔥 Note: Le lien mobile utilise déjà le bon chemin en minuscules -->
     <NuxtLink to="/contact-page" class="block py-2">Contact</NuxtLink>
-    <NuxtLink to="/Mandat" class="block py-2">Homologation de Mandat</NuxtLink>
-    <NuxtLink to="/Accompagnement" class="block py-2">Suivi Psychosocial</NuxtLink>
+    <NuxtLink to="/mandat" class="block py-2">Homologation de Mandat</NuxtLink>
+    <NuxtLink to="/accompagnement" class="block py-2">Suivi Psychosocial</NuxtLink>
   </nav>
 </template>
 
@@ -79,7 +81,7 @@
 import { ref } from "vue";
 import LoginIcon from "../components/LoginIcon.vue";
 
-// Contrôle l’état du menu mobile
+// Contrôle l'état du menu mobile
 const isMenuOpen = ref(false);
 const toggleMenu = () => {
   isMenuOpen.value = !isMenuOpen.value;

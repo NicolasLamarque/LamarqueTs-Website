@@ -109,13 +109,27 @@
 
 <script setup>
 import { marked } from 'marked'
+import { onBeforeRouteLeave } from 'vue-router'
 
 // Récupérer l'ID depuis l'URL
 const route = useRoute()
-const articleId = route.params.id
+const articleId = computed(() => route.params.id)
 
-// Charger l'article depuis l'API
-const { data: article, pending, error } = await useFetch(`/api/articles/${articleId}`)
+// 🔥 CORRECTION : Utiliser useAsyncData au lieu de useFetch
+// Cela évite les problèmes de cache entre routes
+const { data: article, pending, error } = await useAsyncData(
+  `article-${articleId.value}`,
+  () => $fetch(`/api/articles/${articleId.value}`),
+  {
+    watch: [articleId]
+  }
+)
+
+// 🔥 Nettoyer l'état quand on quitte la page
+onBeforeRouteLeave(() => {
+  // Force le nettoyage du cache
+  clearNuxtData(`article-${articleId.value}`)
+})
 
 // Convertir le Markdown en HTML
 const htmlContent = computed(() => {
