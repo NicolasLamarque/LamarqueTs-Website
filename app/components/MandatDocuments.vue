@@ -30,9 +30,27 @@
             Contactez-nous pour assistance
           </nuxt-link>
         </div>
+        
       </div>
     </div>
   </section>
+  <!-- Nouvelle section pour les documents -->
+    <section class="py-16 px-4">
+      <div class="container mx-auto max-w-4xl text-center">
+        <h2 class="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-6">
+          Générer votre déclaration sous serment
+        </h2>
+        <NuxtLink
+          to="/declaration-serment"
+          class="inline-flex items-center gap-2 bg-gradient-to-r from-sky-600 to-indigo-600 text-white px-8 py-4 rounded-xl font-semibold hover:from-sky-700 hover:to-indigo-700 transition-all shadow-lg"
+        >
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg>
+          Créer ma déclaration
+        </NuxtLink>
+      </div>
+    </section>
 </template>
 
 <script setup>

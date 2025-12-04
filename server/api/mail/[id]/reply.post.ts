@@ -101,75 +101,98 @@ export default defineEventHandler(async (event) => {
               <meta charset="UTF-8">
               <meta name="viewport" content="width=device-width, initial-scale=1.0">
             </head>
-            <body style="margin: 0; padding: 0; background-color: #f0f9ff; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
-              <div style="max-width: 650px; margin: 40px auto; background: white; border-radius: 20px; overflow: hidden; box-shadow: 0 10px 40px rgba(7, 89, 133, 0.15);">
+            <body style="margin: 0; padding: 0; background-color: #f8fafc; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;">
+              
+              <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff;">
                 
-                <!-- Header avec logo -->
-                <div style="background: linear-gradient(135deg, #0369a1 0%, #075985 100%); padding: 50px 40px; text-align: center; position: relative;">
-                  <img src="https://5eqf1pkqjlprn7ya.public.blob.vercel-storage.com/logo.jpg" alt="LamarqueTs" style="width: 120px; height: auto; border-radius: 12px; margin-bottom: 24px; border: 4px solid rgba(255,255,255,0.2); box-shadow: 0 4px 12px rgba(0,0,0,0.2);">
-                  <h1 style="color: white; margin: 0; font-size: 32px; font-weight: 700; letter-spacing: -0.5px;">Réponse à votre message</h1>
-                  <div style="width: 60px; height: 4px; background: #14b8a6; margin: 16px auto 0; border-radius: 2px;"></div>
+                <!-- En-tête élégant -->
+                <div style="background: linear-gradient(135deg, #0369a1 0%, #0c4a6e 100%); padding: 48px 32px; text-align: center;">
+                  <img src="https://5eqf1pkqjlprn7ya.public.blob.vercel-storage.com/logo.jpg" alt="LamarqueTs" style="width: 100px; height: auto; border-radius: 12px; margin-bottom: 20px; border: 3px solid rgba(255,255,255,0.3); box-shadow: 0 4px 12px rgba(0,0,0,0.2);">
+                  <h1 style="color: #ffffff; margin: 0; font-size: 28px; font-weight: 600; letter-spacing: -0.5px;">LamarqueTs</h1>
+                  <p style="color: #bae6fd; margin: 8px 0 0 0; font-size: 15px;">Services Psychosociaux</p>
                 </div>
                 
-                <!-- Contenu -->
-                <div style="padding: 45px 40px;">
+                <!-- Corps du message -->
+                <div style="padding: 40px 32px;">
                   
-                  <!-- Salutation -->
-                  <p style="color: #1e293b; font-size: 18px; line-height: 1.6; margin: 0 0 32px 0; font-weight: 500;">
+                  <!-- Salutation chaleureuse -->
+                  <p style="color: #1e293b; font-size: 17px; line-height: 1.6; margin: 0 0 24px 0;">
                     Bonjour <strong style="color: #0369a1;">${message.sender_name}</strong>,
                   </p>
                   
-                  <!-- Réponse -->
-                  <div style="background: white; border: 2px solid #14b8a6; border-left: 5px solid #14b8a6; border-radius: 16px; padding: 28px; margin-bottom: 28px; box-shadow: 0 2px 8px rgba(20, 184, 166, 0.12);">
-                    <h2 style="color: #115e59; margin: 0 0 20px 0; font-size: 20px; font-weight: 700; display: flex; align-items: center;">
-                      <span style="margin-right: 12px; font-size: 24px;">📝</span>
-                      Ma réponse
-                    </h2>
-                    <p style="white-space: pre-wrap; line-height: 1.8; color: #1e293b; margin: 0; font-size: 16px;">${reply}</p>
+                  <p style="color: #475569; font-size: 16px; line-height: 1.7; margin: 0 0 32px 0;">
+                    Je vous remercie d'avoir pris le temps de me contacter. Voici ma réponse à votre message concernant <strong>${message.category}</strong>.
+                  </p>
+                  
+                  <!-- Réponse personnalisée -->
+                  <div style="background: #f0f9ff; border-left: 4px solid #0369a1; border-radius: 8px; padding: 24px; margin-bottom: 32px;">
+                    <p style="color: #0c4a6e; font-size: 16px; line-height: 1.8; margin: 0; white-space: pre-wrap;">${reply}</p>
                   </div>
 
-                  <!-- Message original -->
-                  <div style="background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); border-radius: 16px; padding: 24px; margin-bottom: 28px; border: 1px solid #bae6fd;">
-                    <h3 style="color: #0c4a6e; margin: 0 0 16px 0; font-size: 15px; text-transform: uppercase; letter-spacing: 0.8px; font-weight: 700;">
-                      📋 Votre message original
-                    </h3>
-                    <p style="color: #075985; font-size: 15px; margin: 0 0 10px 0; font-weight: 600;">
-                      <strong>Sujet:</strong> ${message.category}
+                  <!-- Rappel du message original (discret) -->
+                  <div style="background: #f8fafc; border-radius: 8px; padding: 20px; margin-bottom: 32px; border: 1px solid #e2e8f0;">
+                    <p style="color: #64748b; font-size: 13px; margin: 0 0 12px 0; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600;">
+                      Votre message du ${new Date(message.created_at).toLocaleDateString('fr-FR', {
+                        day: 'numeric',
+                        month: 'long',
+                        year: 'numeric'
+                      })}
                     </p>
-                    <p style="color: #0c4a6e; font-size: 14px; line-height: 1.7; margin: 0; white-space: pre-wrap;">${message.message.substring(0, 200)}${message.message.length > 200 ? '...' : ''}</p>
+                    <p style="color: #475569; font-size: 14px; line-height: 1.6; margin: 0; font-style: italic;">"${message.message.substring(0, 150)}${message.message.length > 150 ? '...' : ''}"</p>
                   </div>
                   
-                  <!-- CTA -->
-                  <div style="background: linear-gradient(135deg, #ccfbf1 0%, #99f6e4 100%); border-radius: 16px; padding: 28px; text-align: center; border: 2px solid #5eead4;">
-                    <p style="color: #115e59; font-size: 16px; margin: 0 0 20px 0; font-weight: 600;">
-                      💡 <strong>Besoin d'informations supplémentaires ?</strong>
+                  <!-- Section engagement -->
+                  <div style="background: linear-gradient(135deg, #ecfeff 0%, #cffafe 100%); border-radius: 12px; padding: 24px; margin-bottom: 32px; text-align: center;">
+                    <p style="color: #0e7490; font-size: 15px; line-height: 1.7; margin: 0 0 20px 0;">
+                      <strong>Des questions supplémentaires ?</strong><br>
+                      N'hésitez pas à me répondre directement, il me fera plaisir de poursuivre la conversation avec vous.
                     </p>
-                    <a href="mailto:${process.env.ADMIN_EMAIL || 'lamarquets@outlook.com'}" style="display: inline-block; background: linear-gradient(135deg, #0369a1 0%, #075985 100%); color: white; padding: 16px 36px; text-decoration: none; border-radius: 12px; font-weight: 700; font-size: 16px; box-shadow: 0 4px 12px rgba(3, 105, 161, 0.3);">
-                      📧 Répondre à cet email
+                    <a href="mailto:${process.env.ADMIN_EMAIL || 'lamarquets@outlook.com'}" style="display: inline-block; background: linear-gradient(135deg, #0369a1 0%, #0c4a6e 100%); color: white; padding: 14px 32px; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 15px; box-shadow: 0 2px 8px rgba(3, 105, 161, 0.3); transition: all 0.3s ease;">
+                      Répondre à ce message
                     </a>
                   </div>
+
+                  <!-- Message de clôture chaleureux -->
+                  <p style="color: #475569; font-size: 15px; line-height: 1.7; margin: 0;">
+                    Au plaisir d'échanger avec vous,
+                  </p>
+                  <p style="color: #0369a1; font-size: 16px; font-weight: 600; margin: 8px 0 0 0;">
+                    Travailleur social
+                  </p>
                   
                 </div>
                 
-                <!-- Footer -->
-                <div style="background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); padding: 32px 40px; border-top: 3px solid #14b8a6; text-align: center;">
-                  <img src="https://5eqf1pkqjlprn7ya.public.blob.vercel-storage.com/logo.jpg" alt="LamarqueTs" style="width: 80px; height: auto; border-radius: 8px; margin-bottom: 16px; opacity: 0.9;">
-                  <p style="color: #0c4a6e; font-size: 14px; margin: 0 0 10px 0; font-weight: 500;">
-                    Vous recevez cet email en réponse à votre message du ${new Date(message.created_at).toLocaleDateString('fr-FR', {
-                      day: 'numeric',
-                      month: 'long',
-                      year: 'numeric'
-                    })}
+                <!-- Pied de page professionnel -->
+                <div style="background: #f8fafc; padding: 32px; border-top: 1px solid #e2e8f0;">
+                  <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom: 20px;">
+                    <tr>
+                      <td style="text-align: center;">
+                        <img src="https://5eqf1pkqjlprn7ya.public.blob.vercel-storage.com/logo.jpg" alt="LamarqueTs" style="width: 60px; height: auto; border-radius: 8px; margin-bottom: 12px; opacity: 0.8;">
+                      </td>
+                    </tr>
+                  </table>
+                  
+                  <p style="color: #0369a1; font-size: 15px; font-weight: 600; text-align: center; margin: 0 0 8px 0;">
+                    LamarqueTs - Services Psychosociaux
                   </p>
-                  <p style="color: #0369a1; font-size: 13px; margin: 0 0 8px 0; font-weight: 600;">
-                    LamarqueTs
+                  
+                  <p style="color: #64748b; font-size: 13px; text-align: center; margin: 0 0 16px 0; line-height: 1.6;">
+                    Suivi individuel • Évaluation psychosociale • Groupes de soutien
                   </p>
-                  <p style="color: #0c4a6e; font-size: 12px; margin: 0;">
-                    ${process.env.SITE_URL || 'https://lamarquets.com'}
+                  
+                  <p style="color: #0369a1; font-size: 13px; text-align: center; margin: 0 0 4px 0;">
+                    <a href="${process.env.SITE_URL || 'https://lamarquets.com'}" style="color: #0369a1; text-decoration: none; font-weight: 500;">
+                      ${process.env.SITE_URL || 'lamarquets.com'}
+                    </a>
+                  </p>
+                  
+                  <p style="color: #94a3b8; font-size: 12px; text-align: center; margin: 16px 0 0 0; font-style: italic;">
+                    Des services simples pour vous aider
                   </p>
                 </div>
                 
               </div>
+              
             </body>
             </html>
           `

@@ -21,6 +21,16 @@ export default defineNuxtConfig({
     pages: "pages",
   },
 
+  // ✨ AJOUT: Configuration Nitro pour Vercel (NOUVEAU)
+  nitro: {
+    preset: 'vercel',
+    timing: true,
+    prerender: {
+      crawlLinks: true,
+      routes: ['/']
+    }
+  },
+
   app: {
     head: {
       title: "Lamarque TS - Services Psychosociaux",
@@ -123,7 +133,7 @@ export default defineNuxtConfig({
       "/Calendrier",
       "/Evenements",
       "/Procedure",
-          ],
+    ],
 
     defaults: {
       changefreq: "weekly",
