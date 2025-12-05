@@ -21,14 +21,35 @@ export default defineNuxtConfig({
     pages: "pages",
   },
 
-  // ✨ AJOUT: Configuration Nitro pour Vercel (NOUVEAU)
+  // ✨ Configuration Nitro OPTIMISÉE pour Vercel
   nitro: {
     preset: 'vercel',
     timing: true,
+    
+    // Cache intelligent des routes
+    routeRules: {
+      '/': { 
+        swr: 3600,
+        headers: {
+          'Cache-Control': 'public, max-age=3600, must-revalidate'
+        }
+      },
+      '/**': { 
+        swr: 3600,
+        headers: {
+          'Cache-Control': 'public, max-age=3600, must-revalidate'
+        }
+      }
+    },
+    
+    // Prérendu pour performance
     prerender: {
       crawlLinks: true,
       routes: ['/']
-    }
+    },
+    
+    // Compression
+    compressPublicAssets: true,
   },
 
   app: {
@@ -212,5 +233,8 @@ export default defineNuxtConfig({
       custom350: 350,
       custom700: 700,
     },
+    // Optimisation images
+    format: ['webp'],
+    quality: 85,
   },
 });
