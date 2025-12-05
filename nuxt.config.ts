@@ -28,9 +28,6 @@ export default defineNuxtConfig({
     prerender: {
       crawlLinks: true,
       routes: ['/']
-    },
-    routeRules: {
-      '/': { static: true }, // ⬅️ AJOUT CRITIQUE POUR LE TEST
     }
   },
 
@@ -117,7 +114,7 @@ export default defineNuxtConfig({
 
   modules: [
     "@nuxtjs/tailwindcss",
-    //"@nuxt/image",
+    "@nuxt/image",
     "@vesp/nuxt-fontawesome",
     "@nuxtjs/sitemap",
   ],
