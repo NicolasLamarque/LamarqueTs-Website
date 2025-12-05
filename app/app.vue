@@ -10,6 +10,19 @@
 import { useDarkMode } from './composables/useDarkMode'
 import { onMounted } from 'vue'
 
+// --- TITRE GLOBAL POUR GOOGLE & SEO ---
+useHead({
+  title: "Lamarque TS — Services psychosociaux professionnels",
+  meta: [
+    {
+      name: "description",
+      content:
+        "Services psychosociaux, évaluations, soutien et accompagnement professionnel. Expertise en intervention et soutien à domicile.",
+    },
+  ],
+})
+
+// --- DARK MODE ---
 const { initTheme } = useDarkMode()
 
 onMounted(() => {
