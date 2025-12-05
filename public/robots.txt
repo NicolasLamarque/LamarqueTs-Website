@@ -13,7 +13,6 @@ Disallow: /login
 Disallow: /register
 Disallow: /Calendrier
 Disallow: /Evenements
-Disallow: /Procedure
 
 # Sitemap
 Sitemap: https://www.lamarquets.com/sitemap.xml

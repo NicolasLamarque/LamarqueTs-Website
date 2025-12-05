@@ -4,8 +4,8 @@ export default defineNuxtConfig({
   compatibilityDate: "2024-11-20",
   components: true,
 
-  // ✨ MODE SPA - Désactive SSR pour éliminer les timeouts serveur
-  ssr: false,
+  // ✅ SSR ACTIVÉ - Nécessaire pour les routes API
+  ssr: true,
 
   devtools: {
     enabled: true,
@@ -24,23 +24,43 @@ export default defineNuxtConfig({
     pages: "pages",
   },
 
-  // ✨ Configuration Nitro OPTIMISÉE pour Vercel
+  // ✅ Configuration Nitro OPTIMISÉE pour Vercel
   nitro: {
     preset: 'vercel',
     timing: true,
     
-    // Cache intelligent des routes
+    // ✅ SOLUTION: Désactive SSR page par page (pas globalement)
     routeRules: {
+      // Pages publiques en mode SPA (évite timeout/499)
       '/': { 
+        ssr: false,
         swr: 3600,
         headers: {
           'Cache-Control': 'public, max-age=3600, must-revalidate'
         }
       },
-      '/**': { 
-        swr: 3600,
+      '/services': { ssr: false },
+      '/contact': { ssr: false },
+      '/about': { ssr: false },
+      '/Procedure': { ssr: false },
+      
+      // Dashboard et pages protégées en SSR
+      '/dashboard/**': { 
+        ssr: true,
         headers: {
-          'Cache-Control': 'public, max-age=3600, must-revalidate'
+          'Cache-Control': 'private, no-cache, no-store, must-revalidate'
+        }
+      },
+      '/login': { ssr: false },
+      
+      // API routes - TOUJOURS avec serveur actif
+      '/api/**': { 
+        cors: true,
+        headers: {
+          'Access-Control-Allow-Credentials': 'true',
+          'Access-Control-Allow-Origin': 'https://lamarquets.com',
+          'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+          'Access-Control-Allow-Headers': 'Content-Type, Authorization'
         }
       }
     },
