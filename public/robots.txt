@@ -1,23 +1,19 @@
 User-agent: *
-# Laissez l'accès à toutes les pages par défaut (l'absence de Disallow: / le fait, mais c'est plus clair)
+Allow: /
 
-# Interdire l'accès aux pages du dashboard et zones sécurisées
+# Interdire l'accès aux zones sécurisées
 Disallow: /dashboard/
+Disallow: /Dashboard
 Disallow: /admin/
 Disallow: /api/
 Disallow: /auth/
+Disallow: /profile/
+Disallow: /settings/
 Disallow: /login
 Disallow: /register
+Disallow: /Calendrier
+Disallow: /Evenements
+Disallow: /Procedure
 
-# Interdire l'accès aux fichiers sensibles (gardez-le simple)
-Disallow: /*.json$
-Disallow: /config/
-Disallow: /.env
-
-# Empêcher l'indexation des paramètres d'URL sensibles
-Disallow: /*?token=
-Disallow: /*?session=
-Disallow: /*?key=
-
-# Sitemap (C'est ainsi que Google le découvre)
-Sitemap: https://lamarquets.com/sitemap.xml
+# Sitemap
+Sitemap: https://www.lamarquets.com/sitemap.xml
