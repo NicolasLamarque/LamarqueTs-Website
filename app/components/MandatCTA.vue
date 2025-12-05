@@ -44,7 +44,7 @@ const props = defineProps({
   },
   primaryButtonLink: {
     type: String,
-    default: "/contact-page"
+    default: "/contact"
   },
   secondaryButtonText: {
     type: String,

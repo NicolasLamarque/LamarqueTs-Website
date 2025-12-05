@@ -24,7 +24,7 @@
       </section>
 
       <!-- Section CTA -->
-      <MandatCTA primary-button-link="/Contact-Page" />
+      <MandatCTA primary-button-link="/contact" />
 
       <!-- Section Documents requis -->
       <MandatDocuments />

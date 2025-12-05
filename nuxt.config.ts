@@ -4,7 +4,7 @@ export default defineNuxtConfig({
   compatibilityDate: "2024-11-20",
   components: true,
 
-  // ✅ SSR ACTIVÉ - Nécessaire pour les routes API
+  // ✅ SSR activé (nécessaire pour API + SEO)
   ssr: true,
 
   devtools: {
@@ -24,51 +24,83 @@ export default defineNuxtConfig({
     pages: "pages",
   },
 
-  // ✅ Configuration Nitro OPTIMISÉE pour Vercel
+  // ✅ Configuration Nitro OPTIMISÉE pour SEO + Performance
   nitro: {
     preset: 'vercel',
     timing: true,
     
-    // ✅ SOLUTION: Désactive SSR page par page (pas globalement)
     routeRules: {
-      // Pages publiques en mode SPA (évite timeout/499)
+      // ✅ PAGES PUBLIQUES - PRÉRENDUES (Google voit HTML statique)
       '/': { 
-        ssr: false,
+        prerender: true,
         swr: 3600,
         headers: {
-          'Cache-Control': 'public, max-age=3600, must-revalidate'
+          'Cache-Control': 'public, max-age=3600, must-revalidate',
+          'X-Robots-Tag': 'index, follow, max-snippet:-1, max-image-preview:large'
         }
       },
-      '/services': { ssr: false },
-      '/contact': { ssr: false },
-      '/about': { ssr: false },
-      '/Procedure': { ssr: false },
+      '/services': { 
+        prerender: true,
+        swr: 3600 
+      },
+      '/contact': { 
+        prerender: true,
+        swr: 3600 
+      },
+      '/about': { 
+        prerender: true,
+        swr: 3600 
+      },
+      '/Procedure': { 
+        prerender: true,
+        swr: 3600 
+      },
       
-      // Dashboard et pages protégées en SSR
+      // ✅ Pages privées - Pas d'indexation
       '/dashboard/**': { 
         ssr: true,
         headers: {
-          'Cache-Control': 'private, no-cache, no-store, must-revalidate'
+          'Cache-Control': 'private, no-cache, no-store, must-revalidate',
+          'X-Robots-Tag': 'noindex, nofollow'
         }
       },
-      '/login': { ssr: false },
+      '/login': { 
+        ssr: false,
+        headers: {
+          'X-Robots-Tag': 'noindex, nofollow'
+        }
+      },
+      '/register': { 
+        ssr: false,
+        headers: {
+          'X-Robots-Tag': 'noindex, nofollow'
+        }
+      },
       
-      // API routes - TOUJOURS avec serveur actif
+      // ✅ API routes - Serveur actif + CORS
       '/api/**': { 
         cors: true,
         headers: {
           'Access-Control-Allow-Credentials': 'true',
           'Access-Control-Allow-Origin': 'https://lamarquets.com',
           'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-          'Access-Control-Allow-Headers': 'Content-Type, Authorization'
+          'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+          'X-Robots-Tag': 'noindex, nofollow'
         }
       }
     },
     
-    // Prérendu pour performance
+    // ✅ PRÉRENDU au build - Pages statiques pour bots
     prerender: {
       crawlLinks: true,
-      routes: ['/']
+      routes: [
+        '/',
+        '/services', 
+        '/contact', 
+        '/about', 
+        '/Procedure'
+      ],
+      failOnError: false
     },
     
     // Compression
@@ -86,15 +118,18 @@ export default defineNuxtConfig({
           content: "Services psychosociaux professionnels par un travailleur social membre de l'OTSTCFQ. Suivi individuel et homologation de mandat en protection.",
         },
         { name: "color-scheme", content: "dark light" },
+        { name: "robots", content: "index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" },
         { property: "og:title", content: "Lamarque TS - Services Psychosociaux" },
         { property: "og:description", content: "Services psychosociaux professionnels par un travailleur social membre de l'OTSTCFQ" },
         { property: "og:url", content: "https://lamarquets.com" },
         { property: "og:type", content: "website" },
+        { property: "og:locale", content: "fr_CA" },
         { name: "keywords", content: "travailleur social, OTSTCFQ, services psychosociaux, suivi individuel, homologation de mandat, Québec" },
       ],
       link: [
         { rel: "icon", type: "image/png", href: "https://5eqf1pkqjlprn7ya.public.blob.vercel-storage.com/favicon.png" },
-        { rel: "apple-touch-icon", href: "https://5eqf1pkqjlprn7ya.public.blob.vercel-storage.com/favicon.png" }
+        { rel: "apple-touch-icon", href: "https://5eqf1pkqjlprn7ya.public.blob.vercel-storage.com/favicon.png" },
+        { rel: "canonical", href: "https://lamarquets.com" }
       ],
       script: [
         {
@@ -163,27 +198,75 @@ export default defineNuxtConfig({
     "@nuxtjs/sitemap",
   ],
 
+  // ✅ SITEMAP CONFIGURATION OPTIMISÉE
   sitemap: {
+    // URL de base
+    hostname: 'https://lamarquets.com',
+    
+    // Exclure les pages privées et inutiles
     exclude: [
-      "/dashboard/**",
-      "/Dashboard",
-      "/admin/**",
-      "/api/**",
-      "/auth/**",
-      "/profile/**",
-      "/settings/**",
-      "/login",
-      "/register",
-      "/Calendrier",
-      "/Evenements",
-      "/Procedure",
+      '/dashboard/**',
+      '/admin/**',
+      '/api/**',
+      '/login',
+      '/Calendrier',
+      '/Evenements',
+      '/credits',  // Page secondaire
+      '/declaration-serment',  // Page très spécifique
     ],
 
+    // Configuration par défaut pour toutes les URLs
     defaults: {
       changefreq: "weekly",
-      priority: 0.8,
+      priority: 0.7,
+      lastmod: new Date().toISOString()
     },
 
+    // URLs spécifiques avec priorités personnalisées
+    urls: [
+      {
+        loc: '/',
+        changefreq: 'daily',
+        priority: 1.0
+      },
+      {
+        loc: '/mandat',
+        changefreq: 'weekly',
+        priority: 0.95  // Service principal
+      },
+      {
+        loc: '/accompagnement',
+        changefreq: 'weekly',
+        priority: 0.9  // Service principal
+      },
+      {
+        loc: '/contact',
+        changefreq: 'monthly',
+        priority: 0.85
+      },
+      {
+        loc: '/groupe-homme',
+        changefreq: 'monthly',
+        priority: 0.8
+      },
+      {
+        loc: '/Procedure',
+        changefreq: 'monthly',
+        priority: 0.7  // Guide utile pour SEO
+      },
+      {
+        loc: '/blog',
+        changefreq: 'weekly',
+        priority: 0.7
+      },
+      {
+        loc: '/politique-confidentialite',
+        changefreq: 'yearly',
+        priority: 0.3
+      }
+    ],
+
+    // Génération automatique des lastmod
     autoLastmod: true,
   },
 
@@ -256,7 +339,6 @@ export default defineNuxtConfig({
       custom350: 350,
       custom700: 700,
     },
-    // Optimisation images
     format: ['webp'],
     quality: 85,
   },

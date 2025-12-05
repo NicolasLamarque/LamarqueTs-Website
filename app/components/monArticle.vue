@@ -120,7 +120,7 @@
             Je serais ravi d'échanger avec vous. N'hésitez pas à me contacter directement.
           </p>
           <NuxtLink
-            to="/Contact-Page"
+            to="/contact"
             class="inline-block bg-sky-700 text-white font-semibold py-2 sm:py-3 px-5 sm:px-8 rounded-xl shadow hover:bg-sky-600 transition-all duration-300 text-sm sm:text-base"
           >
             Me contacter
