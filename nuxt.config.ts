@@ -4,6 +4,9 @@ export default defineNuxtConfig({
   compatibilityDate: "2024-11-20",
   components: true,
 
+  // ✨ MODE SPA - Désactive SSR pour éliminer les timeouts serveur
+  ssr: false,
+
   devtools: {
     enabled: true,
   },
