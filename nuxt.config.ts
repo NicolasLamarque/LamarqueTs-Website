@@ -28,6 +28,9 @@ export default defineNuxtConfig({
     prerender: {
       crawlLinks: true,
       routes: ['/']
+    },
+    routeRules: {
+      '/': { static: true }, // ⬅️ AJOUT CRITIQUE POUR LE TEST
     }
   },
 
