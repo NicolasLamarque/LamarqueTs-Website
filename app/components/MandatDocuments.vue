@@ -24,7 +24,7 @@
         </ul>
         <div class="text-center mt-8 sm:mt-10 landscape:short:mt-6">
           <nuxt-link
-            to="/Contact-Page"
+            to="/contact"
             class="inline-block bg-sky-700 text-white px-6 sm:px-8 py-2.5 sm:py-3 landscape:short:py-2 landscape:short:px-5 rounded-xl sm:rounded-full font-semibold hover:bg-sky-600 transition-all duration-300 shadow-lg hover:shadow-xl text-sm sm:text-base"
           >
             Contactez-nous pour assistance

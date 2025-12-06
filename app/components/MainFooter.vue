@@ -55,7 +55,7 @@
             Accueil
           </NuxtLink>
           <span class="text-gray-600">·</span>
-          <NuxtLink to="/Contact-Page" class="hover:text-white transition-colors duration-200">
+          <NuxtLink to="/contact" class="hover:text-white transition-colors duration-200">
             Contact
           </NuxtLink>
           <span class="text-gray-600">·</span>

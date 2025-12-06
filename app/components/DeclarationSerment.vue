@@ -568,11 +568,13 @@
                     <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
                       Si vous connaissez déjà le TS assigné au dossier
                     </p>
-<p class="text-gray-500 italic mt-2">
-  Vous pouvez indiquer le nom du travailleur social à qui vous remettrez l’affidavit. 
-  Sachez toutefois que cela est optionnel et que cette mention est limitative, 
-  notamment si la situation évolue et qu’un autre TS doit être mandaté au cours de la démarche.
-</p>
+                    <p class="text-gray-500 italic mt-2">
+                      Vous pouvez indiquer le nom du travailleur social à qui
+                      vous remettrez l’affidavit. Sachez toutefois que cela est
+                      optionnel et que cette mention est limitative, notamment
+                      si la situation évolue et qu’un autre TS doit être mandaté
+                      au cours de la démarche.
+                    </p>
                     <div v-if="inclureNomTS" class="mt-4">
                       <input
                         v-model="formData.nomTS"
@@ -715,13 +717,16 @@
                       Le témoin doit signer l'affidavit si requis
                     </li>
                     <li>
-  Si vous le faites assermenter : <a
-    href="https://www.assermentation.justice.gouv.qc.ca/ServicesPublicsConsultation/Commissaires/Proximite/Criteres.aspx"
-    target="_blank"
-    rel="noopener noreferrer"
-    class="text-sky-700 dark:text-sky-400 underline hover:text-sky-900 dark:hover:text-sky-300"
-  >prenez rendez‑vous avec un commissaire à l’assermentation (≈ 5 $)</a>
-</li>
+                      Si vous le faites assermenter :
+                      <a
+                        href="https://www.assermentation.justice.gouv.qc.ca/ServicesPublicsConsultation/Commissaires/Proximite/Criteres.aspx"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="text-sky-700 dark:text-sky-400 underline hover:text-sky-900 dark:hover:text-sky-300"
+                        >prenez rendez‑vous avec un commissaire à
+                        l’assermentation (≈ 5 $)</a
+                      >
+                    </li>
                     <li>
                       Le commissaire complétera et signera la section
                       d'assermentation
@@ -742,8 +747,9 @@
                   </ol>
                   <p class="mt-4 text-sm text-green-700 dark:text-green-200">
                     <strong>Note:</strong> Le coût maximum pour une
-                    assermentation est de 5$ par document au Québec. Un Commissaire
-                    à l'assermentation ne rédige pas de documents légaux ni n'offre de conseils juridiques.
+                    assermentation est de 5$ par document au Québec. Un
+                    Commissaire à l'assermentation ne rédige pas de documents
+                    légaux ni n'offre de conseils juridiques.
                   </p>
                 </div>
               </div>

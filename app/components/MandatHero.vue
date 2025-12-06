@@ -13,7 +13,7 @@
           avec écoute, rigueur et bienveillance. Ensemble, nous assurons que ses droits sa sécurité et ses volontés soient respectés. 
           Respirez un instant… vous êtes entre de bonnes mains. 
           <NuxtLink 
-            to="/contact-page" 
+            to="/contact" 
             class="text-sky-700 dark:text-sky-400 underline hover:text-sky-900 dark:hover:text-sky-300 transition-colors font-semibold"
           >
             Contactez-moi aujourd'hui

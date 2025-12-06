@@ -403,7 +403,7 @@
           class="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center px-2"
         >
           <nuxt-link
-            to="/Contact-Page"
+            to="/Contact"
             class="inline-block bg-sky-700 text-white py-3 px-6 sm:px-8 rounded-xl font-semibold shadow-lg hover:shadow-xl hover:bg-sky-600 transition-all duration-500"
           >
             Manifester mon intérêt

@@ -70,7 +70,7 @@
           Blog
         </NuxtLink>
         <NuxtLink 
-          to="/contact-page" 
+          to="/contact" 
           class="hover:text-sky-300 transition-colors text-sm xl:text-base landscape:short:text-sm"
         >
           Contact
@@ -180,7 +180,7 @@
         </NuxtLink>
 
         <NuxtLink 
-          to="/contact-page" 
+          to="/contact" 
           class="block py-3 px-6 landscape:short:py-2 landscape:short:px-4 hover:bg-sky-600 dark:hover:bg-sky-800 transition-colors border-b border-sky-600/50"
           @click="closeMenu"
         >
