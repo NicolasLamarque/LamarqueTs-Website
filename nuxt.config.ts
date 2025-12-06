@@ -5,7 +5,7 @@ export default defineNuxtConfig({
   components: true,
 
   // ✨ MODE SPA - Désactive SSR pour éliminer les timeouts serveur
-  ssr: false,
+  ssr: true,
 
   devtools: {
     enabled: true,
@@ -48,9 +48,20 @@ export default defineNuxtConfig({
     
     // Prérendu pour performance
     prerender: {
-      crawlLinks: true,
-      routes: ['/']
-    },
+  crawlLinks: true,
+  routes: [
+    '/',
+    '/mandat',
+    '/accompagnement',
+    '/contact',
+    '/groupe-homme',
+    '/Procedure',  // Avec P majuscule!
+    '/blog',
+    '/declaration-serment',
+    '/politique-confidentialite',
+    '/credits'
+  ]
+},
     
     // Compression
     compressPublicAssets: true,
@@ -152,7 +163,7 @@ export default defineNuxtConfig({
     // Sans ceci, Nuxt génère des URLs basées sur les noms de fichiers (avec mauvaises casses)
     sources: [],
 
-    // 📋 LISTE DES PAGES À INDEXER PAR GOOGLE
+    // 📋 LISTE DES PAGES À INDEXER 
     // Ajoutez ici toutes les pages que vous voulez voir dans Google
     // Format: '/nom-de-la-route' (minuscules recommandées)
     urls: [
@@ -189,7 +200,7 @@ export default defineNuxtConfig({
       
       // Pages secondaires
       {
-        loc: '/Procedure',             // Fichier: pages/Procedure.vue (garde le P majuscule!)
+        loc: '/procedure',             // Fichier: pages/procedure.vue (garde le P majuscule!)
         changefreq: 'monthly',
         priority: 0.7
       },
@@ -281,6 +292,7 @@ export default defineNuxtConfig({
         "user-doctor",
         "hospital",
         "procedures",
+        "file-pdf",
       ],
     },
   },
