@@ -26,32 +26,32 @@ export default defineNuxtConfig({
 
   // ✨ Configuration Nitro OPTIMISÉE pour Vercel
   nitro: {
-    preset: "vercel",
+    preset: 'vercel',
     timing: true,
-
+    
     // Cache intelligent des routes
     routeRules: {
-      "/": {
-        prerender: true, // ✨ Génère la page d'accueil à l'avance
+      '/': { 
+        prerender: true,  // ✨ Génère la page d'accueil à l'avance
         swr: 3600,
         headers: {
-          "Cache-Control": "public, max-age=3600, must-revalidate",
-        },
+          'Cache-Control': 'public, max-age=3600, must-revalidate'
+        }
       },
-      "/**": {
+      '/**': { 
         swr: 3600,
         headers: {
-          "Cache-Control": "public, max-age=3600, must-revalidate",
-        },
-      },
+          'Cache-Control': 'public, max-age=3600, must-revalidate'
+        }
+      }
     },
-
+    
     // Prérendu pour performance
     prerender: {
       crawlLinks: true,
-      routes: ["/"],
+      routes: ['/']
     },
-
+    
     // Compression
     compressPublicAssets: true,
   },
@@ -64,80 +64,59 @@ export default defineNuxtConfig({
         { name: "viewport", content: "width=device-width, initial-scale=1" },
         {
           name: "description",
-          content:
-            "Services psychosociaux professionnels par un travailleur social membre de l'OTSTCFQ. Suivi individuel et homologation de mandat en protection.",
+          content: "Services psychosociaux professionnels par un travailleur social membre de l'OTSTCFQ. Suivi individuel et homologation de mandat en protection.",
         },
         { name: "color-scheme", content: "dark light" },
-        {
-          property: "og:title",
-          content: "Lamarque TS - Services Psychosociaux",
-        },
-        {
-          property: "og:description",
-          content:
-            "Services psychosociaux professionnels par un travailleur social membre de l'OTSTCFQ",
-        },
+        { property: "og:title", content: "Lamarque TS - Services Psychosociaux" },
+        { property: "og:description", content: "Services psychosociaux professionnels par un travailleur social membre de l'OTSTCFQ" },
         { property: "og:url", content: "https://lamarquets.com" },
         { property: "og:type", content: "website" },
-        {
-          name: "keywords",
-          content:
-            "travailleur social, OTSTCFQ, services psychosociaux, suivi individuel, homologation de mandat, Québec",
-        },
+        { name: "keywords", content: "travailleur social, OTSTCFQ, services psychosociaux, suivi individuel, homologation de mandat, Québec" },
       ],
       link: [
-        {
-          rel: "icon",
-          type: "image/png",
-          href: "https://5eqf1pkqjlprn7ya.public.blob.vercel-storage.com/favicon.png",
-        },
-        {
-          rel: "apple-touch-icon",
-          href: "https://5eqf1pkqjlprn7ya.public.blob.vercel-storage.com/favicon.png",
-        },
+        { rel: "icon", type: "image/png", href: "https://5eqf1pkqjlprn7ya.public.blob.vercel-storage.com/favicon.png" },
+        { rel: "apple-touch-icon", href: "https://5eqf1pkqjlprn7ya.public.blob.vercel-storage.com/favicon.png" }
       ],
       script: [
         {
-          type: "application/ld+json",
+          type: 'application/ld+json',
           innerHTML: JSON.stringify({
             "@context": "https://schema.org",
             "@type": "ProfessionalService",
-            name: "Lamarque TS",
-            description:
-              "Services psychosociaux professionnels par un travailleur social membre de l'OTSTCFQ. Suivi individuel et homologation de mandat.",
-            url: "https://lamarquets.com",
-            areaServed: {
+            "name": "Lamarque TS",
+            "description": "Services psychosociaux professionnels par un travailleur social membre de l'OTSTCFQ. Suivi individuel et homologation de mandat.",
+            "url": "https://lamarquets.com",
+            "areaServed": {
               "@type": "State",
-              name: "Québec",
+              "name": "Québec"
             },
-            serviceType: [
+            "serviceType": [
               "Services psychosociaux",
               "Suivi individuel",
-              "Homologation de mandat",
+              "Homologation de mandat"
             ],
-            provider: {
+            "provider": {
               "@type": "Person",
-              name: "Lamarque",
-              jobTitle: "Travailleur social",
-              memberOf: {
+              "name": "Lamarque",
+              "jobTitle": "Travailleur social",
+              "memberOf": {
                 "@type": "Organization",
-                name: "OTSTCFQ",
-              },
-            },
-          }),
-        },
+                "name": "OTSTCFQ"
+              }
+            }
+          })
+        }
       ],
       htmlAttrs: {
-        lang: "fr-CA",
-      },
+        lang: 'fr-CA'
+      }
     },
   },
 
   site: {
     url: "https://lamarquets.com",
     name: "Lamarque TS",
-    description:
-      "Services psychosociaux professionnels par un travailleur social membre de l'OTSTCFQ",
+    description: "Services psychosociaux professionnels par un travailleur social membre de l'OTSTCFQ",
   },
 
   alias: {
@@ -167,66 +146,79 @@ export default defineNuxtConfig({
 
   // Sitemap - TOUTES vos vraies pages
   sitemap: {
+    // Désactiver la génération automatique
+    sources: [],
+    
     exclude: [
-      "/dashboard/**",
-      "/api/**",
-      "/auth/**",
-      "/login",
-      "/Calendrier",
-      "/Evenements",
+      '/dashboard/**',
+      '/Dashboard',
+      '/admin/**',
+      '/api/**',
+      '/auth/**',
+      '/profile/**',
+      '/settings/**',
+      '/login',
+      '/register',
+      '/Calendrier',
+      '/Evenements',
+      // Exclure les versions auto-générées bizarres
+      '/Accompagnement',
+      '/Contact-Page',
+      '/Groupe-Homme',
+      '/Mandat',
     ],
 
     urls: [
       {
-        loc: "/",
-        changefreq: "weekly",
-        priority: 1.0,
+        loc: '/',
+        changefreq: 'weekly',
+        priority: 1.0
       },
       {
-        loc: "/mandat",
-        changefreq: "weekly",
-        priority: 0.9,
+        loc: '/mandat',
+        changefreq: 'weekly',
+        priority: 0.9
       },
       {
-        loc: "/accompagnement",
-        changefreq: "weekly",
-        priority: 0.9,
+        loc: '/accompagnement',
+        changefreq: 'weekly',
+        priority: 0.9
       },
       {
-        loc: "/contact",
-        changefreq: "monthly",
-        priority: 0.8,
+        loc: '/contact',
+        changefreq: 'monthly',
+        priority: 0.8
       },
       {
-        loc: "/groupe-homme",
-        changefreq: "monthly",
-        priority: 0.8,
+        loc: '/groupe-homme',
+        changefreq: 'monthly',
+        priority: 0.8
       },
       {
-        loc: "/Procedure",
-        changefreq: "monthly",
-        priority: 0.7,
+        loc: '/Procedure',
+        changefreq: 'monthly',
+        priority: 0.7
       },
       {
-        loc: "/blog",
-        changefreq: "weekly",
-        priority: 0.7,
+        loc: '/blog',
+        changefreq: 'weekly',
+        priority: 0.7
       },
       {
-        loc: "/politique-confidentialite",
-        changefreq: "yearly",
-        priority: 0.3,
+        loc: '/politique-confidentialite',
+        changefreq: 'yearly',
+        priority: 0.3
       },
       {
-        loc: "/credits",
-        changefreq: "yearly",
-        priority: 0.2,
+        loc: '/credits',
+        changefreq: 'yearly',
+        priority: 0.2
       },
       {
-        loc: "/declaration-serment",
-        changefreq: "yearly",
-        priority: 0.2,
-      },
+        loc: '/declaration-serment',
+        changefreq: 'yearly',
+        priority: 0.2
+      }
     ],
 
     defaults: {
@@ -307,7 +299,7 @@ export default defineNuxtConfig({
       custom700: 700,
     },
     // Optimisation images
-    format: ["webp"],
+    format: ['webp'],
     quality: 85,
   },
 });
