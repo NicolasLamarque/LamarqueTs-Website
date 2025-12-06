@@ -144,88 +144,88 @@ export default defineNuxtConfig({
     "@nuxtjs/sitemap",
   ],
 
-  // Sitemap - TOUTES vos vraies pages
+  // ========================================
+  // SITEMAP - Configuration pour Google
+  // ========================================
   sitemap: {
-    // Désactiver la génération automatique
+    // ⚠️ IMPORTANT: Désactive la génération automatique
+    // Sans ceci, Nuxt génère des URLs basées sur les noms de fichiers (avec mauvaises casses)
     sources: [],
-    
-    exclude: [
-      '/dashboard/**',
-      '/Dashboard',
-      '/admin/**',
-      '/api/**',
-      '/auth/**',
-      '/profile/**',
-      '/settings/**',
-      '/login',
-      '/register',
-      '/Calendrier',
-      '/Evenements',
-      // Exclure les versions auto-générées bizarres
-      '/Accompagnement',
-      '/Contact-Page',
-      '/Groupe-Homme',
-      '/Mandat',
-    ],
 
+    // 📋 LISTE DES PAGES À INDEXER PAR GOOGLE
+    // Ajoutez ici toutes les pages que vous voulez voir dans Google
+    // Format: '/nom-de-la-route' (minuscules recommandées)
     urls: [
+      // Page d'accueil (priorité maximale)
       {
-        loc: '/',
+        loc: '/',                      // Fichier: pages/index.vue
         changefreq: 'weekly',
         priority: 1.0
       },
+      
+      // Services principaux (haute priorité pour SEO)
       {
-        loc: '/mandat',
+        loc: '/mandat',                // Fichier: pages/mandat.vue
         changefreq: 'weekly',
         priority: 0.9
       },
       {
-        loc: '/accompagnement',
+        loc: '/accompagnement',        // Fichier: pages/accompagnement.vue
         changefreq: 'weekly',
         priority: 0.9
       },
+      
+      // Pages importantes
       {
-        loc: '/contact',
+        loc: '/contact',               // Fichier: pages/contact.vue
         changefreq: 'monthly',
         priority: 0.8
       },
       {
-        loc: '/groupe-homme',
+        loc: '/groupe-homme',          // Fichier: pages/groupe-homme.vue
         changefreq: 'monthly',
         priority: 0.8
       },
+      
+      // Pages secondaires
       {
-        loc: '/Procedure',
+        loc: '/Procedure',             // Fichier: pages/Procedure.vue (garde le P majuscule!)
         changefreq: 'monthly',
         priority: 0.7
       },
       {
-        loc: '/blog',
+        loc: '/blog',                  // Fichier: pages/blog/index.vue
         changefreq: 'weekly',
         priority: 0.7
       },
+      
+      // Outils pour les clients
       {
-        loc: '/politique-confidentialite',
+        loc: '/declaration-serment',   // Fichier: pages/declaration-serment.vue
+        changefreq: 'monthly',
+        priority: 0.6
+      },
+      
+      // Pages légales (basse priorité mais nécessaires)
+      {
+        loc: '/politique-confidentialite',  // Fichier: pages/politique-confidentialite.vue
         changefreq: 'yearly',
         priority: 0.3
       },
       {
-        loc: '/credits',
-        changefreq: 'yearly',
-        priority: 0.2
-      },
-      {
-        loc: '/declaration-serment',
+        loc: '/credits',               // Fichier: pages/credits.vue
         changefreq: 'yearly',
         priority: 0.2
       }
     ],
 
+    // Configuration par défaut pour toutes les URLs
     defaults: {
       changefreq: "weekly",
       priority: 0.8,
     },
 
+    // Met à jour automatiquement la date de modification
     autoLastmod: true,
   },
 
