@@ -4,7 +4,7 @@ export default defineNuxtConfig({
   compatibilityDate: "2024-11-20",
   components: true,
 
-  // ✨ MODE SPA - Désactive SSR pour éliminer les timeouts serveur
+  // ✅ SSR ACTIVÉ - ESSENTIEL
   ssr: true,
 
   devtools: {
@@ -24,55 +24,9 @@ export default defineNuxtConfig({
     pages: "pages",
   },
 
-  // ✨ Configuration Nitro OPTIMISÉE pour Vercel
+  // Configuration Nitro SIMPLE qui marche
   nitro: {
     preset: 'vercel',
-    timing: true,
-    
-   // nuxt.config.ts (dans la section nitro: { routeRules: { ... }})
-
-routeRules: {
-  // Règle pour la page d'accueil (OK)
-  '/': { 
-    prerender: true, 
-    swr: 3600,
-    headers: {
-      'Cache-Control': 'public, max-age=3600, must-revalidate'
-    }
-  },
-  
-  // ✅ RÈGLES DE REDIRECTION (PLACÉES CORRECTEMENT)
-  '/Evenements': { redirect: { to: '/' } },
-  '/Calendrier': { redirect: { to: '/' } },
-  
-  // 🗑️ Règle globale commentée (OK pour corriger le 499)
-  // '/**': { 
-  //   swr: 3600,
-  //   headers: {
-  //     'Cache-Control': 'public, max-age=3600, must-revalidate'
-  //   }
-  // }
-},
-    
-    // Prérendu pour performance
-    prerender: {
-  crawlLinks: true,
-  routes: [
-    '/',
-    '/mandat',
-    '/accompagnement',
-    '/contact',
-    '/groupe-homme',
-    '/Procedure',  // Avec P majuscule!
-    '/blog',
-    '/declaration-serment',
-    '/politique-confidentialite',
-    '/credits'
-  ]
-},
-    
-    // Compression
-    compressPublicAssets: true,
   },
 
   app: {
@@ -163,89 +117,13 @@ routeRules: {
     "@nuxtjs/sitemap",
   ],
 
-  // ========================================
-  // SITEMAP - Configuration pour Google
-  // ========================================
+  // SITEMAP SIMPLE
   sitemap: {
-    // ⚠️ IMPORTANT: Désactive la génération automatique
-    // Sans ceci, Nuxt génère des URLs basées sur les noms de fichiers (avec mauvaises casses)
-    sources: [],
-
-    // 📋 LISTE DES PAGES À INDEXER 
-    // Ajoutez ici toutes les pages que vous voulez voir dans Google
-    // Format: '/nom-de-la-route' (minuscules recommandées)
-    urls: [
-      // Page d'accueil (priorité maximale)
-      {
-        loc: '/',                      // Fichier: pages/index.vue
-        changefreq: 'weekly',
-        priority: 1.0
-      },
-      
-      // Services principaux (haute priorité pour SEO)
-      {
-        loc: '/mandat',                // Fichier: pages/mandat.vue
-        changefreq: 'weekly',
-        priority: 0.9
-      },
-      {
-        loc: '/accompagnement',        // Fichier: pages/accompagnement.vue
-        changefreq: 'weekly',
-        priority: 0.9
-      },
-      
-      // Pages importantes
-      {
-        loc: '/contact',               // Fichier: pages/contact.vue
-        changefreq: 'monthly',
-        priority: 0.8
-      },
-      {
-        loc: '/groupe-homme',          // Fichier: pages/groupe-homme.vue
-        changefreq: 'monthly',
-        priority: 0.8
-      },
-      
-      // Pages secondaires
-      {
-        loc: '/procedure',             // Fichier: pages/procedure.vue (garde le P majuscule!)
-        changefreq: 'monthly',
-        priority: 0.7
-      },
-      {
-        loc: '/blog',                  // Fichier: pages/blog/index.vue
-        changefreq: 'weekly',
-        priority: 0.7
-      },
-      
-      // Outils pour les clients
-      {
-        loc: '/declaration-serment',   // Fichier: pages/declaration-serment.vue
-        changefreq: 'monthly',
-        priority: 0.6
-      },
-      
-      // Pages légales (basse priorité mais nécessaires)
-      {
-        loc: '/politique-confidentialite',  // Fichier: pages/politique-confidentialite.vue
-        changefreq: 'yearly',
-        priority: 0.3
-      },
-      {
-        loc: '/credits',               // Fichier: pages/credits.vue
-        changefreq: 'yearly',
-        priority: 0.2
-      }
-    ],
-
-    // Configuration par défaut pour toutes les URLs
+    autoLastmod: true,
     defaults: {
       changefreq: "weekly",
       priority: 0.8,
     },
-
-    // Met à jour automatiquement la date de modification
-    autoLastmod: true,
   },
 
   fontawesome: {
@@ -300,7 +178,7 @@ routeRules: {
         "user-doctor",
         "hospital",
         "procedures",
-        "file-pdf",
+        "file-pdf",  // AJOUTÉ pour éviter l'erreur
       ],
     },
   },
@@ -318,7 +196,6 @@ routeRules: {
       custom350: 350,
       custom700: 700,
     },
-    // Optimisation images
     format: ['webp'],
     quality: 85,
   },
