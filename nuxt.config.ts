@@ -27,6 +27,11 @@ export default defineNuxtConfig({
   // Configuration Nitro SIMPLE qui marche
   nitro: {
     preset: 'vercel',
+    // ✨ AJOUTEZ CECI:
+  prerender: {
+    routes: ['/'],
+    crawlLinks: false
+  },
   },
 
   app: {

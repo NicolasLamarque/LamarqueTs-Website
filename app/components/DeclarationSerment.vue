@@ -745,11 +745,9 @@
                       assermentation
                     </li>
                   </ol>
+                  
                   <p class="mt-4 text-sm text-green-700 dark:text-green-200">
-                    <strong>Note:</strong> Le coût maximum pour une
-                    assermentation est de 5$ par document au Québec. Un
-                    Commissaire à l'assermentation ne rédige pas de documents
-                    légaux ni n'offre de conseils juridiques.
+                    <strong>!</strong> Génère un exemple de lettre seulement. Même s'il est vrai que l'on peut remettre l'affidavit directement au travailleur social, il est recommandé de consulter un professionnel du droit pour s'assurer que le document répond aux exigences légales spécifiques à votre situation.
                   </p>
                 </div>
               </div>
