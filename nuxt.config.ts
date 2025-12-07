@@ -29,22 +29,30 @@ export default defineNuxtConfig({
     preset: 'vercel',
     timing: true,
     
-    // Cache intelligent des routes
-    routeRules: {
-      '/': { 
-        prerender: true,  // ✨ Génère la page d'accueil à l'avance
-        swr: 3600,
-        headers: {
-          'Cache-Control': 'public, max-age=3600, must-revalidate'
-        }
-      },
-      '/**': { 
-        swr: 3600,
-        headers: {
-          'Cache-Control': 'public, max-age=3600, must-revalidate'
-        }
-      }
-    },
+   // nuxt.config.ts (dans la section nitro: { routeRules: { ... }})
+
+routeRules: {
+  // Règle pour la page d'accueil (OK)
+  '/': { 
+    prerender: true, 
+    swr: 3600,
+    headers: {
+      'Cache-Control': 'public, max-age=3600, must-revalidate'
+    }
+  },
+  
+  // ✅ RÈGLES DE REDIRECTION (PLACÉES CORRECTEMENT)
+  '/Evenements': { redirect: { to: '/' } },
+  '/Calendrier': { redirect: { to: '/' } },
+  
+  // 🗑️ Règle globale commentée (OK pour corriger le 499)
+  // '/**': { 
+  //   swr: 3600,
+  //   headers: {
+  //     'Cache-Control': 'public, max-age=3600, must-revalidate'
+  //   }
+  // }
+},
     
     // Prérendu pour performance
     prerender: {
