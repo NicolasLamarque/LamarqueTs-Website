@@ -5,7 +5,7 @@
     <MainHeader class="flex-shrink-0" />
     
     <!-- Contenu principal qui prend tout l'espace disponible -->
-    <main class="flex-1 pt-16">
+    <main class="flex-1 pt-1">
       <slot /> 
     </main>
     

@@ -1,33 +1,61 @@
 <template>
-  <!-- Afficher seulement si la vérification est terminée ET l'utilisateur est authentifié -->
   <div v-if="!isChecking && isAuthenticated" class="flex h-screen bg-gray-100 dark:bg-gray-800">
-    <SideBar :activeSection="section" @select="section = $event" class="w-64 bg-gray-900 text-white pt-16" />
+    <!-- Sidebar -->
+    <SideBar :activeSection="section" @select="section = $event" />
 
-    <div class="flex-1 p-6 overflow-auto pt-16">
-      <div class="flex justify-between items-center mb-6">
-        <h1 class="text-4xl font-bold text-gray-800 dark:text-gray-100">
-          LamarqueTS - Dashboard
-        </h1>
-        <BtnDaisyUi @click="logout" label="Déconnexion" />
-      </div>
+    <!-- Contenu principal -->
+    <main class="flex-1 flex flex-col overflow-hidden">
+      <!-- Header -->
+      <header class="bg-white dark:bg-gray-900 shadow-sm p-4 flex-shrink-0">
+        <div class="flex justify-between items-center gap-3">
+          <div class="flex-1 min-w-0">
+            <h1 class="text-xl sm:text-2xl font-bold text-gray-800 dark:text-gray-100 truncate">
+              LamarqueTS
+            </h1>
+            <p class="text-xs sm:text-sm text-gray-500 dark:text-gray-400 truncate">
+              {{ getSectionLabel(section) }}
+            </p>
+          </div>
 
-      <div class="mt-4">
+          <div class="flex items-center gap-2">
+            <!-- Bouton hamburger mobile -->
+            <button 
+              @click="toggleSidebar"
+              class="lg:hidden p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg"
+            >
+              <i class="fas fa-bars text-xl text-gray-800 dark:text-gray-100"></i>
+            </button>
+            
+            <!-- Bouton déconnexion -->
+            <button 
+              @click="logout" 
+              class="px-3 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg flex items-center gap-2 text-sm"
+            >
+              <i class="fas fa-sign-out-alt"></i>
+              <span class="hidden sm:inline">Déconnexion</span>
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <!-- Zone de contenu scrollable -->
+      <div class="flex-1 overflow-y-auto p-3 sm:p-4 lg:p-6">
         <component :is="activeComponent" />
       </div>
-    </div>
+    </main>
   </div>
   
-  <!-- Écran de chargement pendant la vérification -->
+  <!-- Écran de chargement -->
   <div v-else-if="isChecking" class="flex items-center justify-center h-screen bg-gray-900">
     <div class="text-center">
       <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-sky-500 mx-auto mb-4"></div>
-      <p class="text-white text-xl">Vérification de l'authentification...</p>
+      <p class="text-white text-xl">Vérification...</p>
     </div>
   </div>
   
-  <!-- Écran si non authentifié -->
+  <!-- Non authentifié -->
   <div v-else class="flex items-center justify-center h-screen bg-gray-900">
-    <div class="text-white text-xl">Redirection vers la page de connexion...</div>
+    <div class="text-white text-xl">Redirection...</div>
   </div>
 </template>
 
@@ -36,7 +64,7 @@ import { ref, computed, defineAsyncComponent, onMounted } from 'vue'
 import { navigateTo } from '#app'
 
 // Imports statiques
-import BtnDaisyUi from '../components/btnDaisyUi.vue'
+import SideBar from '../components/SideBar.vue'
 
 // Imports dynamiques
 const GestUserDash = defineAsyncComponent(() => import('../components/GestUserDash.vue'))
@@ -46,12 +74,12 @@ const CalendarDash = defineAsyncComponent(() => import('../components/CalendarDa
 const GestSupaBaseDash = defineAsyncComponent(() => import('../components/GestDatabaseDash.vue'))
 const mailsDash = defineAsyncComponent(() => import('../components/GestMailsDash.vue'))
 
-
 const section = ref('articles')
 const isChecking = ref(true)
 const isAuthenticated = ref(false)
+const sidebarRef = ref<InstanceType<typeof SideBar> | null>(null)
 
-// 🔐 VÉRIFICATION DE L'AUTHENTIFICATION AU CHARGEMENT
+// 🔍 VÉRIFICATION DE L'AUTHENTIFICATION AU CHARGEMENT
 onMounted(async () => {
   console.log('🔍 Vérification de l\'authentification...')
   
@@ -77,6 +105,12 @@ onMounted(async () => {
   }
 })
 
+// Toggle sidebar (pour le bouton hamburger dans le header)
+const toggleSidebar = () => {
+  // Émettre un événement personnalisé que le sidebar peut écouter
+  window.dispatchEvent(new CustomEvent('toggle-sidebar'))
+}
+
 // Déconnexion
 const logout = async () => {
   try {
@@ -99,12 +133,25 @@ const componentMap: Record<string, any> = {
   calendar: CalendarDash,
   supabase: GestSupaBaseDash,
   mails: mailsDash
-  }
+}
 
 // Propriété calculée qui retourne le composant à afficher
 const activeComponent = computed(() => {
   return componentMap[section.value]
 })
+
+// Obtenir le label de la section
+const getSectionLabel = (key: string): string => {
+  const labels: Record<string, string> = {
+    articles: 'Articles',
+    users: 'Utilisateurs',
+    services: 'Services',
+    calendar: 'Calendrier',
+    supabase: 'Monitoring DB',
+    mails: 'Gestion Mails'
+  }
+  return labels[key] || ''
+}
 </script>
 
 <style scoped>
@@ -116,5 +163,12 @@ const activeComponent = computed(() => {
 
 .animate-spin {
   animation: spin 1s linear infinite;
+}
+
+/* Amélioration du scroll sur mobile */
+@supports (-webkit-overflow-scrolling: touch) {
+  .overflow-y-auto {
+    -webkit-overflow-scrolling: touch;
+  }
 }
 </style>
