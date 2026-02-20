@@ -63,10 +63,15 @@ export default defineEventHandler(async (event) => {
       content: reply
     }
 
-    const updatedHistory = [
-      ...(message.reply_history || []),
-      replyEntry
-    ]
+    // On s'assure que history est un tableau, même vide
+const currentHistory = Array.isArray(message.reply_history) 
+  ? message.reply_history 
+  : []
+
+const updatedHistory = [
+  ...currentHistory,
+  replyEntry
+]
 
     // Mettre à jour le message
     await db
