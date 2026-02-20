@@ -95,7 +95,7 @@ const updatedHistory = [
         //console.log(`📧 Envoi de la réponse à ${message.sender_email}...`)
         
         const emailResult = await resend.emails.send({
-          from: `LamarqueTs <${process.env.RESEND_FROM_EMAIL || 'infos@lamarquets.com'}>`,
+          from: 'LamarqueTs <infos@lamarquets.com>',
           to: message.sender_email,
           replyTo: process.env.ADMIN_EMAIL || 'lamarquets@outlook.com',
           subject: `Réponse à votre message - ${message.category}`,
