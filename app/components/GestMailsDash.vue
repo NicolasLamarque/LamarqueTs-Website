@@ -233,7 +233,7 @@ const deleteMessageAndClose = async () => {
   closeModal();
 };
 
-const sendReply = async () => {
+
 const sendReply = async () => {
   if (!selectedMessage.value || !replyText.value.trim()) return
 
