@@ -137,7 +137,7 @@ const updatedHistory = [
                   <!-- Rappel du message original (discret) -->
                   <div style="background: #f8fafc; border-radius: 8px; padding: 20px; margin-bottom: 32px; border: 1px solid #e2e8f0;">
                     <p style="color: #64748b; font-size: 13px; margin: 0 0 12px 0; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600;">
-                      Votre message du ${new Date(message.created_at).toLocaleDateString('fr-FR', {
+                      Votre message du ${new Date(message.created_at ?? new Date()).toLocaleDateString('fr-FR', {
                         day: 'numeric',
                         month: 'long',
                         year: 'numeric'
@@ -207,16 +207,9 @@ const updatedHistory = [
         emailSent = true
         
       } catch (emailError: any) {
-        console.error('⚠️ Erreur envoi email:', emailError.message)
-        console.error('Détails:', emailError)
-        
-        // Si l'erreur concerne le domaine non vérifié
-        if (emailError.message?.includes('domain') || emailError.message?.includes('verified')) {
-          throw createError({
-            statusCode: 500,
-            statusMessage: "Domaine email non vérifié sur Resend. Veuillez configurer vos DNS."
-          })
-        }
+        // ⚠️ Resend a échoué MAIS on ne bloque pas — la DB est déjà mise à jour
+        // Le dashboard affichera quand même la réponse dans l'historique
+        console.error('⚠️ Erreur envoi email (non bloquant):', emailError.message)
       }
     } else {
       console.log('⚠️ RESEND_API_KEY non configurée')
