@@ -44,7 +44,7 @@ function getSmartEmailContent(nom: string, sujet: string, message: string) {
       emoji: '🤝',
       title: 'Demande d\'accompagnement individuel',
       intro: 'Je comprends votre besoin d\'accompagnement personnalisé.',
-      timeframe: 'dans un délai raisonable',
+      timeframe: 'dans un délai raisonnable',
       additionalInfo: 'L\'accompagnement individuel permet un suivi personnalisé adapté à votre situation unique. Nous pourrons discuter ensemble de vos besoins et établir un plan d\'intervention qui vous convient.',
       callToAction: 'Préparez-vous à discuter de vos objectifs et de ce que vous aimeriez accomplir grâce à cet accompagnement.'
     },
@@ -85,7 +85,7 @@ function getSmartEmailContent(nom: string, sujet: string, message: string) {
   const config = subjectConfig[sujet] || subjectConfig['autre']
 
   if (isUrgent) {
-    config.timeframe = 'dans un délai rasonable'
+    config.timeframe = 'dans un délai raisonnable'
     config.intro = '⚡ ' + config.intro + ' Je comprends l\'urgence de votre situation.'
   }
 
