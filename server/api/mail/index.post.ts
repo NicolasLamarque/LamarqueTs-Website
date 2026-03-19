@@ -13,30 +13,21 @@ function getSmartEmailContent(nom: string, sujet: string, message: string) {
   const isUrgent = urgentKeywords.some(k => msgLower.includes(k))
   
   const crisisKeywords = [
-  // Détresse émotionnelle
-  'détresse', 'angoisse', 'panique', 'désespoir', 'désespéré', 'désespérée',
-  'effondrée', 'effondré', 'bout du rouleau', 'plus capable', 'plus la force',
-  'épuisé', 'épuisée', 'à bout', 'craquer', 'craque',
-
-  // Idéations suicidaires
-  'suicide', 'suicidaire', 'me suicider', 'en finir', 'mettre fin',
-  'mourir', 'veux mourir', 'envie de mourir', 'plus vouloir vivre',
-  'plus de raison de vivre', 'plus envie de vivre', 'pas envie de vivre',
-  'pensées noires', 'idées noires',
-
-  // Violence et danger
-  'danger', 'violence', 'violenté', 'violentée', 'frappé', 'frappée',
-  'menacé', 'menacée', 'peur pour ma vie', 'peur pour ma sécurité',
-  'en sécurité', 'pas en sécurité', 'conjoint violent', 'conjointe violente',
-
-  // Crise immédiate
-  'urgence', 'urgent', 'maintenant', 'ce soir', 'cette nuit', 'tout de suite',
-  'crise', 'aide immédiate', 'besoin d aide', 'sos',
-
-  // Santé mentale aiguë
-  'hallucination', 'voix dans ma tête',
-  'automutilation', 'me blesser', 'me faire du mal', 'me couper',
-]
+    // Détresse émotionnelle
+    'détresse', 'angoisse', 'panique', 'désespoir', 'désespéré', 'désespérée',
+    'effondrée', 'effondré', 'bout du rouleau', 'plus capable', 'plus la force',
+    'épuisé', 'épuisée', 'à bout', 'craquer', 'craque',
+    // Idéations suicidaires
+    'suicide', 'suicidaire', 'me suicider', 'en finir', 'mettre fin',
+    'mourir', 'veux mourir', 'envie de mourir', 'pensées noires', 'idées noires',
+    // Violence et danger
+    'danger', 'violence', 'violenté', 'violentée', 'frappé', 'frappée',
+    'menacé', 'menacée', 'peur pour ma vie', 'pas en sécurité', 'conjoint violent',
+    // Crise immédiate
+    'ce soir', 'cette nuit', 'tout de suite', 'crise', 'aide immédiate', 'sos',
+    // Santé mentale aiguë
+    'automutilation', 'me blesser', 'me faire du mal', 'hospitalisation',
+  ]
   const isCrisis = crisisKeywords.some(k => msgLower.includes(k))
   
   const subjectConfig: Record<string, any> = {
@@ -205,12 +196,12 @@ export default defineEventHandler(async (event) => {
               <div class="email-card" style="max-width: 580px; margin: 32px auto; background: #ffffff; border-radius: 12px; overflow: hidden; border: 1px solid #e2e8f0;">
                 
                 <!-- Header sobre -->
-                <div style="background: #0f172a; padding: 28px 32px; border-bottom: 3px solid #0d9488;">
+                <div style="background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%); padding: 28px 32px; border-bottom: 3px solid #0d9488;">
                   <table width="100%" cellpadding="0" cellspacing="0">
                     <tr>
                       <td>
-                        <p style="margin: 0; color: #94a3b8; font-size: 11px; text-transform: uppercase; letter-spacing: 1px;">LamarqueTs</p>
-                        <h1 class="header-title" style="margin: 4px 0 0 0; color: #f1f5f9; font-size: 20px; font-weight: 600;">
+                        <p style="margin: 0; color: #0369a1; font-size: 11px; text-transform: uppercase; letter-spacing: 1px;">LamarqueTs</p>
+                        <h1 class="header-title" style="margin: 4px 0 0 0; color: #0c4a6e; font-size: 20px; font-weight: 600;">
                           ${priority === 'high' ? '⚡ Message prioritaire' : '📬 Nouveau message'}
                         </h1>
                       </td>
@@ -333,12 +324,12 @@ export default defineEventHandler(async (event) => {
               <div class="email-card" style="max-width: 580px; margin: 32px auto; background: #ffffff; border-radius: 12px; overflow: hidden; border: 1px solid #e2e8f0;">
 
                 <!-- Header -->
-                <div style="background: #0f172a; padding: 32px; text-align: center; border-bottom: 3px solid ${smartContent.isUrgent ? '#f43f5e' : '#0d9488'};">
+                <div style="background: linear-gradient(135deg, ${smartContent.isUrgent ? '#fce7f3 0%, #fbcfe8' : '#e0f2fe 0%, #bae6fd'} 100%); padding: 32px; text-align: center; border-bottom: 3px solid ${smartContent.isUrgent ? '#f43f5e' : '#0d9488'};">
                   <img src="https://5eqf1pkqjlprn7ya.public.blob.vercel-storage.com/logo.jpg" alt="LamarqueTs" style="width: 64px; height: auto; border-radius: 10px; margin-bottom: 16px; opacity: 0.95;">
-                  <h1 style="margin: 0; color: #f1f5f9; font-size: 22px; font-weight: 600;">
+                  <h1 style="margin: 0; color: ${smartContent.isUrgent ? '#9f1239' : '#0c4a6e'}; font-size: 22px; font-weight: 600;">
                     ${smartContent.isUrgent ? '⚡ Message urgent reçu' : 'Message bien reçu'} 
                   </h1>
-                  <p style="margin: 6px 0 0 0; color: #94a3b8; font-size: 13px;">${smartContent.config.title}</p>
+                  <p style="margin: 6px 0 0 0; color: ${smartContent.isUrgent ? '#be123c' : '#0369a1'}; font-size: 13px;">${smartContent.config.title}</p>
                 </div>
 
                 <div style="padding: 32px;">
