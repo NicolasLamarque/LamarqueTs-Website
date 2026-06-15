@@ -103,9 +103,9 @@
           <text x="58" y="603" font-size="10" fill="#bae6fd" font-family="sans-serif">Zone (~40 min de Shawinigan)</text>
 
           <!-- CTA -->
-          <rect x="420" y="536" width="200" height="50" rx="8" fill="#0c2340" stroke="#0ea5e9" stroke-width="1"/>
-          <text x="520" y="557" text-anchor="middle" font-size="11" font-weight="500" fill="#7dd3fc" font-family="sans-serif">Conseils gratuits</text>
-          <text x="520" y="576" text-anchor="middle" font-size="14" font-weight="500" fill="#f0f9ff" font-family="sans-serif">(418) 931-6786</text>
+          <rect x="445" y="55" width="200" height="50" rx="8" fill="#0c2340" stroke="#0ea5e9" stroke-width="1"/>
+<text x="545" y="76" text-anchor="middle" font-size="11" font-weight="500" fill="#7dd3fc" font-family="sans-serif">Conseils gratuits</text>
+<text x="545" y="95" text-anchor="middle" font-size="14" font-weight="500" fill="#f0f9ff" font-family="sans-serif">(418) 931-6786</text>
         </svg>
       </div>
     </div>
