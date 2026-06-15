@@ -31,7 +31,7 @@
           <text x="342" y="310" font-size="10" fill="#3b82f6" font-family="sans-serif" transform="rotate(-88, 342, 310)">Rivière Saint-Maurice</text>
 
           <!-- Zone de couverture -->
-          <polygon points="295,90 390,82 470,105 520,170 530,255 510,340 480,410 440,470 380,510 310,515 245,490 195,430 175,345 172,255 188,175 235,115" fill="#0369a1" opacity="0.15" stroke="#0ea5e9" stroke-width="1.5" stroke-dasharray="6,4"/>
+          <polygon points="295,90 390,82 470,105 520,170 530,255 510,340 480,410 460,460 420,510 380,555 330,565 275,550 230,510 195,460 175,375 172,255 188,175 235,115" fill="#0369a1" opacity="0.15" stroke="#0ea5e9" stroke-width="1.5" stroke-dasharray="6,4"/>
 
           <!-- Nord -->
           <text x="50" y="100" font-size="12" font-weight="500" fill="#64748b" font-family="sans-serif">N ↑</text>
