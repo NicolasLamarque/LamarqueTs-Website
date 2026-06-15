@@ -1,14 +1,13 @@
-
 // server/src/users.ts
 import { db } from "./db"
 import { User, users } from "./schema"
-import bcrypt from "bcrypt"
+import bcrypt from "bcryptjs"
 import { eq } from "drizzle-orm"
 
 // Nombre de "salt rounds" — 10 est un bon compromis
 const SALT_ROUNDS = 10
 
-// 🔐 Insertion d’un utilisateur
+// 🔐 Insertion d'un utilisateur
 export async function insertUser(user: User) {
   const hashedPassword = await bcrypt.hash(user.password, SALT_ROUNDS)
 
@@ -56,7 +55,7 @@ export async function getUserById(id: number) {
   return user
 }
 
-// ✏️ Mise à jour d’un utilisateur
+// ✏️ Mise à jour d'un utilisateur
 export async function updateUser(id: number, user: Partial<User>) {
   const updateData: any = { ...user }
 
@@ -74,7 +73,7 @@ export async function updateUser(id: number, user: Partial<User>) {
   return updatedUser
 }
 
-// 🗑️ Suppression d’un utilisateur
+// 🗑️ Suppression d'un utilisateur
 export async function deleteUser(id: number) {
   const [deletedUser] = await db
     .delete(users)

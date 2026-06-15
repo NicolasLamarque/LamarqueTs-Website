@@ -1,5 +1,4 @@
 import type { Config } from 'tailwindcss'
-import daisyui from 'daisyui'
 
 export default <Partial<Config>>{
   content: [
@@ -103,19 +102,10 @@ export default <Partial<Config>>{
     }
   },
   
-  plugins: [daisyui],
-  
-  daisyui: {
-    themes: ['light', 'dark', 'corporate'],
-    // Désactive les utilitaires inutilisés pour réduire la taille
-    styled: true,
-    base: true,
-    utils: true,
-    logs: false,
-  },
+  plugins: [],
   
   // Optimisations de production
   future: {
-    hoverOnlyWhenSupported: true, // Hover uniquement sur devices qui le supportent
+    hoverOnlyWhenSupported: true,
   },
 }

@@ -224,7 +224,7 @@
             <div class="flex flex-wrap gap-4 mt-6 pt-4 border-t">
               <button type="submit" :disabled="isLoading || !isFormValid" class="btn btn-primary">
                 <i v-if="isLoading" class="fas fa-spinner fa-spin mr-2"></i>
-                <FontAwesomeIcon :icon="editMode ? 'save' : 'plus'" class="mr-2" />
+                <font-awesome-icon :icon="editMode ? 'save' : 'plus'" class="mr-2" />
                 {{ editMode ? "Mettre à jour" : "Ajouter" }}
               </button>
 
@@ -303,13 +303,13 @@
                   <td class="table-cell">
                     <div class="flex gap-2">
                       <button @click="viewEvent(evenement)" class="btn btn-sm btn-info" title="Voir">
-                        <FontAwesomeIcon icon="eye" />
+                        <font-awesome-icon icon="eye" />
                       </button>
                       <button @click="editEvent(evenement)" class="btn btn-sm btn-success" title="Modifier">
-                        <FontAwesomeIcon icon="edit" />
+                        <font-awesome-icon icon="edit" />
                       </button>
                       <button @click="openDeleteModal(evenement)" class="btn btn-sm btn-error" title="Supprimer">
-                        <FontAwesomeIcon icon="trash" />
+                        <font-awesome-icon icon="trash" />
                       </button>
                     </div>
                   </td>
@@ -337,7 +337,7 @@ import rrulePlugin from '@fullcalendar/rrule';
 import frLocale from "@fullcalendar/core/locales/fr";
 import EventModal from "../components/EventModal.vue";
 import DeleteEventModal from "../components/DeleteEventModal.vue";
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
+
 
 
 const icons = ['fa-calendar', 'fa-bell', 'fa-birthday-cake', 'fa-briefcase', 'fa-music', 'fa-heart', 'fa-star', 'fa-graduation-cap'];

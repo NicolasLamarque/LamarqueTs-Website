@@ -6,9 +6,8 @@
       borderColorClass
     ]"
   >
-    <!-- Icon et texte -->
     <div class="flex items-start gap-3">
-      <FontAwesomeIcon
+      <font-awesome-icon
         :icon="icon"
         class="w-6 h-6 text-gray-800 dark:text-gray-100 mt-1 flex-shrink-0"
       />
@@ -17,17 +16,13 @@
       </p>
     </div>
 
-    <!-- Bouton PDF en dessous du texte, centrer -->
     <div class="flex justify-center pt-5">
       <ToLegisPdf/>
     </div>
-     
-    
   </div>
 </template>
 
 <script setup>
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faLandmark } from '@fortawesome/free-solid-svg-icons'
 import ToLegisPdf from './ToLegisPdf.vue'
 
@@ -35,7 +30,7 @@ const props = defineProps({
   text: {
     type: String,
     default:
-      "L’information présentée sur cette page ne constitue pas un avis ou un conseil juridique. Nous vous indiquons ce que dit la loi au Québec de manière générale. Pour obtenir un avis ou un conseil juridique concernant votre situation personnelle, consultez un professionnel du droit."
+      "L'information présentée sur cette page ne constitue pas un avis ou un conseil juridique. Nous vous indiquons ce que dit la loi au Québec de manière générale. Pour obtenir un avis ou un conseil juridique concernant votre situation personnelle, consultez un professionnel du droit."
   },
   icon: {
     type: [Object, Array, String],

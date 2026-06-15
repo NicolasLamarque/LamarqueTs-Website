@@ -1,8 +1,6 @@
 // server/api/auth/login.post.ts
-
-// 1. On ajoute setCookie aux imports
 import { defineEventHandler, readBody, createError, setCookie } from 'h3'
-import bcrypt from 'bcrypt'
+import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 import { getUserByUsernameWithPassword } from '../../utils/users'
 
@@ -13,7 +11,7 @@ interface LoginBody {
 
 const jwtSecret = process.env.JWT_SECRET
 if (!jwtSecret) {
-  throw new Error('JWT_SECRET n\'est pas défini dans les variables d\'environnement.')
+  throw new Error('JWT_SECRET nest pas defini dans les variables denvironnement.')
 }
 
 export default defineEventHandler(async (event) => {
@@ -24,11 +22,11 @@ export default defineEventHandler(async (event) => {
   if (!username || !password) {
     throw createError({
       statusCode: 400,
-      statusMessage: 'Veuillez fournir un nom d’utilisateur et un mot de passe',
+      statusMessage: 'Veuillez fournir un nom utilisateur et un mot de passe',
     })
   }
 
-  // 2️⃣ Recherche de l’utilisateur dans la BD
+  // 2️⃣ Recherche de l'utilisateur dans la BD
   const user = await getUserByUsernameWithPassword(username)
   if (!user) {
     throw createError({
@@ -57,19 +55,16 @@ export default defineEventHandler(async (event) => {
     { expiresIn: '1h' }
   )
 
-  //console.log('✅ Token généré (mis dans le cookie) :', token)
-
-  // 5️⃣ NOUVEAU : On place le token dans un cookie sécurisé
+  // 5️⃣ Token dans un cookie sécurisé
   setCookie(event, 'auth_token', token, {
-    httpOnly: true, // Le JavaScript ne peut pas le lire (Sécurité Max)
-    secure: process.env.NODE_ENV === 'production', // HTTPS seulement en prod
-    sameSite: 'lax', // Protection CSRF
-    maxAge: 60 * 60, // 1 heure (doit correspondre au expiresIn du JWT)
-    path: '/' // Accessible sur tout le site
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+    maxAge: 60 * 60,
+    path: '/'
   })
 
-  // 6️⃣ IMPORTANT : On ne renvoie PLUS le token au front-end
-  // On renvoie juste les infos non-sensibles de l'utilisateur
+  // 6️⃣ On renvoie juste les infos non-sensibles
   return {
     success: true,
     user: {
