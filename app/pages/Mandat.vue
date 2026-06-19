@@ -66,8 +66,8 @@
         </div>
         <div class="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-md border border-teal-100 dark:border-sky-700 text-center">
           <div class="text-3xl mb-3">💬</div>
-          <h3 class="font-bold text-gray-800 dark:text-gray-100 mb-2">Gratuit</h3>
-          <p class="text-sm text-gray-600 dark:text-gray-300">Les conseils sont gratuits — appelez-moi !</p>
+          <h3 class="font-bold text-gray-800 dark:text-gray-100 mb-2">Sans frais</h3>
+          <p class="text-sm text-gray-600 dark:text-gray-300">Le premier appel est sans frais, pour voir ensemble si je peux vous aider</p>
         </div>
       </div>
 
@@ -114,7 +114,7 @@
           Prêt à démarrer ?
         </h2>
         <p class="text-gray-600 dark:text-gray-300 mb-6">
-          Contactez-moi à Shawinigan — les conseils sont gratuits.
+          Contactez-moi à Shawinigan — le premier appel est sans frais.
         </p>
         <div class="flex flex-col sm:flex-row gap-3 justify-center">
           <a
@@ -149,7 +149,7 @@ useHead({
   meta: [
     {
       name: "description",
-      content: "Évaluation psychosociale complète pour l'homologation de mandat de protection en Mauricie. Service rapide, humain et professionnel à Shawinigan et Trois-Rivières. Conseils gratuits.",
+      content: "Évaluation psychosociale complète pour l'homologation de mandat de protection en Mauricie. Service rapide, humain et professionnel à Shawinigan et Trois-Rivières. Premier appel sans frais.",
     },
   ],
 })

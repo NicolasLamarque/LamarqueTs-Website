@@ -397,7 +397,7 @@
           class="text-base sm:text-lg text-gray-600 dark:text-gray-300 mb-6 sm:mb-10 leading-relaxed px-2"
         >
           Votre intérêt m'aidera à planifier et organiser ces groupes selon les besoins de la communauté. 
-          Contactez-moi dès maintenant pour manifester votre intérêt, c'est sans engagement et les conseils sont toujours gratuits!
+          Contactez-moi dès maintenant pour manifester votre intérêt, c'est sans engagement et la prise de contact est toujours sans frais.
         </p>
         <div
           class="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center px-2"

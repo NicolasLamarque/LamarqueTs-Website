@@ -6,7 +6,7 @@
         Contactez-moi
       </h1>
       <p class="text-sm sm:text-base md:text-lg landscape:short:text-sm text-gray-300 max-w-2xl mx-auto leading-relaxed px-2">
-        Je suis là pour vous écouter et vous accompagner. N'hésitez pas à me contacter pour toute question ou pour prendre rendez-vous.
+        N'hésitez pas à me contacter pour toute question concernant mes services et mes disponibilités, ou pour prendre rendez-vous.
       </p>
     </div>
 

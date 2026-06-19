@@ -117,7 +117,7 @@
             Une question ? Un sujet à proposer ?
           </h2>
           <p class="text-base sm:text-lg md:text-xl text-gray-600 dark:text-gray-300 mb-8 sm:mb-10 max-w-2xl mx-auto leading-relaxed">
-            Je serais ravi d'échanger avec vous. N'hésitez pas à me contacter directement.
+            Une question sur cet article ou une suggestion de sujet ? N'hésitez pas à me contacter directement.
           </p>
           <NuxtLink
             to="/contact"

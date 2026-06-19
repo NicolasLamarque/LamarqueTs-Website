@@ -67,7 +67,7 @@
                 </li>
                 <li class="flex items-center gap-2">
                   <span class="text-sky-500 font-bold">✓</span>
-                  Les conseils sont gratuits — appelez-moi !
+                  Premier appel sans frais — discutons de votre situation
                 </li>
               </ul>
 
