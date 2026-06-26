@@ -34,50 +34,39 @@ function getSmartEmailContent(nom: string, sujet: string, message: string) {
     'accompagnement': {
       emoji: '🤝',
       title: 'Demande d\'accompagnement individuel',
-      intro: 'Je comprends votre besoin d\'accompagnement personnalisé.',
-      timeframe: 'dans un délai raisonnable',
-      additionalInfo: 'L\'accompagnement individuel permet un suivi personnalisé adapté à votre situation unique. Nous pourrons discuter ensemble de vos besoins et établir un plan d\'intervention qui vous convient.',
-      callToAction: 'Préparez-vous à discuter de vos objectifs et de ce que vous aimeriez accomplir grâce à cet accompagnement.'
+      intro: 'Votre demande d\'accompagnement personnalisé a bien été reçue.',
+      additionalInfo: 'L\'accompagnement individuel permet un suivi personnalisé adapté à votre situation unique.',
     },
     'mandat': {
       emoji: '📋',
       title: 'Homologation de mandat',
       intro: 'Votre demande concernant l\'homologation de mandat est bien notée.',
-      timeframe: 'dans un délai raisonnable',
-      additionalInfo: 'L\'homologation d\'un mandat de protection est une démarche importante qui nécessite une évaluation psychosociale complète. Je vous accompagnerai dans toutes les étapes de ce processus.',
-      callToAction: 'Rassemblez les documents pertinents concernant la situation (documents médicaux, mandat notarié, etc.).'
+      additionalInfo: 'L\'homologation d\'un mandat de protection est une démarche importante qui nécessite une évaluation psychosociale complète.',
     },
     'groupe': {
       emoji: '👥',
       title: 'Groupes thérapeutiques',
-      intro: 'Les groupes thérapeutiques sont une excellente approche pour le soutien mutuel.',
-      timeframe: 'dans un délai raisonnable',
-      additionalInfo: 'Nos groupes thérapeutiques offrent un espace sécuritaire pour partager, apprendre et grandir avec d\'autres personnes vivant des situations similaires. Je vous informerai des prochaines sessions disponibles.',
-      callToAction: 'Réfléchissez aux thématiques qui vous intéressent particulièrement pour notre prochaine discussion.'
+      intro: 'Votre intérêt pour les groupes thérapeutiques a bien été reçu.',
+      additionalInfo: 'Les groupes thérapeutiques offrent un espace sécuritaire pour partager, apprendre et grandir avec d\'autres personnes vivant des situations similaires.',
     },
     'information': {
       emoji: 'ℹ️',
       title: 'Demande d\'information',
-      intro: 'Je serai heureux de répondre à vos questions.',
-      timeframe: 'dans un délai raisonnable',
-      additionalInfo: 'N\'hésitez pas à poser toutes vos questions. Mon rôle est de vous fournir des informations claires sur les services disponibles et de vous orienter vers les ressources appropriées.',
-      callToAction: 'Si vous avez d\'autres questions d\'ici là, n\'hésitez pas à m\'écrire à nouveau.'
+      intro: 'Votre demande d\'information a bien été reçue.',
+      additionalInfo: 'Les services disponibles et les ressources appropriées sont décrits sur le site.',
     },
     'autre': {
       emoji: '💬',
       title: 'Votre demande',
       intro: 'J\'ai bien pris connaissance de votre message.',
-      timeframe: 'dans un délai raisonnable',
-      additionalInfo: 'Chaque situation est unique et mérite une attention particulière. Je prendrai le temps nécessaire pour bien comprendre votre demande et y répondre de manière appropriée.',
-      callToAction: 'Je reviendrai vers vous rapidement pour discuter de la meilleure façon de vous aider.'
+      additionalInfo: 'Chaque situation est unique et mérite une attention particulière.',
     }
   }
 
   const config = subjectConfig[sujet] || subjectConfig['autre']
 
   if (isUrgent) {
-    config.timeframe = 'dans un délai raisonnable'
-    config.intro = '⚡ ' + config.intro + ' Je comprends l\'urgence de votre situation.'
+    config.intro = '⚡ ' + config.intro
   }
 
   const crisisBlock = isCrisis ? `
@@ -107,7 +96,7 @@ function getSmartEmailContent(nom: string, sujet: string, message: string) {
         <div>
           <strong style="color: #be123c; font-size: 15px;">Message prioritaire</strong>
           <p style="margin: 4px 0 0 0; color: #be123c; font-size: 13px;">
-            Votre demande sera traitée en priorité. Je reviendrai vers vous ${config.timeframe}.
+            Votre demande a été identifiée comme prioritaire.
           </p>
         </div>
       </div>
@@ -348,7 +337,7 @@ export default defineEventHandler(async (event) => {
                   <!-- Confirmation -->
                   <div class="section-card" style="background: #f0fdfa; border: 1px solid #99f6e4; border-left: 3px solid #0d9488; border-radius: 8px; padding: 18px; margin-bottom: 20px;">
                     <p style="margin: 0; color: #0f766e; font-size: 14px; line-height: 1.6;">
-                      ✓ &nbsp;Votre message est enregistré. Je vous réponds <strong>${smartContent.config.timeframe}</strong>.
+                      ✓ &nbsp;Votre message a bien été enregistré.
                     </p>
                   </div>
 
@@ -362,13 +351,12 @@ export default defineEventHandler(async (event) => {
                   ${!smartContent.isCrisis ? `
                   <div class="section-card" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 18px; margin-bottom: 24px;">
                     <p class="contact-text" style="margin: 0; color: #64748b; font-size: 13px; line-height: 1.6;">
-                      Une question urgente ? &nbsp;<a href="tel:4189316786" style="color: #0d9488; text-decoration: none; font-weight: 600;">(418) 931-6786</a>
+                      Pour toute urgence psychosociale: <strong>811</strong> (Info-Social) ou <strong>911</strong>.
                     </p>
                   </div>
                   ` : ''}
 
                   <!-- Signature -->
-                  <p class="intro-text" style="color: #64748b; font-size: 14px; margin: 0 0 4px 0;">Au plaisir d'échanger avec vous,</p>
                   <p style="color: #0d9488; font-size: 15px; font-weight: 600; margin: 0;">Nicolas Lamarque · Travailleur social</p>
 
                 </div>
