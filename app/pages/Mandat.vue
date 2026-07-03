@@ -114,7 +114,7 @@
           Prêt à démarrer ?
         </h2>
         <p class="text-gray-600 dark:text-gray-300 mb-6">
-          Contactez-moi à Shawinigan — le premier appel est sans frais.
+          Contactez-moi à Shawinigan.
         </p>
         <div class="flex flex-col sm:flex-row gap-3 justify-center">
           <a
