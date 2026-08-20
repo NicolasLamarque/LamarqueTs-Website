@@ -92,7 +92,14 @@ export default defineNuxtConfig({
   },
 
   site: {
-    url: "https://lamarquets.com",
+    // AVEC le www — c'est l'adresse reelle du site.
+    //
+    // Sans lui, le plan du site annoncait a Google neuf adresses en
+    // lamarquets.com qui redirigent TOUTES vers www.lamarquets.com. Google
+    // recevait donc une carte entierement composee de redirections, ce qui
+    // dilue les signaux et retarde l'indexation. C'est aussi cette valeur qui
+    // sert de base aux balises canoniques.
+    url: "https://www.lamarquets.com",
     name: "Lamarque TS",
     description: "Services psychosociaux professionnels par un travailleur social membre de l'OTSTCFQ",
   },
@@ -125,6 +132,16 @@ export default defineNuxtConfig({
   // SITEMAP SIMPLE
   sitemap: {
     autoLastmod: true,
+
+    // La page d'accueil est declaree explicitement.
+    //
+    // Elle est prerendue (voir nitro.prerender ci-dessus), donc servie comme
+    // fichier statique — et elle n'apparaissait pas dans le plan genere en
+    // production, alors que c'est la page la plus importante du site. On ne
+    // laisse pas ce hasard decider : priorite 1, la valeur maximale.
+    urls: [
+      { loc: "/", changefreq: "weekly", priority: 1.0 },
+    ],
 
     // Pages retirees du plan du site.
     //

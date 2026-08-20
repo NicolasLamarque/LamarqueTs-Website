@@ -8,10 +8,21 @@
 
 <script setup lang="ts">
 import { useDarkMode } from './composables/useDarkMode'
-import { onMounted } from 'vue'
+import { computed, onMounted } from 'vue'
+
+// --- URL CANONIQUE ---
+// Aucune balise canonique n'etait servie. Sans elle, Google doit deviner
+// quelle adresse fait foi quand plusieurs mènent au meme contenu — avec ou
+// sans www, avec ou sans barre finale, avec un parametre de suivi.
+// On declare l'adresse officielle de chaque page, une bonne fois.
+const route = useRoute()
+const urlCanonique = computed(
+  () => `https://www.lamarquets.com${route.path === '/' ? '' : route.path}`
+)
 
 // --- TITRE GLOBAL POUR GOOGLE & SEO ---
 useHead({
+  link: [{ rel: 'canonical', href: urlCanonique }],
   title: "Lamarque TS — Services psychosociaux professionnels",
   meta: [
     {
