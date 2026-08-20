@@ -52,6 +52,7 @@ export type EvenementSecurite =
   | 'login_ok'
   | 'login_unknown'
   | 'login_badpass'
+  | 'login_blocked'
   | 'denied'
 
 /** Durée de conservation. Au-delà, les lignes sont effacées. */
@@ -69,7 +70,10 @@ const RETENTION_JOURS = 90
 // configuré — c'est volontaire : un compteur partagé demanderait une lecture
 // en base avant chaque écriture, soit exactement le coût qu'on cherche à
 // éviter. L'ordre de grandeur suffit à empêcher le remplissage.
-const PLAFOND_PAR_IP = 12
+// Doit rester nettement au-dessus du seuil de blocage des connexions (10) :
+// si les ecritures etaient coupees avant, le comptage des echecs serait
+// tronque et la limite ne se declencherait jamais.
+const PLAFOND_PAR_IP = 40
 const FENETRE_MS = 10 * 60 * 1000 // 10 minutes
 
 const compteurs = new Map<string, { nombre: number; expire: number }>()

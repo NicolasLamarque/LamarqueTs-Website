@@ -34,6 +34,7 @@ export default defineEventHandler(async (event) => {
         count(*) FILTER (WHERE event = 'denied')::int                            AS refus,
         count(*) FILTER (WHERE event = 'login_unknown')::int                     AS comptes_inconnus,
         count(*) FILTER (WHERE event = 'login_badpass')::int                     AS mots_de_passe_faux,
+        count(*) FILTER (WHERE event = 'login_blocked')::int                     AS blocages,
         count(*) FILTER (WHERE event = 'login_ok')::int                          AS connexions,
         count(*) FILTER (WHERE created_at > NOW() - INTERVAL '24 hours')::int    AS dernieres_24h,
         count(*) FILTER (WHERE created_at > NOW() - INTERVAL '7 days')::int      AS derniers_7j,
@@ -46,7 +47,7 @@ export default defineEventHandler(async (event) => {
     const ipsFrequentes = (await db.execute(sql`
       SELECT ip, count(*)::int AS nombre, max(created_at) AS derniere
       FROM security_log
-      WHERE event IN ('denied', 'login_unknown', 'login_badpass')
+      WHERE event IN ('denied', 'login_unknown', 'login_badpass', 'login_blocked')
       GROUP BY ip
       HAVING count(*) > 1
       ORDER BY nombre DESC
@@ -60,6 +61,7 @@ export default defineEventHandler(async (event) => {
         refus: stats?.refus ?? 0,
         comptesInconnus: stats?.comptes_inconnus ?? 0,
         motsDePasseFaux: stats?.mots_de_passe_faux ?? 0,
+        blocages: stats?.blocages ?? 0,
         connexions: stats?.connexions ?? 0,
         dernieres24h: stats?.dernieres_24h ?? 0,
         derniers7j: stats?.derniers_7j ?? 0,

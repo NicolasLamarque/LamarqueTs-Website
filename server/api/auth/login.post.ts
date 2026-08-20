@@ -4,6 +4,8 @@ import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 import { getUserByUsernameWithPassword } from '../../utils/users'
 import { journaliserSecurite } from '../../utils/securityLog'
+import { verifierLimiteConnexion } from '../../utils/rateLimit'
+import { getRequestIP } from 'h3'
 
 interface LoginBody {
   username?: string
@@ -24,6 +26,24 @@ export default defineEventHandler(async (event) => {
     throw createError({
       statusCode: 400,
       statusMessage: 'Veuillez fournir un nom utilisateur et un mot de passe',
+    })
+  }
+
+  // Limitation des tentatives — AVANT toute verification de mot de passe.
+  //
+  // Placee ici volontairement : si le controle venait apres, chaque tentative
+  // couterait une comparaison bcrypt, qui est lente par conception. Un
+  // programme pourrait alors saturer le serveur sans meme trouver le mot de
+  // passe. En bloquant en amont, une tentative refusee ne coute qu'une
+  // requete de comptage.
+  const adresse = getRequestIP(event, { xForwardedFor: true }) || 'inconnue'
+  const limite = await verifierLimiteConnexion(adresse, username)
+
+  if (limite.bloque) {
+    journaliserSecurite(event, 'login_blocked', { username })
+    throw createError({
+      statusCode: 429, // 429 = Too Many Requests
+      statusMessage: `Trop de tentatives. Reessayez dans ${limite.minutesRestantes} minute(s).`,
     })
   }
 

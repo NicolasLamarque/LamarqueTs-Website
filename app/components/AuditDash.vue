@@ -218,6 +218,7 @@ const filtres = [
   { valeur: 'denied', libelle: 'Refus' },
   { valeur: 'login_badpass', libelle: 'Mot de passe faux' },
   { valeur: 'login_unknown', libelle: 'Compte inconnu' },
+  { valeur: 'login_blocked', libelle: 'Bloqués' },
   { valeur: 'login_ok', libelle: 'Connexions' },
 ]
 
@@ -242,6 +243,7 @@ const libelleEvenement = (e: string) =>
     denied: 'Refus',
     login_unknown: 'Compte inconnu',
     login_badpass: 'Mot de passe faux',
+    login_blocked: 'Bloqué',
     login_fail: 'Échec connexion', // ancien type, conserve pour l'historique
     login_ok: 'Connexion',
   }[e] || e)
@@ -253,6 +255,8 @@ const classeEvenement = (e: string) =>
     login_unknown: 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300',
     // Mot de passe faux sur un compte reel : le signal serieux, en rouge.
     login_badpass: 'bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300',
+    // Blocage declenche : la limitation a fait son travail.
+    login_blocked: 'bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300',
     login_fail: 'bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300',
     login_ok: 'bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300',
   }[e] || 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300')
