@@ -73,6 +73,7 @@ const ServicesDash = defineAsyncComponent(() => import('../components/ServicesDa
 const CalendarDash = defineAsyncComponent(() => import('../components/CalendarDash.vue'))
 const GestSupaBaseDash = defineAsyncComponent(() => import('../components/GestDatabaseDash.vue'))
 const mailsDash = defineAsyncComponent(() => import('../components/GestMailsDash.vue'))
+const AuditDash = defineAsyncComponent(() => import('../components/AuditDash.vue'))
 
 const section = ref('articles')
 const isChecking = ref(true)
@@ -132,7 +133,8 @@ const componentMap: Record<string, any> = {
   services: ServicesDash,
   calendar: CalendarDash,
   supabase: GestSupaBaseDash,
-  mails: mailsDash
+  mails: mailsDash,
+  audit: AuditDash
 }
 
 // Propriété calculée qui retourne le composant à afficher
@@ -148,7 +150,8 @@ const getSectionLabel = (key: string): string => {
     services: 'Services',
     calendar: 'Calendrier',
     supabase: 'Monitoring DB',
-    mails: 'Gestion Mails'
+    mails: 'Gestion Mails',
+    audit: 'Audit de sécurité'
   }
   return labels[key] || ''
 }

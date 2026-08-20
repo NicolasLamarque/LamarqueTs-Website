@@ -69,7 +69,8 @@ const sections = [
   { key: 'services', label: 'Services', icon: '🛠️' },
   { key: 'calendar', label: 'Calendrier', icon: '📅' },
   { key: 'supabase', label: 'Monitoring DB', icon: '🗄️' },
-  { key: 'mails', label: 'Gestion mails', icon: '📧' }
+  { key: 'mails', label: 'Gestion mails', icon: '📧' },
+  { key: 'audit', label: 'Audit sécurité', icon: '🔒' }
 ]
 
 const toggleSidebar = () => {
