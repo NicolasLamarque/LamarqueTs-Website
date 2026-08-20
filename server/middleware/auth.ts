@@ -26,6 +26,7 @@
 
 import { defineEventHandler, getCookie, createError } from 'h3'
 import jwt from 'jsonwebtoken'
+import { journaliserSecurite } from '../utils/securityLog'
 
 const jwtSecret = process.env.JWT_SECRET
 
@@ -134,6 +135,7 @@ export default defineEventHandler(async (event) => {
 
   if (!token) {
     console.log(`🔒 Accès refusé (aucun jeton) : ${methode} ${urlBrute}`)
+    journaliserSecurite(event, 'denied')
     throw createError({
       statusCode: 401,
       statusMessage: 'Non authentifié - Token manquant'
@@ -157,6 +159,7 @@ export default defineEventHandler(async (event) => {
 
   } catch (err) {
     console.log(`🔒 Accès refusé (jeton invalide) : ${methode} ${urlBrute}`)
+    journaliserSecurite(event, 'denied')
     throw createError({
       statusCode: 401,
       statusMessage: 'Non authentifié - Token invalide ou expiré'

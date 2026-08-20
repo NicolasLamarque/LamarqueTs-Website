@@ -3,6 +3,7 @@ import { defineEventHandler, readBody, createError, setCookie } from 'h3'
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 import { getUserByUsernameWithPassword } from '../../utils/users'
+import { journaliserSecurite } from '../../utils/securityLog'
 
 interface LoginBody {
   username?: string
@@ -29,6 +30,8 @@ export default defineEventHandler(async (event) => {
   // 2️⃣ Recherche de l'utilisateur dans la BD
   const user = await getUserByUsernameWithPassword(username)
   if (!user) {
+    // Identifiant inexistant : on enregistre la tentative, pas le mot de passe.
+    journaliserSecurite(event, 'login_fail', { username })
     throw createError({
       statusCode: 401,
       statusMessage: 'Utilisateur inconnu',
@@ -38,6 +41,9 @@ export default defineEventHandler(async (event) => {
   // 3️⃣ Vérification du mot de passe
   const valid = await bcrypt.compare(password, user.password)
   if (!valid) {
+    // Le compte existe mais le mot de passe est faux : c'est le signal le plus
+    // parlant d'une attaque par force brute.
+    journaliserSecurite(event, 'login_fail', { username })
     throw createError({
       statusCode: 401,
       statusMessage: 'Mot de passe incorrect',
@@ -63,6 +69,10 @@ export default defineEventHandler(async (event) => {
     maxAge: 60 * 60,
     path: '/'
   })
+
+  // Connexion reussie : c'est ce qui permet de reperer une session qui
+  // ne serait pas la tienne.
+  journaliserSecurite(event, 'login_ok', { username: user.username })
 
   // 6️⃣ On renvoie juste les infos non-sensibles
   return {

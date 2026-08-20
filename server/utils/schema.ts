@@ -170,6 +170,43 @@ export const contacts_messages = pgTable("contacts_messages", {
 
 
 // ========================================
+// TABLE SECURITY_LOG (Journal de securite)
+// ========================================
+//
+// Ce journal n'est PAS un outil de mesure d'audience : il n'enregistre
+// aucune visite de page ni aucun parcours de visiteur.
+//
+// Depuis que l'API est fermee par defaut, le trafic normal ne produit
+// jamais d'entree ici : un visiteur qui lit le blog ou envoie le
+// formulaire de contact passe par des routes autorisees, donc aucun
+// refus n'est declenche. Il ne reste donc que deux categories :
+//   - les connexions au tableau de bord (les tiennes, ou celles des
+//     comptes que tu as crees) ;
+//   - les tentatives d'acces a une route protegee.
+//
+// Autrement dit, chaque ligne est un signal. Il n'y a pas de bruit a
+// filtrer, contrairement a un journal de serveur classique.
+
+export const security_log = pgTable("security_log", {
+  id: serial("id").primaryKey(),
+  created_at: timestamp("created_at").defaultNow(),
+
+  // 'login_ok' | 'login_fail' | 'denied'
+  event: varchar("event", { length: 40 }).notNull(),
+
+  method: varchar("method", { length: 10 }),
+  path: varchar("path", { length: 500 }),
+  ip: varchar("ip", { length: 64 }),
+
+  // Identifiant saisi lors d'une connexion (reussie ou non).
+  username: varchar("username", { length: 255 }),
+
+  // Utile pour distinguer un navigateur d'un robot d'exploration.
+  user_agent: varchar("user_agent", { length: 400 }),
+});
+
+
+// ========================================
 // TYPES INFÉRÉS (à utiliser dans tes services)
 // ========================================
 
@@ -192,3 +229,7 @@ export type EvenementSelect = typeof evenements.$inferSelect;
 // Contacts Messages
 export type ContactMessage = typeof contacts_messages.$inferInsert;
 export type ContactMessageSelect = typeof contacts_messages.$inferSelect;
+
+// Journal de securite
+export type SecurityLog = typeof security_log.$inferInsert;
+export type SecurityLogSelect = typeof security_log.$inferSelect;
