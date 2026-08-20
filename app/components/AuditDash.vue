@@ -96,7 +96,7 @@
         Adresses répétées
       </h3>
       <div class="bg-white dark:bg-gray-800 rounded-xl border border-teal-100 dark:border-sky-700 shadow-sm overflow-x-auto">
-        <table class="w-full text-sm">
+        <table class="fiches w-full text-sm">
           <thead>
             <tr class="text-left text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400 border-b border-gray-200 dark:border-gray-700">
               <th class="px-4 py-2 font-semibold">Adresse</th>
@@ -106,11 +106,11 @@
           </thead>
           <tbody>
             <tr v-for="ip in ipsFrequentes" :key="ip.ip" class="border-b border-gray-100 dark:border-gray-700 last:border-0">
-              <td class="px-4 py-2 font-mono text-gray-800 dark:text-gray-100">{{ ip.ip }}</td>
-              <td class="px-4 py-2 tabular-nums font-semibold" :class="ip.nombre >= 10 ? 'text-red-600 dark:text-red-400' : 'text-gray-700 dark:text-gray-300'">
+              <td data-libelle="Adresse" class="px-4 py-2 font-mono text-gray-800 dark:text-gray-100">{{ ip.ip }}</td>
+              <td data-libelle="Tentatives" class="px-4 py-2 tabular-nums font-semibold" :class="ip.nombre >= 10 ? 'text-red-600 dark:text-red-400' : 'text-gray-700 dark:text-gray-300'">
                 {{ ip.nombre }}
               </td>
-              <td class="px-4 py-2 text-gray-500 dark:text-gray-400">{{ formaterDate(ip.derniere) }}</td>
+              <td data-libelle="Dernière" class="px-4 py-2 text-gray-500 dark:text-gray-400">{{ formaterDate(ip.derniere) }}</td>
             </tr>
           </tbody>
         </table>
@@ -139,7 +139,7 @@
       </div>
 
       <div class="bg-white dark:bg-gray-800 rounded-xl border border-teal-100 dark:border-sky-700 shadow-sm overflow-x-auto">
-        <table class="w-full text-sm min-w-[640px]">
+        <table class="fiches w-full text-sm min-w-[640px]">
           <thead>
             <tr class="text-left text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400 border-b border-gray-200 dark:border-gray-700">
               <th class="px-4 py-2 font-semibold">Date</th>
@@ -162,20 +162,20 @@
               :key="e.id"
               class="border-b border-gray-100 dark:border-gray-700 last:border-0"
             >
-              <td class="px-4 py-2 whitespace-nowrap text-gray-500 dark:text-gray-400 tabular-nums">
+              <td data-libelle="Date" class="px-4 py-2 whitespace-nowrap text-gray-500 dark:text-gray-400 tabular-nums">
                 {{ formaterDate(e.created_at) }}
               </td>
-              <td class="px-4 py-2">
+              <td data-libelle="Événement" class="px-4 py-2">
                 <span class="text-xs font-semibold px-2 py-0.5 rounded-full whitespace-nowrap" :class="classeEvenement(e.event)">
                   {{ libelleEvenement(e.event) }}
                 </span>
               </td>
-              <td class="px-4 py-2 font-mono text-xs text-gray-700 dark:text-gray-300">
+              <td data-libelle="Requête" class="px-4 py-2 font-mono text-xs text-gray-700 dark:text-gray-300">
                 {{ e.method }} {{ e.path }}
               </td>
-              <td class="px-4 py-2 font-mono text-xs text-gray-600 dark:text-gray-400">{{ e.ip }}</td>
-              <td class="px-4 py-2 text-gray-700 dark:text-gray-300">{{ e.username || '—' }}</td>
-              <td class="px-4 py-2 text-xs text-gray-500 dark:text-gray-400 max-w-[220px] truncate" :title="e.user_agent || ''">
+              <td data-libelle="Adresse" class="px-4 py-2 font-mono text-xs text-gray-600 dark:text-gray-400">{{ e.ip }}</td>
+              <td data-libelle="Identifiant" class="px-4 py-2 text-gray-700 dark:text-gray-300">{{ e.username || '—' }}</td>
+              <td data-libelle="Navigateur" class="px-4 py-2 text-xs text-gray-500 dark:text-gray-400 max-w-[220px] truncate" :title="e.user_agent || ''">
                 {{ resumerNavigateur(e.user_agent) }}
               </td>
             </tr>
@@ -330,9 +330,96 @@ onMounted(chargerTout)
 
 <style scoped>
 @media print {
-  /* Le rapport imprimé doit tenir sans les couleurs de fond ni les ombres,
-     et les tableaux ne doivent pas être coupés au milieu d'une ligne. */
-  section { break-inside: avoid; }
-  table { font-size: 11px; }
+  /* ======================================================================
+     Chaque entrée devient une fiche autonome
+     ======================================================================
+     Un tableau large s'imprime mal : il déborde en largeur, et une ligne
+     peut se faire couper en deux par un saut de page.
+
+     On le transforme donc en une suite de fiches empilées — le principe des
+     états d'impression : chaque enregistrement forme un bloc complet, avec
+     ses champs nommés, qui ne peut pas être scindé entre deux pages.
+
+     Les intitulés viennent de l'attribut data-libelle porté par chaque
+     cellule ; l'en-tête du tableau devient donc inutile. */
+
+  .fiches thead {
+    display: none;
+  }
+
+  .fiches,
+  .fiches tbody,
+  .fiches tr,
+  .fiches td {
+    display: block;
+    width: 100%;
+  }
+
+  .fiches tr {
+    /* La règle essentielle : jamais coupée par un saut de page. */
+    break-inside: avoid;
+    page-break-inside: avoid;
+
+    border: 1px solid #cbd5e1;
+    border-radius: 4px;
+    padding: 5px 9px;
+    margin-bottom: 5px;
+
+    /* Deux champs par ligne : une fiche de six champs tient en trois
+       lignes au lieu de six. */
+    display: grid !important;
+    grid-template-columns: 1fr 1fr;
+    gap: 0 14px;
+  }
+
+  .fiches td {
+    display: flex !important;
+    gap: 6px;
+    align-items: baseline;
+    padding: 1px 0 !important;
+    border: 0 !important;
+    font-size: 10.5px;
+    line-height: 1.45;
+    max-width: none !important;
+    white-space: normal !important;
+    overflow: visible !important;
+  }
+
+  .fiches td::before {
+    content: attr(data-libelle) " :";
+    flex: 0 0 auto;
+    min-width: 62px;
+    font-weight: 600;
+    color: #475569;
+  }
+
+  /* La requête est le champ le plus long : elle occupe la largeur entière. */
+  .fiches td[data-libelle="Requête"] {
+    grid-column: 1 / -1;
+  }
+
+  /* Le conteneur à défilement horizontal n'a plus lieu d'être sur papier. */
+  .overflow-x-auto {
+    overflow: visible !important;
+  }
+
+  /* Les sections et les tuiles ne doivent pas non plus être coupées. */
+  section {
+    break-inside: avoid;
+    page-break-inside: avoid;
+    margin-bottom: 14px;
+  }
+
+  /* Le journal peut être long : lui, on l'autorise à s'étendre sur
+     plusieurs pages — ce sont les fiches qui restent solidaires. */
+  section:last-of-type {
+    break-inside: auto;
+    page-break-inside: auto;
+  }
+
+  h3 {
+    break-after: avoid;
+    page-break-after: avoid;
+  }
 }
 </style>
