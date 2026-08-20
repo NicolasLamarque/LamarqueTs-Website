@@ -30,8 +30,10 @@ export default defineEventHandler(async (event) => {
   // 2️⃣ Recherche de l'utilisateur dans la BD
   const user = await getUserByUsernameWithPassword(username)
   if (!user) {
-    // Identifiant inexistant : on enregistre la tentative, pas le mot de passe.
-    journaliserSecurite(event, 'login_fail', { username })
+    // Identifiant inexistant : quelqu'un tatonne. C'est le bruit de fond
+    // habituel d'Internet (« admin », « root », « test »...).
+    // On enregistre l'identifiant essaye, jamais le mot de passe.
+    journaliserSecurite(event, 'login_unknown', { username })
     throw createError({
       statusCode: 401,
       statusMessage: 'Utilisateur inconnu',
@@ -41,9 +43,9 @@ export default defineEventHandler(async (event) => {
   // 3️⃣ Vérification du mot de passe
   const valid = await bcrypt.compare(password, user.password)
   if (!valid) {
-    // Le compte existe mais le mot de passe est faux : c'est le signal le plus
-    // parlant d'une attaque par force brute.
-    journaliserSecurite(event, 'login_fail', { username })
+    // Le compte EXISTE, seul le mot de passe est faux. C'est le signal le plus
+    // serieux du journal : la personne connait un nom de compte valide.
+    journaliserSecurite(event, 'login_badpass', { username })
     throw createError({
       statusCode: 401,
       statusMessage: 'Mot de passe incorrect',

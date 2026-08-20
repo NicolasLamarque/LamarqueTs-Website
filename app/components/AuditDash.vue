@@ -147,11 +147,12 @@
               <th class="px-4 py-2 font-semibold">Requête</th>
               <th class="px-4 py-2 font-semibold">Adresse</th>
               <th class="px-4 py-2 font-semibold">Identifiant</th>
+              <th class="px-4 py-2 font-semibold">Navigateur</th>
             </tr>
           </thead>
           <tbody>
             <tr v-if="!entreesFiltrees.length">
-              <td colspan="5" class="px-4 py-8 text-center text-gray-500 dark:text-gray-400">
+              <td colspan="6" class="px-4 py-8 text-center text-gray-500 dark:text-gray-400">
                 Aucune entrée. C'est la bonne nouvelle : personne n'a tenté d'accéder
                 à une route protégée.
               </td>
@@ -174,6 +175,9 @@
               </td>
               <td class="px-4 py-2 font-mono text-xs text-gray-600 dark:text-gray-400">{{ e.ip }}</td>
               <td class="px-4 py-2 text-gray-700 dark:text-gray-300">{{ e.username || '—' }}</td>
+              <td class="px-4 py-2 text-xs text-gray-500 dark:text-gray-400 max-w-[220px] truncate" :title="e.user_agent || ''">
+                {{ resumerNavigateur(e.user_agent) }}
+              </td>
             </tr>
           </tbody>
         </table>
@@ -199,6 +203,7 @@ interface Entree {
   path: string | null
   ip: string | null
   username: string | null
+  user_agent: string | null
 }
 
 const entrees = ref<Entree[]>([])
@@ -211,7 +216,8 @@ const filtreActif = ref('tous')
 const filtres = [
   { valeur: 'tous', libelle: 'Tout' },
   { valeur: 'denied', libelle: 'Refus' },
-  { valeur: 'login_fail', libelle: 'Échecs' },
+  { valeur: 'login_badpass', libelle: 'Mot de passe faux' },
+  { valeur: 'login_unknown', libelle: 'Compte inconnu' },
   { valeur: 'login_ok', libelle: 'Connexions' },
 ]
 
@@ -219,7 +225,8 @@ const dateEdition = new Date().toLocaleString('fr-CA')
 
 const tuiles = computed(() => [
   { libelle: 'Refus d\'accès', valeur: stats.value.refus ?? 0, classe: (stats.value.refus ?? 0) > 0 ? 'text-amber-600 dark:text-amber-400' : 'text-gray-800 dark:text-gray-100' },
-  { libelle: 'Échecs de connexion', valeur: stats.value.echecsConnexion ?? 0, classe: (stats.value.echecsConnexion ?? 0) > 5 ? 'text-red-600 dark:text-red-400' : 'text-gray-800 dark:text-gray-100' },
+  { libelle: 'Mot de passe faux', valeur: stats.value.motsDePasseFaux ?? 0, classe: (stats.value.motsDePasseFaux ?? 0) > 0 ? 'text-red-600 dark:text-red-400' : 'text-gray-800 dark:text-gray-100' },
+  { libelle: 'Compte inconnu', valeur: stats.value.comptesInconnus ?? 0, classe: 'text-gray-800 dark:text-gray-100' },
   { libelle: 'Connexions réussies', valeur: stats.value.connexions ?? 0, classe: 'text-gray-800 dark:text-gray-100' },
   { libelle: 'Dernières 24 h', valeur: stats.value.dernieres24h ?? 0, classe: 'text-gray-800 dark:text-gray-100' },
 ])
@@ -231,14 +238,36 @@ const entreesFiltrees = computed(() =>
 )
 
 const libelleEvenement = (e: string) =>
-  ({ denied: 'Refus', login_fail: 'Échec connexion', login_ok: 'Connexion' }[e] || e)
+  ({
+    denied: 'Refus',
+    login_unknown: 'Compte inconnu',
+    login_badpass: 'Mot de passe faux',
+    login_fail: 'Échec connexion', // ancien type, conserve pour l'historique
+    login_ok: 'Connexion',
+  }[e] || e)
 
 const classeEvenement = (e: string) =>
   ({
     denied: 'bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300',
+    // Compte inconnu : bruit de fond, ton neutre.
+    login_unknown: 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300',
+    // Mot de passe faux sur un compte reel : le signal serieux, en rouge.
+    login_badpass: 'bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300',
     login_fail: 'bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300',
     login_ok: 'bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300',
   }[e] || 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300')
+
+// L'en-tete complet d'un navigateur est illisible dans un tableau. On en
+// extrait l'essentiel ; la valeur integrale reste disponible au survol.
+const resumerNavigateur = (ua: string | null) => {
+  if (!ua) return '—'
+  if (/bot|crawl|spider|curl|wget|python|scan/i.test(ua)) return '🤖 Robot / script'
+  if (/Edg\//.test(ua)) return 'Edge'
+  if (/Chrome\//.test(ua)) return 'Chrome'
+  if (/Firefox\//.test(ua)) return 'Firefox'
+  if (/Safari\//.test(ua)) return 'Safari'
+  return ua.slice(0, 28) + '…'
+}
 
 const formaterDate = (d: string | null) =>
   d ? new Date(d).toLocaleString('fr-CA', { dateStyle: 'short', timeStyle: 'short' }) : '—'

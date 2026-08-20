@@ -1,5 +1,5 @@
 <template>
-  <div v-if="!isChecking && isAuthenticated" class="flex h-screen bg-gray-100 dark:bg-gray-800">
+  <div v-if="!isChecking && isAuthenticated" class="dashboard-shell flex h-screen bg-gray-100 dark:bg-gray-800">
     <!-- Sidebar -->
     <SideBar :activeSection="section" @select="section = $event" />
 
@@ -39,7 +39,7 @@
       </header>
 
       <!-- Zone de contenu scrollable -->
-      <div class="flex-1 overflow-y-auto p-3 sm:p-4 lg:p-6">
+      <div class="dashboard-content flex-1 overflow-y-auto p-3 sm:p-4 lg:p-6">
         <component :is="activeComponent" />
       </div>
     </main>
@@ -172,6 +172,55 @@ const getSectionLabel = (key: string): string => {
 @supports (-webkit-overflow-scrolling: touch) {
   .overflow-y-auto {
     -webkit-overflow-scrolling: touch;
+  }
+}
+</style>
+
+<style>
+/* ==========================================================================
+   Impression du tableau de bord
+   ==========================================================================
+   Le tableau de bord est concu pour l'ecran : hauteur fixe (h-screen) et
+   defilement interne (overflow-y-auto). A l'impression, ces deux contraintes
+   font que seule la premiere hauteur d'ecran sort sur le papier, et tout le
+   reste est coupe net.
+   On les neutralise ici, et on retire la navigation qui n'a aucun sens sur
+   un document imprime. */
+@media print {
+  html,
+  body,
+  #__nuxt {
+    height: auto !important;
+    overflow: visible !important;
+    background: #fff !important;
+  }
+
+  .dashboard-shell {
+    display: block !important;
+    height: auto !important;
+    overflow: visible !important;
+    background: #fff !important;
+  }
+
+  /* Barre laterale et en-tete : inutiles sur un rapport imprime. */
+  .dashboard-shell aside,
+  .dashboard-shell > main > header {
+    display: none !important;
+  }
+
+  .dashboard-shell main,
+  .dashboard-content {
+    display: block !important;
+    height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
+    padding: 0 !important;
+  }
+
+  /* Les tableaux places dans un conteneur a defilement horizontal doivent
+     s'imprimer en entier, pas seulement la partie visible a l'ecran. */
+  .dashboard-content .overflow-x-auto {
+    overflow: visible !important;
   }
 }
 </style>

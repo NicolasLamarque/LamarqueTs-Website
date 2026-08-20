@@ -34,8 +34,25 @@ import { sql } from 'drizzle-orm'
 import type { H3Event } from 'h3'
 import { getRequestIP, getRequestHeader } from 'h3'
 
-/** Types d'événements enregistrés. */
-export type EvenementSecurite = 'login_ok' | 'login_fail' | 'denied'
+/**
+ * Types d'événements enregistrés.
+ *
+ * La distinction entre les deux échecs de connexion est délibérée et c'est
+ * l'information la plus utile du journal :
+ *
+ *   login_unknown — l'identifiant essayé n'existe pas. C'est le cas d'un
+ *                   robot qui teste « admin », « root », « test »… Bruit de
+ *                   fond d'Internet, sans gravité.
+ *
+ *   login_badpass — l'identifiant existe, seul le mot de passe est faux.
+ *                   Là, quelqu'un connaît un de tes noms de compte. Le signal
+ *                   est bien plus sérieux, et c'est celui à surveiller.
+ */
+export type EvenementSecurite =
+  | 'login_ok'
+  | 'login_unknown'
+  | 'login_badpass'
+  | 'denied'
 
 /** Durée de conservation. Au-delà, les lignes sont effacées. */
 const RETENTION_JOURS = 90
