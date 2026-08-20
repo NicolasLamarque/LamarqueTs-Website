@@ -11,10 +11,42 @@ export default defineEventHandler(async (event) => {
     });
   }
 
+  // ---------------------------------------------------------------------
+  // Validation du nom de table — indispensable
+  // ---------------------------------------------------------------------
+  // Plus bas, ce nom est insere dans une requete assemblee par concatenation
+  // (sql.raw), car PostgreSQL n'accepte pas de parametre a la place d'un nom
+  // de table. Sans le controle ci-dessous, un guillemet double place dans
+  // l'adresse refermait l'identifiant et permettait de poursuivre la requete.
+  //
+  // Le principe retenu est une liste blanche : on demande a la base la liste
+  // de ses propres tables, et on n'accepte que les noms qui y figurent
+  // EXACTEMENT. Le nom utilise ensuite ne vient donc plus de l'utilisateur,
+  // mais de PostgreSQL lui-meme — ce qui rend l'injection impossible plutot
+  // que difficile.
+  const tablesExistantes = await db.execute(sql`
+    SELECT tablename FROM pg_tables WHERE schemaname = 'public'
+  `);
+
+  const nomValide = (tablesExistantes as any[]).find(
+    (t) => t.tablename === tableName
+  );
+
+  if (!nomValide) {
+    throw createError({
+      statusCode: 404,
+      statusMessage: "Table inconnue"
+    });
+  }
+
+  // A partir d'ici, on n'utilise plus la valeur recue mais celle renvoyee par
+  // la base : meme en cas d'erreur de comparaison, rien d'arbitraire ne passe.
+  const tableSure = String(nomValide.tablename);
+
   try {
     // Compter les enregistrements totaux
     const totalCount = await db.execute(
-      sql.raw(`SELECT COUNT(*) as total FROM "${tableName}"`)
+      sql.raw(`SELECT COUNT(*) as total FROM "${tableSure}"`)
     );
 
     const totalRecords = totalCount[0] ? parseInt(String((totalCount[0] as any).total || '0')) : 0;
@@ -27,7 +59,7 @@ export default defineEventHandler(async (event) => {
       const weekResult = await db.execute(
         sql.raw(`
           SELECT COUNT(*) as week_count 
-          FROM "${tableName}" 
+          FROM "${tableSure}" 
           WHERE created_at >= NOW() - INTERVAL '7 days'
         `)
       );
@@ -68,10 +100,10 @@ export default defineEventHandler(async (event) => {
       tableSize
     };
   } catch (error) {
-    console.error(`Erreur analyse de ${tableName}:`, error);
+    console.error(`Erreur analyse de ${tableSure}:`, error);
     throw createError({
       statusCode: 500,
-      statusMessage: `Erreur lors de l'analyse de la table ${tableName}`
+      statusMessage: `Erreur lors de l'analyse de la table ${tableSure}`
     });
   }
 });
