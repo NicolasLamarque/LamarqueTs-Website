@@ -1,11 +1,8 @@
 <template>
   <div class="w-full relative">
-    
-    <!-- Arrière-plan avec vagues UNIQUE -->
-    <div class="fixed inset-0 -z-10 bg-slate-100 dark:bg-gray-900">
-      <WavesBackground :show-controls-button="true" />
-    </div>
-    
+
+    <!-- Les vagues sont fournies par le layout -->
+
     <!-- Section titre -->
     <section class="relative py-12 sm:py-16 md:py-24 lg:py-32 text-gray-800 dark:text-gray-100">
       <div class="container mx-auto px-4 max-w-4xl text-center">

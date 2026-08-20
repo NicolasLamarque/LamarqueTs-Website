@@ -1,10 +1,5 @@
 <template>
-  <div class="min-h-screen bg-slate-100 dark:bg-gray-900">
-
-    <!-- Background -->
-    <div class="fixed inset-0 bg-slate-100 dark:bg-gray-900 -z-10">
-      <WavesBackground />
-    </div>
+  <div class="min-h-screen">
 
     <div class="relative max-w-4xl mx-auto px-4 py-12 sm:py-16 space-y-8">
 

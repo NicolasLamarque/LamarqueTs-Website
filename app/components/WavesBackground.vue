@@ -2,9 +2,9 @@
   <div class="absolute inset-0">
     <canvas ref="canvasRef" class="absolute inset-0 w-full h-full" />
     
-    <!-- Bouton de contrôles (optionnel) -->
+    <!-- Bouton de contrôles — uniquement en développement, jamais en production -->
     <button
-      v-if="showControlsButton"
+      v-if="isDev && showControlsButton"
       @click="showControls = !showControls"
       class="fixed bottom-6 right-6 z-20 bg-sky-600 hover:bg-sky-700 text-white p-4 rounded-full shadow-lg transition-all"
       aria-label="Paramètres"
@@ -13,7 +13,7 @@
     </button>
     <!-- Panneau de contrôles -->
     <div
-      v-if="showControls"
+      v-if="isDev && showControls"
       class="fixed bottom-24 right-6 z-20 bg-white dark:bg-gray-800 rounded-2xl shadow-2xl p-6 w-80 border border-gray-200 dark:border-gray-700"
     >
       <h3 class="text-lg font-bold text-gray-800 dark:text-gray-100 mb-4">
@@ -99,17 +99,25 @@ const props = defineProps({
   }
 });
 
+// Le panneau de réglages ne doit jamais apparaître pour un visiteur
+const isDev = import.meta.dev;
+
 // Refs
 const canvasRef = ref<HTMLCanvasElement | null>(null);
 const animationRef = ref<number | null>(null);
 const showControls = ref(false);
 
-// Configuration réactive
-const config = reactive({
+// Valeurs par défaut — source unique pour l'init et pour resetConfig()
+const DEFAULTS = {
   speed: 0.02,
   amplitude: 30,
   frequency: 0.015,
   waveCount: 2,
+};
+
+// Configuration réactive
+const config = reactive({
+  ...DEFAULTS,
  colors: [
   'rgba(14, 165, 233, 0.15)',  // sky-500
   'rgba(56, 189, 248, 0.12)',  // sky-400
@@ -120,10 +128,12 @@ const config = reactive({
 });
 
 let time = 0;
+let dpr = 1;
 
 const drawWave = (
   ctx: CanvasRenderingContext2D,
-  canvas: HTMLCanvasElement,
+  width: number,
+  height: number,
   offset: number,
   amplitude: number,
   frequency: number,
@@ -131,22 +141,27 @@ const drawWave = (
   yPosition: number
 ) => {
   ctx.beginPath();
-  ctx.moveTo(0, canvas.height);
+  ctx.moveTo(0, height);
 
-  for (let x = 0; x < canvas.width; x++) {
-    const y = yPosition + 
+  for (let x = 0; x < width; x++) {
+    const y = yPosition +
       Math.sin(x * frequency + offset) * amplitude +
       Math.sin(x * frequency * 0.5 + offset * 0.7) * (amplitude * 0.5);
-    
+
     ctx.lineTo(x, y);
   }
 
-  ctx.lineTo(canvas.width, canvas.height);
-  ctx.lineTo(0, canvas.height);
+  ctx.lineTo(width, height);
+  ctx.lineTo(0, height);
   ctx.closePath();
   ctx.fillStyle = color;
   ctx.fill();
 };
+
+// Une seule frame est dessinée si l'utilisateur a demandé moins d'animations
+const prefersReducedMotion = () =>
+  typeof window !== 'undefined' &&
+  window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 const animate = () => {
   const canvas = canvasRef.value;
@@ -155,10 +170,14 @@ const animate = () => {
   const ctx = canvas.getContext('2d');
   if (!ctx) return;
 
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  
-  const baseY = canvas.height * 0.5;
-  const spacing = canvas.height / (config.waveCount + 1);
+  // Les coordonnées de dessin sont en pixels CSS, le canvas est mis à l'échelle du DPR
+  const width = canvas.width / dpr;
+  const height = canvas.height / dpr;
+
+  ctx.clearRect(0, 0, width, height);
+
+  const baseY = height * 0.5;
+  const spacing = height / (config.waveCount + 1);
 
   // Dessiner les vagues teal
   for (let i = 0; i < config.waveCount; i++) {
@@ -167,7 +186,8 @@ const animate = () => {
     
     drawWave(
       ctx,
-      canvas,
+      width,
+      height,
       time * config.speed + waveOffset,
       config.amplitude * (1 + i * 0.1),
       config.frequency * (1 - i * 0.05),
@@ -179,7 +199,8 @@ const animate = () => {
   // Vague dorée subtile
   drawWave(
     ctx,
-    canvas,
+    width,
+    height,
     time * config.speed * 0.2,
     config.amplitude * 0.8,
     config.frequency * 1.2,
@@ -187,45 +208,78 @@ const animate = () => {
     baseY - spacing * 0.5
   );
 
+  // Animation figée sur une frame si l'utilisateur préfère moins de mouvement
+  if (prefersReducedMotion()) {
+    animationRef.value = null;
+    return;
+  }
+
   time += 0.5;
   animationRef.value = requestAnimationFrame(animate);
+};
+
+const stopAnimation = () => {
+  if (animationRef.value !== null) {
+    cancelAnimationFrame(animationRef.value);
+    animationRef.value = null;
+  }
+};
+
+const startAnimation = () => {
+  stopAnimation();
+  animate();
 };
 
 const resizeCanvas = () => {
   const canvas = canvasRef.value;
   if (!canvas) return;
 
-  canvas.width = canvas.offsetWidth;
-  canvas.height = canvas.offsetHeight;
+  // Rendu net sur écran haute densité : buffer en pixels physiques, dessin en pixels CSS
+  dpr = Math.min(window.devicePixelRatio || 1, 2);
+  canvas.width = Math.max(1, Math.round(canvas.offsetWidth * dpr));
+  canvas.height = Math.max(1, Math.round(canvas.offsetHeight * dpr));
+
+  const ctx = canvas.getContext('2d');
+  if (ctx) {
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+};
+
+const handleResize = () => {
+  resizeCanvas();
+  startAnimation();
+};
+
+// Onglet caché : inutile de brûler du CPU à dessiner des vagues invisibles
+const handleVisibility = () => {
+  if (document.hidden) {
+    stopAnimation();
+  } else {
+    startAnimation();
+  }
 };
 
 const resetConfig = () => {
-  config.speed = 0.3;
-  config.amplitude = 30;
-  config.frequency = 0.015;
-  config.waveCount = 4;
+  Object.assign(config, DEFAULTS);
 };
 
 onMounted(() => {
   resizeCanvas();
-  window.addEventListener('resize', resizeCanvas);
+  window.addEventListener('resize', handleResize);
+  document.addEventListener('visibilitychange', handleVisibility);
   animate();
 });
 
 onUnmounted(() => {
-  window.removeEventListener('resize', resizeCanvas);
-  if (animationRef.value) {
-    cancelAnimationFrame(animationRef.value);
-  }
+  window.removeEventListener('resize', handleResize);
+  document.removeEventListener('visibilitychange', handleVisibility);
+  stopAnimation();
 });
 
 // Réanimer quand la config change
 watch(config, () => {
-  if (animationRef.value) {
-    cancelAnimationFrame(animationRef.value);
-  }
   time = 0;
-  animate();
+  startAnimation();
 });
 </script>
 

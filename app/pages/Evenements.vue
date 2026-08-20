@@ -1,5 +1,5 @@
 <template>
-  <div class="container mx-auto px-4 dark:text-white dark:bg-gray-800 min-h-screen rounded-lg py-8">
+  <div class="container mx-auto px-4 dark:text-white min-h-screen rounded-lg py-8">
     
     <MonCal/>
    

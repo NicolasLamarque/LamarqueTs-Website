@@ -1,5 +1,5 @@
 <template>
-<div class="p-6 bg-white dark:bg-gray-950 min-h-screen transition-colors duration-500">
+<div class="p-6 bg-slate-100 dark:bg-gray-900 min-h-screen transition-colors duration-500">
   <LoginForm/>
 
     

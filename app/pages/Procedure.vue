@@ -1,5 +1,5 @@
 <template>
-  <div class="max-w-5xl mx-auto px-4 py-12">
+  <div class="min-h-screen max-w-5xl mx-auto px-4 py-12">
     
     <!-- Header -->
     <div class="text-center mb-12">
@@ -287,7 +287,21 @@
 </template>
 
 <script setup>
+useHead({
+  title: "Guide d'homologation du mandat de protection | Étapes et délais au Québec",
+  meta: [
+    {
+      name: 'description',
+      content:
+        "Les étapes de l'homologation d'un mandat de protection au Québec expliquées simplement : évaluation de l'inaptitude, recherche du mandat, délais et démarches au tribunal."
+    }
+  ],
+})
 
+// Le bouton « Télécharger en PDF » ouvre la boîte d'impression du navigateur
+const handlePrint = () => {
+  window.print()
+}
 </script>
 
 <style scoped>

@@ -1,11 +1,6 @@
 <template>
   <div class="w-full min-h-full">
     <section class="relative pt-0 sm:pt-16 md:pt-24 text-gray-800 dark:text-gray-100 w-full">
-      
-      <!-- Background -->
-      <div class="fixed inset-0 bg-slate-100 dark:bg-gray-900 -z-10">
-        <WavesBackground :show-controls-button="false" />
-      </div>
 
       <div class="relative w-full max-w-5xl sm:mx-auto px-3 sm:px-4 md:px-6 pb-12">
 

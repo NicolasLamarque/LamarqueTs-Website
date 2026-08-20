@@ -1,11 +1,6 @@
 <template>
-  <div class="min-h-screen bg-slate-100 dark:bg-gray-900">
-    <!-- Background fixe avec vagues -->
-    <div class="fixed inset-0 bg-slate-100 dark:bg-gray-900 z-0">
-      <WavesBackground />
-    </div>
-
-    <!-- Contenu principal au-dessus du background -->
+  <div class="min-h-screen">
+    <!-- Les vagues sont fournies par le layout -->
     <div class="relative z-[1]">
       <!-- Header -->
       <section class="py-12 sm:py-16 landscape:short:py-8 px-4">

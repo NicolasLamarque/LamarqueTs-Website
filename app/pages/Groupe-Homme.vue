@@ -1,5 +1,5 @@
 <template>
-  <div lang="fr" class="min-h-screen bg-slate-100 dark:bg-gray-900">
+  <div lang="fr" class="min-h-screen">
     <!-- Hero Section -->
     <section class="relative py-12 sm:py-16 md:py-20 px-3 sm:px-4">
       <div class="max-w-6xl mx-auto">
@@ -63,7 +63,7 @@
     </section>
 
     <!-- Section Bénéfices -->
-    <section class="py-12 sm:py-16 px-3 sm:px-4 bg-white dark:bg-gray-800">
+    <section class="py-12 sm:py-16 px-3 sm:px-4 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm">
       <div class="max-w-6xl mx-auto">
         <h2
           class="text-2xl sm:text-3xl md:text-4xl font-extrabold text-center text-gray-800 dark:text-gray-100 mb-8 sm:mb-12 tracking-tight px-2"
@@ -385,7 +385,7 @@
 
     <!-- Section CTA -->
     <section
-      class="py-12 sm:py-16 md:py-20 px-3 sm:px-4 bg-white dark:bg-gray-800"
+      class="py-12 sm:py-16 md:py-20 px-3 sm:px-4 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm"
     >
       <div class="max-w-4xl mx-auto text-center">
         <h2

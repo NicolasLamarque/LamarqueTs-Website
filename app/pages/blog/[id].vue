@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-slate-100 dark:bg-gray-900 min-h-screen transition-colors duration-500">
+  <div class="min-h-screen transition-colors duration-500">
     
     <!-- Article chargé -->
     <div v-if="article">
@@ -33,7 +33,7 @@
       <section class="py-16 px-4">
         <div class="max-w-4xl mx-auto">
           <!-- Article avec bordures légères -->
-          <article class="border-l-2 border-r-2 border-sky-900 dark:border-sky-700 px-8 md:px-16 py-12">
+          <article class="border-l-2 border-r-2 border-sky-900 dark:border-sky-700 px-8 md:px-16 py-12 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm rounded-2xl">
             <!-- Contenu principal -->
             <div class="prose prose-lg dark:prose-invert max-w-none">
               <div 

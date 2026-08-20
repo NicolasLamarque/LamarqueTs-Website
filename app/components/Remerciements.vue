@@ -1,12 +1,7 @@
 <template>
   <div class="w-full">
-    <!-- Section avec vagues en arrière-plan -->
+    <!-- Les vagues sont fournies par le layout -->
     <section class="relative py-12 sm:py-16 md:py-24 text-gray-800 dark:text-gray-100 w-full overflow-hidden">
-      
-      <!-- Arrière-plan avec vagues -->
-      <div class="absolute inset-0 bg-slate-100 dark:bg-gray-900">
-        <WavesBackground :show-controls-button="true" />
-      </div>
 
       <div class="relative w-full max-w-7xl mx-auto px-3 sm:px-4 md:px-6">
         
