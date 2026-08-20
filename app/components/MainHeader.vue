@@ -14,6 +14,8 @@
         <div class="flex-shrink-0">
           <NuxtImg
             src="https://5eqf1pkqjlprn7ya.public.blob.vercel-storage.com/logo.jpg"
+            :width="128"
+            :height="128"
             alt="Logo"
             class="w-10 h-10 sm:w-12 sm:h-12 md:w-16 md:h-16 landscape:short:w-10 landscape:short:h-10 rounded-full border-2 border-white group-hover:border-gray-300 transition-all duration-300"
           />

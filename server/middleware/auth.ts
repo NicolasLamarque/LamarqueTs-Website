@@ -13,6 +13,16 @@ if (!jwtSecret) {
 export default defineEventHandler(async (event) => {
   const url = event.node.req.url || ''
 
+  // Comparaison insensible à la casse.
+  //
+  // POURQUOI : les comparaisons ci-dessous utilisent startsWith(), qui
+  // distingue les majuscules. Une requête vers /Dashboard ne correspondait
+  // donc PAS à '/dashboard' : elle traversait le middleware sans qu'aucun
+  // jeton ne soit exigé. Or le routeur de Nuxt, lui, sert la même page quelle
+  // que soit la casse — il suffisait donc d'une majuscule pour contourner
+  // cette vérification.
+  const urlNormalisee = url.toLowerCase()
+
   console.log('🔍 Server middleware - URL demandée:', url)
 
   // 🔓 Routes publiques (pas besoin de vérification)
@@ -28,7 +38,7 @@ export default defineEventHandler(async (event) => {
 
   // Si c'est une route publique, on laisse passer
   // IMPORTANT : Ne pas mettre '/' seul car ça match tout !
-  if (url === '/' || publicRoutes.some(route => url.startsWith(route))) {
+  if (urlNormalisee === '/' || publicRoutes.some(route => urlNormalisee.startsWith(route))) {
     console.log('✅ Route publique, passage autorisé')
     return
   }
@@ -40,7 +50,7 @@ export default defineEventHandler(async (event) => {
   ]
 
   // Si c'est une route protégée
-  const isProtected = protectedRoutes.some(route => url.startsWith(route))
+  const isProtected = protectedRoutes.some(route => urlNormalisee.startsWith(route))
 
   if (isProtected) {
     console.log('🔒 Route protégée détectée:', url)

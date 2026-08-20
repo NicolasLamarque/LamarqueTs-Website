@@ -1,6 +1,7 @@
 // server/api/users/[id].delete.ts
 import { defineEventHandler, createError } from 'h3'
 import {deleteUser} from '../../utils/users';
+import { deleteBlobIfUnused } from '../../utils/blob';
 
 
 export default defineEventHandler(async (event) => {
@@ -20,6 +21,10 @@ if (!deletedUser) {
     // Si la fonction retourne 'undefined', cela signifie 0 changement
     throw createError({ statusCode: 404, statusMessage: 'Utilisateur non trouvé pour la suppression.' });
 }
+    // Le compte n'existe plus : sa photo de profil devient un orphelin
+    // dans le Blob. On la retire (sauf si un autre compte utilise la même).
+    await deleteBlobIfUnused(deletedUser.profile_picture, `utilisateur ${deletedUser.id} supprimé`);
+
     return { message: `Utilisateur ${deletedUser.id} supprimé avec succès.` };
   } catch (err) {
     // On vérifie si c'est deja une erreur H3 pour la relancer, 

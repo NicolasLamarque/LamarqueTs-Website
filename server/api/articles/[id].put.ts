@@ -1,7 +1,8 @@
 // server/api/articles/[id].put.ts
 
 import { defineEventHandler, createError, H3Error, readBody } from 'h3';
-import { updateArticle, ArticleInsert} from '../../utils/articles';
+import { updateArticle, getArticleById, ArticleInsert} from '../../utils/articles';
+import { deleteBlobIfUnused } from '../../utils/blob';
 
 // Le type pour les données de mise à jour : tout est optionnel
 type ArticleUpdatePayload = Partial<ArticleInsert>;
@@ -42,12 +43,27 @@ export default defineEventHandler(async (event) => {
     }
 
     try {
+        // On mémorise l'image actuelle AVANT la mise à jour : une fois la ligne
+        // écrite, l'ancienne URL aura disparu de la base et on ne pourrait plus
+        // savoir quel fichier est devenu inutile.
+        const articleAvant = await getArticleById(articleId);
+        const ancienneImage = articleAvant?.ImageArticle ?? null;
+
         // 3. Appel de la fonction Drizzle
         const updatedArticle: ArticleSelect | undefined = await updateArticle(articleId, updatedData);
 
         // 4. Gestion de la réponse HTTP
         if (!updatedArticle) {
             throw createError({ statusCode: 404, statusMessage: 'Article non trouvé pour la mise à jour.' });
+        }
+
+        // Si l'image a changé, l'ancienne n'est plus affichée nulle part :
+        // c'est un orphelin, on le retire du Blob.
+        // La comparaison protège le cas fréquent où l'article est modifié
+        // (titre, texte...) sans toucher à l'image — là il ne faut surtout
+        // rien supprimer.
+        if (ancienneImage && ancienneImage !== updatedArticle.ImageArticle) {
+            await deleteBlobIfUnused(ancienneImage, `ancienne image de l'article ${articleId}`);
         }
 
         // 5. Retour de l'article mis à jour

@@ -2,7 +2,8 @@
 
 // 💡 Assurez-vous d'importer 'getRouterParam' depuis 'h3'
 import { readBody, createError, defineEventHandler, getRouterParam } from 'h3'; 
-import { updateUser, User } from '../../utils/users';
+import { updateUser, getUserById, User } from '../../utils/users';
+import { deleteBlobIfUnused } from '../../utils/blob';
 
 export default defineEventHandler(async (event) => {
     // 1. EXTRAIRE L'ID DE L'URL (C'est la ligne manquante)
@@ -24,12 +25,25 @@ export default defineEventHandler(async (event) => {
 
 
     try {
+        // Photo actuelle mémorisée AVANT l'écriture : après la mise à jour,
+        // l'ancienne URL n'existe plus en base et on ne saurait plus quel
+        // fichier est devenu inutile.
+        const utilisateurAvant = await getUserById(id);
+        const ancienom = utilisateurAvant?.profile_picture ?? null;
+
         // 4. Appel à la fonction de mise à jour
         const updatedUser = await updateUser(id, body as Partial<User>);
         
         if (!updatedUser) {
             // L'utilisateur n'a pas été trouvé (updateUser a retourné 'undefined')
             throw createError({ statusCode: 404, statusMessage: "Utilisateur non trouvé pour la mise à jour." });
+        }
+
+        // Photo de profil changée => l'ancienne n'est plus affichée nulle part.
+        // Si elle est identique, on ne touche à rien (cas d'une simple
+        // modification du nom ou du rôle, par exemple).
+        if (ancienom && ancienom !== updatedUser.profile_picture) {
+            await deleteBlobIfUnused(ancienom, `ancienne photo de l'utilisateur ${id}`);
         }
 
         // 5. Sécurité: Retire le mot de passe hashé de la réponse

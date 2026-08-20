@@ -39,8 +39,13 @@
 
       <!-- IMAGE -->
       <div class="rounded-2xl overflow-hidden shadow-xl max-w-3xl mx-auto">
-        <img
+        <!-- NuxtImg (et non <img>) pour que l'image passe par l'optimiseur :
+             sinon c'est le fichier d'origine, en taille réelle, qui est
+             téléchargé. Le conteneur fait au plus 768 px de large. -->
+        <NuxtImg
           src="https://5eqf1pkqjlprn7ya.public.blob.vercel-storage.com/Service2.png"
+          :width="800"
+          :height="400"
           alt="Homologation de mandat à Shawinigan"
           class="w-full h-auto max-h-[400px] object-cover"
           loading="lazy"

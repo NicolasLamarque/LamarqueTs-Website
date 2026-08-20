@@ -24,9 +24,14 @@
         <!-- Image principale -->
         <div class="w-full flex justify-center mb-8 sm:mb-12">
           <div class="w-full max-w-3xl">
-            <img
+            <!-- NuxtImg (et non <img>) : sans passer par l'optimiseur, c'est
+                 le PNG d'origine en taille réelle qui était téléchargé. -->
+            <NuxtImg
               src="https://5eqf1pkqjlprn7ya.public.blob.vercel-storage.com/LamarqueGroupe.png"
+              :width="800"
+              :height="600"
               alt="Groupe de soutien"
+              loading="lazy"
               class="w-full h-auto rounded-2xl shadow-2xl"
             />
           </div>
@@ -403,7 +408,7 @@
           class="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center px-2"
         >
           <nuxt-link
-            to="/Contact"
+            to="/contact"
             class="inline-block bg-sky-700 text-white py-3 px-6 sm:px-8 rounded-xl font-semibold shadow-lg hover:shadow-xl hover:bg-sky-600 transition-all duration-500"
           >
             Manifester mon intérêt

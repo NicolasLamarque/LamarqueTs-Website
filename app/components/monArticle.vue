@@ -52,9 +52,16 @@
               >
                 <!-- Image avec overlay au hover -->
                 <figure class="relative overflow-hidden h-48">
-                  <img
+                  <!-- Vignette : NuxtImg redimensionne côté serveur. En <img>
+                       brut, chaque carte téléchargeait la photo d'origine de
+                       l'article en pleine taille pour l'afficher en 192 px de
+                       haut. -->
+                  <NuxtImg
                     :src="article.ImageArticle"
                     :alt="article.titleArticle"
+                    :width="600"
+                    :height="400"
+                    loading="lazy"
                     class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                   />
                   <!-- Overlay gradient -->

@@ -4,6 +4,7 @@
 
 import { defineEventHandler, getRouterParam, createError } from 'h3';
 import { deleteArticle } from '~/server/utils/articles';
+import { deleteBlobIfUnused } from '~/server/utils/blob';
 
 export default defineEventHandler(async (event) => {
   try {
@@ -32,7 +33,14 @@ export default defineEventHandler(async (event) => {
     }
     
     console.log('✅ Article supprimé:', deletedArticle.id);
-    
+
+    // L'article n'existe plus, mais son image est toujours dans le Blob.
+    // On la supprime pour ne pas laisser un fichier orphelin occuper l'espace.
+    // Appelé APRÈS la suppression en base, pour que la vérification
+    // « encore utilisée ailleurs ? » ne retombe pas sur l'article qu'on vient
+    // justement d'effacer.
+    await deleteBlobIfUnused(deletedArticle.ImageArticle, `article ${deletedArticle.id} supprimé`);
+
     return { 
       success: true,
       message: `Article ${deletedArticle.id} supprimé avec succès.`,

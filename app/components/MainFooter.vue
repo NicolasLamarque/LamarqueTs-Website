@@ -9,6 +9,8 @@
         <div class="flex items-center gap-2 sm:gap-3">
           <NuxtImg 
             src="https://5eqf1pkqjlprn7ya.public.blob.vercel-storage.com/logo.jpg"
+            :width="64"
+            :height="64"
             alt="Logo"
             class="w-6 h-6 sm:w-7 sm:h-7 landscape:short:w-5 landscape:short:h-5 rounded-full border border-white flex-shrink-0"
           />

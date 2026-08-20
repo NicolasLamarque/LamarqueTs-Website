@@ -385,6 +385,10 @@ import { ref, onMounted, watch, computed, nextTick } from 'vue' // <-- Correctio
 import { marked } from 'marked'
 import type { ArticleSelect } from '~/server/utils/schema'
 
+// Téléversement d'images : compresse la photo dans le navigateur avant
+// de l'envoyer, pour ne pas stocker des fichiers de plusieurs Mo.
+const { televerserImage, formaterPoids } = useImageUpload()
+
 interface Message {
   text: string
   type: 'success' | 'error'
@@ -469,29 +473,28 @@ const handleImageUpload = async (event: Event) => {
   
   if (!file) return
 
-  // Vérifier la taille du fichier (max 5MB)
-  if (file.size > 5 * 1024 * 1024) {
-    showMessage('L\'image est trop grande (max 5MB)', 'error')
+  // Garde-fou : au-delà de 25 Mo ce n'est plus une photo mais sans doute
+  // une erreur de fichier. On refuse avant même de charger l'image.
+  if (file.size > 25 * 1024 * 1024) {
+    showMessage('Ce fichier est trop volumineux (max 25 Mo)', 'error')
     return
   }
 
   try {
     isUploading.value = true
-    
-    const formData = new FormData()
-    formData.append('file', file)
 
-    // Utilisation de $fetch de Nuxt pour l'appel API
-    const response = await $fetch<{ success: boolean; url: string }>('/api/upload-image', {
-      method: 'POST',
-      body: formData
-    })
+    const poidsAvant = file.size
 
-    if (response.success) {
-      form.value.ImageArticle = response.url
-      showMessage('Image uploadée avec succès !', 'success')
-    }
-    
+    // televerserImage() redimensionne et recompresse l'image dans le
+    // navigateur AVANT l'envoi. Plus besoin de refuser les grosses photos :
+    // une photo de téléphone de 5 Mo part maintenant à quelques centaines de Ko.
+    const url = await televerserImage(file)
+
+    form.value.ImageArticle = url
+
+    // On rappelle le poids d'origine pour rendre le gain visible.
+    showMessage(`Image envoyée (${formaterPoids(poidsAvant)} à l'origine)`, 'success')
+
   } catch (error: any) {
     console.error('Erreur upload:', error)
     showMessage(error.data?.message || 'Erreur lors de l\'upload de l\'image', 'error')

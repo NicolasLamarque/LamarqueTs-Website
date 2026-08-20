@@ -34,9 +34,13 @@ const goTo = (index: number) => {
       <transition name="fade-slide" mode="out-in">
         <div :key="current" class="absolute inset-0">
           <!-- Image -->
-          <img
+          <!-- NuxtImg : le carrousel occupe toute la largeur du conteneur,
+               1280 px couvre le plus grand affichage sans servir l'original. -->
+          <NuxtImg
             :src="situations[current].image"
             :alt="situations[current].titre"
+            :width="1280"
+            :height="600"
             class="w-full h-full object-cover"
             loading="lazy"
           />

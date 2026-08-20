@@ -191,7 +191,25 @@ export default defineNuxtConfig({
   image: {
     domains: ["5eqf1pkqjlprn7ya.public.blob.vercel-storage.com"],
     provider: "vercel",
+    // Largeurs autorisées pour l'optimiseur d'images.
+    //
+    // ATTENTION : ce n'est pas une simple liste de breakpoints. Toute
+    // largeur demandée par un composant qui ne figure PAS ici est arrondie
+    // vers le HAUT jusqu'à la valeur suivante. Une vignette de 300 px était
+    // ainsi servie en 320, une image de 400 px en 640, et le logo — qui ne
+    // déclarait aucune largeur — partait carrément en 1536 px sur chaque
+    // page. D'où les valeurs fines ajoutées ci-dessous.
     screens: {
+      // Tailles fines, pour les logos et les vignettes
+      logo: 64,
+      logo2x: 128,
+      logo4x: 256,
+      thumb: 300,
+      thumb2x: 600,
+      card: 400,
+      card2x: 800,
+
+      // Breakpoints classiques
       xs: 320,
       sm: 640,
       md: 768,
