@@ -75,6 +75,13 @@ const GestSupaBaseDash = defineAsyncComponent(() => import('../components/GestDa
 const mailsDash = defineAsyncComponent(() => import('../components/GestMailsDash.vue'))
 const AuditDash = defineAsyncComponent(() => import('../components/AuditDash.vue'))
 
+// Meme raison que pour la page de connexion : jamais dans un moteur de
+// recherche, quelle que soit la maniere dont l'adresse est arrivee la.
+useHead({
+  title: 'Administration',
+  meta: [{ name: 'robots', content: 'noindex, nofollow' }],
+})
+
 const section = ref('articles')
 const isChecking = ref(true)
 const isAuthenticated = ref(false)

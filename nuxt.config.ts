@@ -125,6 +125,28 @@ export default defineNuxtConfig({
   // SITEMAP SIMPLE
   sitemap: {
     autoLastmod: true,
+
+    // Pages retirees du plan du site.
+    //
+    // Elles y figuraient alors que robots.txt les interdit deja : deux
+    // signaux contradictoires envoyes a Google, qui les signale comme
+    // erreurs dans la Search Console.
+    //
+    //   /dashboard, /login  : inutile d'indiquer publiquement ou se trouve
+    //                         l'administration. Les deux sont protegees,
+    //                         mais autant ne pas les mettre sur une carte.
+    //   /Calendrier         : la page est vide, son template ne contient
+    //                         rien. Indexee, elle penalise le referencement.
+    //   /Evenements         : le calendrier n'est pas encore ouvert au
+    //                         public et n'est lie nulle part.
+    exclude: [
+      "/dashboard",
+      "/dashboard/**",
+      "/login",
+      "/Calendrier",
+      "/Evenements",
+    ],
+
     defaults: {
       changefreq: "weekly",
       priority: 0.8,

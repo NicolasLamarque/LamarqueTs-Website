@@ -1,13 +1,25 @@
 User-agent: *
 Allow: /
 
-# Interdire l'accès aux zones sécurisées
+# ---------------------------------------------------------------------------
+# Zones non destinees a l'indexation
+# ---------------------------------------------------------------------------
+# Note : « Disallow: /dashboard/ » (avec la barre finale) ne couvrait que les
+# sous-chemins, pas /dashboard lui-meme. Les deux formes sont donc indiquees.
+Disallow: /dashboard
 Disallow: /dashboard/
-Disallow: /api/
 Disallow: /login
 Disallow: /register
+
+# Pages non ouvertes au public pour l'instant
 Disallow: /Calendrier
 Disallow: /Evenements
+
+# L'API n'a pas vocation a etre exploree. Les routes sensibles repondent de
+# toute facon 401 sans jeton, mais autant ne pas y envoyer les robots.
+# Le blog reste indexable normalement : ses articles sont rendus cote serveur,
+# le HTML les contient deja, aucun robot n'a besoin d'appeler l'API.
+Disallow: /api/
 
 # Sitemap
 Sitemap: https://www.lamarquets.com/sitemap.xml

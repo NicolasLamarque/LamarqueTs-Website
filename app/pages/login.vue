@@ -12,6 +12,14 @@
 <script lang="ts" setup>
 import LoginForm from '../components/auth/LoginForm.vue';
 
+// Page d'administration : ne doit jamais apparaitre dans un moteur de
+// recherche. robots.txt empeche l'exploration, cette balise empeche
+// l'indexation - les deux ne font pas la meme chose.
+useHead({
+  title: 'Connexion',
+  meta: [{ name: 'robots', content: 'noindex, nofollow' }],
+})
+
 
 </script>
 
