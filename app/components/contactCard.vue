@@ -93,6 +93,53 @@
           ></textarea>
         </div>
 
+        <!-- Ressources d'urgence -->
+        <!--
+          Place juste sous le champ message, avant tout le reste : c'est le
+          moment ou la personne vient d'ecrire ce qui l'amene, donc celui ou
+          l'information est la plus utile.
+
+          Raison d'etre : un courriel est lu quand il est lu. Quelqu'un en
+          detresse a besoin d'un numero tout de suite, sur la page. Les
+          numeros sont cliquables — en situation de crise, personne ne devrait
+          avoir a recopier un numero a la main.
+        -->
+        <div class="bg-amber-900/20 border border-amber-700/60 rounded-lg p-3 sm:p-4 landscape:short:p-2">
+          <div class="flex items-start gap-2 sm:gap-3">
+            <svg class="w-4 h-4 sm:w-5 sm:h-5 text-amber-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M5.07 19h13.86a2 2 0 001.74-3L13.74 4a2 2 0 00-3.48 0L3.33 16a2 2 0 001.74 3z" />
+            </svg>
+            <div class="text-xs sm:text-sm leading-relaxed">
+              <p class="font-semibold text-amber-200 mb-1.5">
+                Besoin d'aide immédiatement ?
+              </p>
+              <p class="text-amber-100/90 mb-2">
+                Ce formulaire n'est pas un service d'urgence : je ne le consulte pas
+                en continu. Si vous vivez une situation difficile en ce moment, ces
+                ressources sont disponibles jour et nuit, gratuitement.
+              </p>
+              <ul class="space-y-1 text-amber-100/90">
+                <li>
+                  <a href="tel:811" class="font-semibold text-amber-200 underline underline-offset-2 hover:text-amber-100">811</a>
+                  <span class="text-amber-100/70"> — Info-Social, option 2 (intervenant psychosocial)</span>
+                </li>
+                <li>
+                  <a href="tel:988" class="font-semibold text-amber-200 underline underline-offset-2 hover:text-amber-100">988</a>
+                  <span class="text-amber-100/70"> — Ligne d'aide en cas de crise de suicide (appel ou texto)</span>
+                </li>
+                <li>
+                  <a href="tel:18662773553" class="font-semibold text-amber-200 underline underline-offset-2 hover:text-amber-100">1&nbsp;866&nbsp;APPELLE</a>
+                  <span class="text-amber-100/70"> — 1&nbsp;866&nbsp;277-3553, prévention du suicide au Québec</span>
+                </li>
+                <li>
+                  <a href="tel:911" class="font-semibold text-amber-200 underline underline-offset-2 hover:text-amber-100">911</a>
+                  <span class="text-amber-100/70"> — danger immédiat pour vous ou pour quelqu'un</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
         <!-- Note de confidentialité - COMPACTE -->
         <div class="bg-teal-900/20 border border-teal-800 rounded-lg p-3 sm:p-4 landscape:short:p-2">
           <div class="flex items-start gap-2 sm:gap-3">
