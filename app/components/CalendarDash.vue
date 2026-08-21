@@ -160,9 +160,57 @@
                   </label>
                 </div>
 
+                <!-- Saisie au clavier, format AAAA-MM-JJ impose.
+                     Le champ natif type="date" affiche la date selon la locale
+                     du systeme — d'ou le « mm/dd/yyyy » — et son calendrier
+                     oblige a naviguer de mois en mois pour une date eloignee.
+                     Ici les tirets s'ajoutent tout seuls : taper « 20260917 »
+                     produit « 2026-09-17 ». -->
                 <div class="form-group">
-                  <label class="form-label">Date de début <span class="text-red-500">*</span></label>
-                  <input v-model="form.dateDebut" type="date" class="form-input" required />
+                  <label class="form-label">
+                    Date de début <span class="text-red-500">*</span>
+                    <span v-if="dateDebutLisible" class="font-normal text-xs text-gray-500 dark:text-gray-400">
+                      — {{ dateDebutLisible }}
+                    </span>
+                  </label>
+                  <!-- Approche hybride : on tape, ou on choisit.
+                       Le champ texte impose le format AAAA-MM-JJ et permet une
+                       saisie rapide au clavier. Le bouton a droite ouvre le
+                       calendrier natif du navigateur, plus commode pour
+                       repérer un jour de semaine ou naviguer de mois en mois.
+                       Les deux ecrivent dans la meme valeur. -->
+                  <div class="relative">
+                    <input
+                      v-model="form.dateDebut"
+                      type="text"
+                      class="form-input tabular-nums pr-11"
+                      inputmode="numeric"
+                      maxlength="10"
+                      placeholder="AAAA-MM-JJ"
+                      required
+                      @input="onSaisieDate($event, 'dateDebut')"
+                    />
+                    <label
+                      class="absolute inset-y-0 right-0 w-10 flex items-center justify-center cursor-pointer text-gray-400 hover:text-sky-600 dark:hover:text-sky-400 transition-colors"
+                      title="Choisir dans le calendrier"
+                    >
+                      <svg class="w-5 h-5 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                      <!-- Champ natif rendu invisible mais superpose au bouton :
+                           le clic ouvre son calendrier sans qu'aucune API
+                           JavaScript ne soit necessaire, donc sans dependre du
+                           support de showPicker(). -->
+                      <input
+                        :value="dateValide(form.dateDebut) ? form.dateDebut : ''"
+                        type="date"
+                        class="absolute inset-0 opacity-0 cursor-pointer"
+                        aria-label="Choisir la date de début dans le calendrier"
+                        @input="form.dateDebut = ($event.target as HTMLInputElement).value"
+                      />
+                    </label>
+                  </div>
                 </div>
 
                 <!-- Saisie libre en 24 h.
@@ -180,6 +228,7 @@
                     inputmode="numeric"
                     maxlength="5"
                     placeholder="18:00"
+                    list="creneaux-5min"
                     @input="onSaisieHeure($event, 'heureDebut')"
                     @blur="onHeureDebutChange"
                   />
@@ -199,9 +248,20 @@
                     inputmode="numeric"
                     maxlength="5"
                     placeholder="20:00"
+                    list="creneaux-5min"
                     @input="onSaisieHeure($event, 'heureFin')"
                   />
                 </div>
+
+                <!-- La grille de 5 minutes, comme dans les dossiers cliniques.
+                     La liste propose sans imposer : taper « 18 » la filtre a
+                     18:00, 18:05, 18:10… et un clic suffit. Mais rien n'empeche
+                     d'ecrire 18:07 si la seance commence a 18:07. C'est la
+                     difference avec une liste deroulante fermee, qui aurait
+                     condamne les cas particuliers. -->
+                <datalist id="creneaux-5min">
+                  <option v-for="c in creneaux5min" :key="c" :value="c" />
+                </datalist>
               </div>
             </div>
 
@@ -241,15 +301,38 @@
 
                 <div v-if="form.frequency" class="form-group">
                   <label class="form-label">OU date de fin</label>
-                  <input 
-                    v-model="form.endDate" 
-                    type="date" 
-                    class="form-input" 
-                    :min="form.dateDebut"
+                  <div class="relative">
+                  <input
+                    v-model="form.endDate"
+                    type="text"
+                    class="form-input tabular-nums pr-11"
+                    inputmode="numeric"
+                    maxlength="10"
+                    placeholder="AAAA-MM-JJ"
+                    @input="onSaisieDate($event, 'endDate')"
                     :disabled="!!form.count"
                   />
-                  <p v-if="suggestedEndDate && form.count" class="text-xs text-gray-500 mt-1">
-                    Suggéré: {{ suggestedEndDate }}
+                  <label
+                    v-if="!form.count"
+                    class="absolute inset-y-0 right-0 w-10 flex items-center justify-center cursor-pointer text-gray-400 hover:text-sky-600 dark:hover:text-sky-400 transition-colors"
+                    title="Choisir dans le calendrier"
+                  >
+                    <svg class="w-5 h-5 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    <input
+                      :value="dateValide(form.endDate) ? form.endDate : ''"
+                      :min="dateValide(form.dateDebut) ? form.dateDebut : undefined"
+                      type="date"
+                      class="absolute inset-0 opacity-0 cursor-pointer"
+                      aria-label="Choisir la date de fin dans le calendrier"
+                      @input="form.endDate = ($event.target as HTMLInputElement).value"
+                    />
+                  </label>
+                  </div>
+                  <p v-if="suggestedEndDate && form.count" class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                    Suggéré : {{ suggestedEndDate }}
                   </p>
                 </div>
               </div>
@@ -571,6 +654,61 @@ const deleteModalMessage = computed(() => {
 });
 
 // ============================================================================
+// Saisie des dates, format AAAA-MM-JJ
+// ============================================================================
+//
+// Le champ natif type="date" affiche la date selon la locale du systeme, pas
+// celle de la page : « mm/dd/yyyy » sous une locale anglaise. Et son calendrier
+// oblige a naviguer de mois en mois des que la date est un peu eloignee.
+//
+// On saisit donc au clavier, avec les tirets ajoutes au fur et a mesure. Le
+// format stocke reste identique a celui du champ natif — AAAA-MM-JJ — donc rien
+// ne change pour le reste de l'application.
+
+/**
+ * Ne garde que les chiffres, insere les tirets et borne mois et jour.
+ *
+ * « 20260917 » devient « 2026-09-17 ». Un mois au-dela de 12 ou un jour au-dela
+ * de 31 sont ramenes au maximum : on ne peut pas saisir 2026-99-99.
+ */
+const onSaisieDate = (evt: Event, champ: 'dateDebut' | 'endDate') => {
+  const chiffres = (evt.target as HTMLInputElement).value.replace(/\D/g, '').slice(0, 8);
+
+  const annee = chiffres.slice(0, 4);
+  let mois = chiffres.slice(4, 6);
+  let jour = chiffres.slice(6, 8);
+
+  if (mois.length === 2) mois = String(Math.min(Math.max(parseInt(mois) || 1, 1), 12)).padStart(2, '0');
+  if (jour.length === 2) jour = String(Math.min(Math.max(parseInt(jour) || 1, 1), 31)).padStart(2, '0');
+
+  let valeur = annee;
+  if (chiffres.length > 4) valeur += '-' + mois;
+  if (chiffres.length > 6) valeur += '-' + jour;
+
+  (form.value as any)[champ] = valeur;
+};
+
+/**
+ * Une date est-elle complete et exploitable ?
+ *
+ * Sert a n'alimenter le champ natif que lorsque la saisie est terminee : lui
+ * passer « 2026-09 » le viderait, et le calendrier s'ouvrirait sur le mois
+ * courant au lieu du mois saisi.
+ */
+const dateValide = (v: string | null | undefined): boolean =>
+  !!v && /^\d{4}-\d{2}-\d{2}$/.test(v);
+
+/** Date relue en toutes lettres, pour confirmer le jour de la semaine. */
+const dateDebutLisible = computed(() => {
+  const v = form.value.dateDebut;
+  if (!v || !/^\d{4}-\d{2}-\d{2}$/.test(v)) return '';
+  const [a, m, j] = v.split('-').map(Number);
+  const d = new Date(a, m - 1, j);
+  if (isNaN(d.getTime()) || d.getMonth() !== m - 1) return 'date invalide';
+  return d.toLocaleDateString('fr-CA', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+});
+
+// ============================================================================
 // Saisie des heures, en 24 h
 // ============================================================================
 //
@@ -585,6 +723,22 @@ const deleteModalMessage = computed(() => {
  * « 1830 » devient « 18:30 ». Une heure au-dela de 23 ou des minutes au-dela
  * de 59 sont ramenees au maximum : impossible de saisir 99:99.
  */
+/**
+ * La journee decoupee en creneaux de 5 minutes : 00:00, 00:05 … 23:55.
+ *
+ * Les logiciels de dossier clinique fonctionnent ainsi, et pour une bonne
+ * raison : personne ne fixe un groupe a 18h07, donc proposer les 288 creneaux
+ * utiles evite 288 frappes au clavier. La liste reste une suggestion — le
+ * champ accepte toujours une heure quelconque si la situation l'exige.
+ *
+ * Calculee une seule fois (constante, hors de tout computed) : la liste ne
+ * depend d'aucun etat, la recalculer a chaque rendu serait du gaspillage.
+ */
+const creneaux5min: string[] = Array.from({ length: 24 * 12 }, (_, i) => {
+  const minutes = i * 5;
+  return `${String(Math.floor(minutes / 60)).padStart(2, '0')}:${String(minutes % 60).padStart(2, '0')}`;
+});
+
 const onSaisieHeure = (evt: Event, champ: 'heureDebut' | 'heureFin') => {
   const chiffres = (evt.target as HTMLInputElement).value.replace(/\D/g, '').slice(0, 4);
 
