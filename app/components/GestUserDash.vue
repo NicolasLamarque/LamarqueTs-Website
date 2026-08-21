@@ -1,64 +1,110 @@
 <template>
-  <div class="p-4 bg-gray-100 dark:bg-gray-800 rounded shadow">
-    <h2 class="text-xl font-semibold mb-4 text-gray-800 dark:text-gray-100">
-      <i class="fas fa-calendar-alt text-sky-500 mr-2"></i>Gestion des
-      Utilisateurs
-    </h2>
+  <div class="p-4 sm:p-6 space-y-5">
 
-    <div
-      v-if="message"
-      :class="message.type === 'success' ? 'bg-green-500' : 'bg-red-500'"
-      class="text-white p-3 rounded-lg shadow-md mb-4 animate-fade-in"
-    >
-      {{ message.text }}
+    <!-- ================= En-tête ================= -->
+    <div>
+      <h2 class="text-xl sm:text-2xl font-bold text-gray-800 dark:text-gray-100">
+        Utilisateurs
+      </h2>
+      <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
+        Comptes ayant accès au tableau de bord
+      </p>
     </div>
 
+    <!-- Message de confirmation ou d'erreur -->
+    <p
+      v-if="message"
+      class="px-4 py-3 rounded-lg text-sm border"
+      :class="message.type === 'success'
+        ? 'bg-green-50 dark:bg-green-900/25 border-green-200 dark:border-green-800 text-green-800 dark:text-green-300'
+        : 'bg-red-50 dark:bg-red-900/25 border-red-200 dark:border-red-800 text-red-800 dark:text-red-300'"
+    >
+      {{ message.text }}
+    </p>
+
+    <!-- ================= Formulaire ================= -->
+    <!--
+      La bordure gauche et le titre changent selon le mode. C'est le seul
+      repère qui manquait : rien n'indiquait qu'on était passé en modification,
+      sinon le libellé du bouton, tout en bas et hors de vue.
+    -->
     <form
       @submit.prevent="submitUser"
-      class="mb-6 bg-white dark:bg-gray-700 p-4 rounded shadow"
+      class="bg-white dark:bg-gray-800 rounded-xl border shadow-sm border-l-4 transition-colors"
+      :class="editMode
+        ? 'border-gray-200 dark:border-gray-700 border-l-sky-600 dark:border-l-sky-500'
+        : 'border-gray-200 dark:border-gray-700 border-l-gray-300 dark:border-l-gray-600'"
     >
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        <div class="col-span-1">
-          <label class="block font-medium mb-1">Nom d'utilisateur</label>
+      <!-- Bandeau de mode -->
+      <div class="flex flex-wrap items-center justify-between gap-2 px-5 py-3 border-b border-gray-200 dark:border-gray-700">
+        <div>
+          <h3 class="font-semibold text-gray-800 dark:text-gray-100">
+            <template v-if="editMode">
+              Modification de <span class="text-sky-700 dark:text-sky-400">{{ form.username }}</span>
+            </template>
+            <template v-else>Nouvel utilisateur</template>
+          </h3>
+          <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+            {{ editMode
+              ? 'Les champs laissés vides ne seront pas modifiés.'
+              : 'Tous les champs obligatoires sont marqués d\'un astérisque.' }}
+          </p>
+        </div>
+
+        <button
+          v-if="editMode"
+          type="button"
+          @click="cancelEdit"
+          class="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 underline underline-offset-2"
+        >
+          Annuler la modification
+        </button>
+      </div>
+
+      <div class="p-5 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+
+        <!-- Nom d'utilisateur -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+            Nom d'utilisateur <span class="text-rose-500">*</span>
+          </label>
           <input
             v-model="form.username"
             type="text"
-            class="w-full px-3 py-2 border rounded"
+            class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-sky-500 focus:border-transparent outline-none transition disabled:opacity-50"
             required
             :disabled="isLoading || isUploading"
           />
         </div>
 
-        <div class="col-span-1">
-          <label class="block font-medium mb-1">
+        <!-- Mot de passe -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
             Mot de passe
-            <span v-if="editMode" class="font-normal text-xs text-gray-400">
-              (laisser vide pour ne pas le changer)
+            <span v-if="!editMode" class="text-rose-500">*</span>
+            <span v-else class="font-normal text-xs text-gray-500 dark:text-gray-400">
+              — laisser vide pour le conserver
             </span>
           </label>
           <div class="relative">
             <input
               v-model="form.password"
               :type="motDePasseVisible ? 'text' : 'password'"
-              class="w-full px-3 py-2 pr-11 border rounded"
+              class="w-full px-3 py-2 pr-11 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-sky-500 focus:border-transparent outline-none transition disabled:opacity-50"
               :required="!editMode"
               :disabled="isLoading || isUploading"
+              autocomplete="new-password"
             />
-            <!-- Voir ce que l'on tape : indispensable pour un mot de passe
-                 long, ou l'on ne peut pas se relire autrement. -->
             <button
               type="button"
               @click="motDePasseVisible = !motDePasseVisible"
-              class="absolute inset-y-0 right-0 px-3 flex items-center text-gray-400 hover:text-gray-200 transition-colors"
+              class="absolute inset-y-0 right-0 px-3 flex items-center text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors"
               :aria-label="motDePasseVisible ? 'Masquer le mot de passe' : 'Afficher le mot de passe'"
-              :title="motDePasseVisible ? 'Masquer' : 'Afficher'"
             >
-              <!-- Oeil ouvert -->
               <svg v-if="!motDePasseVisible" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
               </svg>
-              <!-- Oeil barre -->
               <svg v-else class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
               </svg>
@@ -66,21 +112,27 @@
           </div>
         </div>
 
-        <div class="col-span-1">
-          <label class="block font-medium mb-1">Email</label>
+        <!-- Courriel -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+            Courriel
+          </label>
           <input
             v-model="form.mail"
             type="email"
-            class="w-full px-3 py-2 border rounded"
+            class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-sky-500 focus:border-transparent outline-none transition disabled:opacity-50"
             :disabled="isLoading || isUploading"
           />
         </div>
 
-        <div class="col-span-1">
-          <label class="block font-medium mb-1">Rôle</label>
+        <!-- Rôle -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+            Rôle
+          </label>
           <select
             v-model="form.role"
-            class="w-full px-3 py-2 border rounded"
+            class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-sky-500 focus:border-transparent outline-none transition disabled:opacity-50"
             :disabled="isLoading || isUploading"
           >
             <option value="user">Utilisateur</option>
@@ -88,47 +140,67 @@
           </select>
         </div>
 
-        <div class="col-span-1 flex items-center">
-          <label class="font-medium mr-2">Actif</label>
-          <input
-            v-model="form.is_active"
-            type="checkbox"
-            :disabled="isLoading || isUploading"
-          />
-        </div>
-
-        <div class="col-span-1 md:col-span-2 lg:col-span-3">
-          <label class="block font-medium mb-1">Bio</label>
-          <textarea
-            v-model="form.bio"
-            class="w-full px-3 py-2 border rounded"
-            :disabled="isLoading || isUploading"
-          ></textarea>
-        </div>
-
-        <div class="col-span-1 md:col-span-2 lg:col-span-3">
-          <label class="block font-medium mb-1">Photo de profil</label>
-          
-          <div v-if="form.profile_picture" class="mb-3">
-            <img 
-              :src="form.profile_picture" 
-              alt="Aperçu de la photo de profil" 
-              class="max-w-[150px] h-auto rounded-full shadow-md border-4 border-sky-500"
+        <!-- Cases à cocher -->
+        <div class="flex items-center gap-6 md:col-span-2 lg:col-span-2">
+          <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300 cursor-pointer">
+            <input
+              v-model="form.is_active"
+              type="checkbox"
+              class="rounded border-gray-300 dark:border-gray-600 text-sky-600 focus:ring-sky-500"
+              :disabled="isLoading || isUploading"
             />
-          </div>
+            Compte actif
+          </label>
 
-          <div class="flex flex-col sm:flex-row gap-4">
-            <div class="flex-1">
-              <input 
-                v-model="form.profile_picture" 
-                type="text" 
-                placeholder="OU collez l'URL de l'image"
-                class="w-full px-3 py-2 border rounded" 
-                :disabled="isLoading || isUploading" 
+          <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300 cursor-pointer">
+            <input
+              v-model="form.two_factor_enabled"
+              type="checkbox"
+              class="rounded border-gray-300 dark:border-gray-600 text-sky-600 focus:ring-sky-500"
+              :disabled="isLoading || isUploading"
+            />
+            Double authentification
+          </label>
+        </div>
+
+        <!-- Photo de profil -->
+        <div class="md:col-span-2 lg:col-span-3">
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+            Photo de profil
+          </label>
+
+          <div class="flex flex-col sm:flex-row sm:items-center gap-4">
+            <!-- Aperçu, ou emplacement vide de meme taille pour eviter que la
+                 mise en page ne saute quand une photo apparait. -->
+            <div class="flex-shrink-0">
+              <img
+                v-if="form.profile_picture"
+                :src="form.profile_picture"
+                alt="Aperçu de la photo de profil"
+                class="w-16 h-16 rounded-full object-cover border border-gray-300 dark:border-gray-600"
               />
+              <div
+                v-else
+                class="w-16 h-16 rounded-full border border-dashed border-gray-300 dark:border-gray-600 flex items-center justify-center text-gray-400 text-xs"
+              >
+                aucune
+              </div>
             </div>
-            
-            <div class="relative">
+
+            <div class="flex-1 min-w-0">
+              <input
+                v-model="form.profile_picture"
+                type="text"
+                placeholder="Collez une URL d'image, ou téléversez un fichier"
+                class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 text-sm focus:ring-2 focus:ring-sky-500 focus:border-transparent outline-none transition disabled:opacity-50"
+                :disabled="isLoading || isUploading"
+              />
+              <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                L'image est compressée automatiquement avant l'envoi.
+              </p>
+            </div>
+
+            <div class="flex-shrink-0">
               <input
                 ref="fileInput"
                 type="file"
@@ -140,56 +212,62 @@
               <button
                 type="button"
                 @click="fileInput.click()"
-                class="bg-indigo-500 text-white px-4 py-2 rounded hover:bg-indigo-600 transition flex items-center gap-2 w-full sm:w-auto justify-center"
+                class="w-full sm:w-auto px-4 py-2 rounded-lg text-sm font-medium border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
                 :disabled="isLoading || isUploading"
               >
-                <svg v-if="!isUploading" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                </svg>
-                <svg v-else class="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
+                <svg v-if="isUploading" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24" aria-hidden="true">
                   <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
                 </svg>
-                {{ isUploading ? 'Upload...' : 'Uploader une photo' }}
+                {{ isUploading ? 'Envoi…' : 'Téléverser' }}
               </button>
             </div>
           </div>
-          <p class="text-xs text-gray-500 mt-1">
-            Uploadez une image (max 5MB) ou collez une URL existante
-          </p>
         </div>
 
-        <div class="col-span-1 flex items-center">
-          <label class="font-medium mr-2">2FA Activé</label>
-          <input
-            v-model="form.two_factor_enabled"
-            type="checkbox"
+        <!-- Bio -->
+        <div class="md:col-span-2 lg:col-span-3">
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+            Biographie
+          </label>
+          <textarea
+            v-model="form.bio"
+            rows="2"
+            class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-sky-500 focus:border-transparent outline-none transition resize-y disabled:opacity-50"
             :disabled="isLoading || isUploading"
-          />
+          ></textarea>
         </div>
 
-        <div class="col-span-1 md:col-span-2 lg:col-span-3">
-          <label class="block font-medium mb-1">Préférences (JSON)</label>
+        <!-- Préférences -->
+        <div class="md:col-span-2 lg:col-span-3">
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+            Préférences
+            <span class="font-normal text-xs text-gray-500 dark:text-gray-400">— format JSON</span>
+          </label>
           <textarea
             v-model="form.preferences"
-            class="w-full px-3 py-2 border rounded"
+            rows="2"
+            class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 font-mono text-sm focus:ring-2 focus:ring-sky-500 focus:border-transparent outline-none transition resize-y disabled:opacity-50"
             :disabled="isLoading || isUploading"
           ></textarea>
         </div>
       </div>
 
-      <div class="flex justify-between mt-4">
+      <!-- Actions -->
+      <div class="flex items-center gap-3 px-5 py-4 border-t border-gray-200 dark:border-gray-700">
         <button
-          class="bg-sky-500 text-white px-4 py-2 rounded hover:bg-sky-600 transition"
+          type="submit"
+          class="px-5 py-2 rounded-lg text-sm font-semibold bg-sky-700 hover:bg-sky-600 text-white shadow-sm transition-colors disabled:opacity-50"
           :disabled="isLoading || isUploading"
         >
-          {{ isLoading || isUploading ? "Chargement..." : editMode ? "Modifier" : "Ajouter" }}
+          {{ isLoading || isUploading ? 'Enregistrement…' : editMode ? 'Enregistrer les modifications' : 'Créer le compte' }}
         </button>
+
         <button
           v-if="editMode"
           type="button"
           @click="cancelEdit"
-          class="bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500 transition"
+          class="px-4 py-2 rounded-lg text-sm font-medium border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
           :disabled="isLoading || isUploading"
         >
           Annuler
@@ -197,96 +275,165 @@
       </div>
     </form>
 
-    <div class="bg-white dark:bg-gray-700 p-4 rounded shadow">
-      <table class="w-full table-auto border-collapse">
+    <!-- ================= Liste ================= -->
+    <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-x-auto">
+      <table class="w-full text-sm min-w-[640px]">
         <thead>
-          <tr class="bg-gray-200 dark:bg-gray-600">
-            <th class="px-4 py-2 text-left">ID</th>
-            <th class="px-4 py-2 text-left">Nom</th>
-            <th class="px-4 py-2 text-left">Email</th>
-            <th class="px-4 py-2 text-left">Rôle</th>
-            <th class="px-4 py-2 text-left">Actif</th>
-            <th class="px-4 py-2">Actions</th>
+          <tr class="text-left text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400 border-b border-gray-200 dark:border-gray-700">
+            <th class="px-4 py-3 font-semibold">Compte</th>
+            <th class="px-4 py-3 font-semibold">Courriel</th>
+            <th class="px-4 py-3 font-semibold">Rôle</th>
+            <th class="px-4 py-3 font-semibold">État</th>
+            <th class="px-4 py-3 font-semibold text-right">Actions</th>
           </tr>
         </thead>
         <tbody>
+          <tr v-if="users.length === 0">
+            <td colspan="5" class="px-4 py-8 text-center text-gray-500 dark:text-gray-400">
+              Aucun utilisateur.
+            </td>
+          </tr>
+
           <tr
             v-for="u in users"
             :key="u.id"
-            class="border-b border-gray-300 dark:border-gray-600"
+            class="border-b border-gray-100 dark:border-gray-700 last:border-0 transition-colors"
+            :class="editMode && form.username === u.username ? 'bg-sky-50 dark:bg-sky-900/20' : ''"
           >
-            <td class="px-4 py-2">{{ u.id }}</td>
-            <td class="px-4 py-2">{{ u.username }}</td>
-            <td class="px-4 py-2">{{ u.mail }}</td>
-            <td class="px-4 py-2">{{ u.role }}</td>
-            <td class="px-4 py-2">
-              <span v-if="u.is_active" class="text-green-500">✅</span>
-              <span v-else class="text-red-500">❌</span>
+            <!-- Compte : avatar + nom, pour reconnaitre la ligne d'un coup d'oeil -->
+            <td class="px-4 py-3">
+              <div class="flex items-center gap-3">
+                <img
+                  v-if="u.profile_picture"
+                  :src="u.profile_picture"
+                  :alt="'Photo de ' + u.username"
+                  class="w-8 h-8 rounded-full object-cover border border-gray-300 dark:border-gray-600 flex-shrink-0"
+                />
+                <div
+                  v-else
+                  class="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-xs font-semibold text-gray-500 dark:text-gray-400 flex-shrink-0"
+                >
+                  {{ (u.username || '?').charAt(0).toUpperCase() }}
+                </div>
+                <div class="min-w-0">
+                  <p class="font-medium text-gray-800 dark:text-gray-100 truncate">{{ u.username }}</p>
+                  <p class="text-xs text-gray-400 tabular-nums">#{{ u.id }}</p>
+                </div>
+              </div>
             </td>
-            <td class="px-4 py-2 flex gap-2 justify-center">
-              <button
-                @click="editUser(u)"
-                class="bg-yellow-500 text-white px-2 py-1 rounded hover:bg-yellow-600"
+
+            <td class="px-4 py-3 text-gray-600 dark:text-gray-300">{{ u.mail || '—' }}</td>
+
+            <td class="px-4 py-3">
+              <span
+                class="text-xs font-medium px-2 py-0.5 rounded"
+                :class="u.role === 'admin'
+                  ? 'bg-sky-100 dark:bg-sky-900/40 text-sky-800 dark:text-sky-300'
+                  : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300'"
               >
-                Modifier
-              </button>
-              <button
-                @click="viewUser(u)"
-                class="bg-indigo-500 text-white px-2 py-1 rounded hover:bg-indigo-600"
-              >
-                Voir
-              </button>
-              <button
-                @click="deleteUserConfirm(u.id)"
-                class="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600"
-              >
-                Supprimer
-              </button>
+                {{ u.role === 'admin' ? 'Administrateur' : 'Utilisateur' }}
+              </span>
             </td>
-          </tr>
-          <tr v-if="users.length === 0">
-            <td colspan="6" class="text-center py-2 text-gray-500">
-              Aucun utilisateur
+
+            <td class="px-4 py-3">
+              <span :class="u.is_active ? 'text-green-700 dark:text-green-400' : 'text-gray-400'">
+                {{ u.is_active ? 'Actif' : 'Inactif' }}
+              </span>
+            </td>
+
+            <!-- Actions : la suppression est mise a distance des deux autres,
+                 pour ne pas etre cliquee par reflexe. -->
+            <td class="px-4 py-3">
+              <div class="flex items-center justify-end gap-1">
+                <button
+                  @click="editUser(u)"
+                  class="px-3 py-1.5 rounded-lg text-xs font-medium border border-sky-200 dark:border-sky-800 text-sky-700 dark:text-sky-300 hover:bg-sky-50 dark:hover:bg-sky-900/30 transition-colors"
+                >
+                  Modifier
+                </button>
+                <button
+                  @click="viewUser(u)"
+                  class="px-3 py-1.5 rounded-lg text-xs font-medium border border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                >
+                  Voir
+                </button>
+                <button
+                  @click="deleteUserConfirm(u.id)"
+                  class="ml-3 px-3 py-1.5 rounded-lg text-xs font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors"
+                >
+                  Supprimer
+                </button>
+              </div>
             </td>
           </tr>
         </tbody>
       </table>
     </div>
 
-    <div v-if="showModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex justify-center items-center">
-      <div class="relative p-8 border w-3/4 max-w-lg shadow-lg rounded-md bg-white dark:bg-gray-700">
-        <div class="mt-3 text-center">
-          <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white">
-            Profil de {{ currentUser?.username }}
+    <!-- ================= Fiche de consultation ================= -->
+    <div
+      v-if="showModal"
+      class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+      @click.self="closeModal"
+    >
+      <div class="w-full max-w-md bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-xl overflow-hidden">
+        <div class="px-5 py-4 border-b border-gray-200 dark:border-gray-700">
+          <h3 class="font-semibold text-gray-800 dark:text-gray-100">
+            {{ currentUser?.username }}
           </h3>
-          <div class="flex flex-col items-center mt-4">
+          <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Consultation — aucune modification possible ici</p>
+        </div>
+
+        <div class="p-5 space-y-4">
+          <div class="flex items-center gap-4">
             <img
               v-if="currentUser?.profile_picture"
               :src="currentUser.profile_picture"
-              alt="Photo de profil"
-              class="w-32 h-32 object-cover rounded-full shadow-lg mb-4 border-4 border-sky-500"
+              :alt="'Photo de ' + currentUser?.username"
+              class="w-20 h-20 rounded-full object-cover border border-gray-300 dark:border-gray-600 flex-shrink-0"
             />
-            <p v-else class="text-gray-500 dark:text-gray-400 mb-4">Pas de photo de profil</p>
-
-            <p class="text-sm text-gray-500 dark:text-gray-300">
-              **Email:** {{ currentUser?.mail }}
-            </p>
-            <p class="text-sm text-gray-500 dark:text-gray-300">
-              **Rôle:** {{ currentUser?.role }} ({{ currentUser?.is_active ? 'Actif' : 'Inactif' }})
-            </p>
-            
-            <div class="mt-4 px-3 py-3 w-full border-t border-gray-200 dark:border-gray-600">
-              <p class="font-semibold text-gray-900 dark:text-white mb-1">Bio:</p>
-              <p class="text-sm text-gray-700 dark:text-gray-300 italic">{{ currentUser?.bio || 'Pas de biographie.' }}</p>
+            <div
+              v-else
+              class="w-20 h-20 rounded-full border border-dashed border-gray-300 dark:border-gray-600 flex items-center justify-center text-xs text-gray-400 flex-shrink-0"
+            >
+              aucune photo
             </div>
-            
+
+            <dl class="text-sm space-y-1 min-w-0">
+              <div class="flex gap-2">
+                <dt class="text-gray-500 dark:text-gray-400">Courriel</dt>
+                <dd class="text-gray-800 dark:text-gray-100 truncate">{{ currentUser?.mail || '—' }}</dd>
+              </div>
+              <div class="flex gap-2">
+                <dt class="text-gray-500 dark:text-gray-400">Rôle</dt>
+                <dd class="text-gray-800 dark:text-gray-100">
+                  {{ currentUser?.role === 'admin' ? 'Administrateur' : 'Utilisateur' }}
+                </dd>
+              </div>
+              <div class="flex gap-2">
+                <dt class="text-gray-500 dark:text-gray-400">État</dt>
+                <dd :class="currentUser?.is_active ? 'text-green-700 dark:text-green-400' : 'text-gray-400'">
+                  {{ currentUser?.is_active ? 'Actif' : 'Inactif' }}
+                </dd>
+              </div>
+            </dl>
           </div>
-          
-          <div class="items-center px-4 py-3 mt-4 border-t border-gray-200 dark:border-gray-600">
-            <button @click="closeModal" class="px-4 py-2 bg-sky-500 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-sky-600 focus:outline-none focus:ring-2 focus:ring-sky-500">
-              Fermer
-            </button>
+
+          <div class="pt-4 border-t border-gray-200 dark:border-gray-700">
+            <p class="text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-1">Biographie</p>
+            <p class="text-sm text-gray-700 dark:text-gray-300">
+              {{ currentUser?.bio || 'Aucune biographie.' }}
+            </p>
           </div>
+        </div>
+
+        <div class="px-5 py-4 border-t border-gray-200 dark:border-gray-700 flex justify-end">
+          <button
+            @click="closeModal"
+            class="px-4 py-2 rounded-lg text-sm font-medium border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+          >
+            Fermer
+          </button>
         </div>
       </div>
     </div>
