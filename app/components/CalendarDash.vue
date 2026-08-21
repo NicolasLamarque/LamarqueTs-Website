@@ -330,7 +330,7 @@
                   <p class="mt-1.5 text-xs text-gray-500 dark:text-gray-400">
                     <span v-if="!blocRuban">Clique dans le ruban pour poser une séance de deux heures — ou tape l'heure ci-dessus.</span>
                     <span v-else-if="remarqueRuban" class="text-amber-600 dark:text-amber-400">{{ remarqueRuban }}</span>
-                    <span v-else>Glisse le bloc, tire ses bords pour la durée. <kbd class="px-1 rounded border border-gray-300 dark:border-gray-600 text-[10px]">Maj</kbd> pour la minute près.</span>
+                    <span v-else>Glisse le bloc, tire ses bords pour la durée — à la minute près. <kbd class="px-1 rounded border border-gray-300 dark:border-gray-600 text-[10px]">Maj</kbd> pour te caler sur le quart d'heure.</span>
                   </p>
                 </div>
 
@@ -846,8 +846,16 @@ const onHeureDebutChange = () => {
 /** Le ruban couvre la journee utile ; il s'ouvre si la seance commence avant. */
 const RUBAN_FIN = 24 * 60;
 
-/** Pas du glissement. Le clavier, lui, reste libre a la minute pres. */
-const RUBAN_PAS = 5;
+/**
+ * Pas du glissement, quand Maj est enfonce.
+ *
+ * Par defaut il n'y en a aucun : le geste va a la minute. Un pas impose
+ * rendrait 18:07 inatteignable a la souris, ce qui est exactement le defaut
+ * d'une liste de creneaux — une grille qui decide a la place de l'usager
+ * quelles valeurs ont le droit d'exister. Maj n'est la que pour aller vite sur
+ * les quarts d'heure ; il n'interdit rien.
+ */
+const RUBAN_PAS_AIDE = 15;
 
 const rubanRef = ref<HTMLElement | null>(null);
 
@@ -945,10 +953,10 @@ const minuteSousCurseur = (evt: PointerEvent): number => {
   return debut + ratio * etendue;
 };
 
-/** Maj enfonce : precision a la minute. Sinon, pas de cinq minutes. */
+/** A la minute par defaut ; cale sur le quart d'heure si Maj est enfonce. */
 const arrondiRuban = (minutes: number, evt: PointerEvent): number => {
-  const pas = evt.shiftKey ? 1 : RUBAN_PAS;
-  return Math.round(minutes / pas) * pas;
+  if (!evt.shiftKey) return Math.round(minutes);
+  return Math.round(minutes / RUBAN_PAS_AIDE) * RUBAN_PAS_AIDE;
 };
 
 const onRubanDown = (evt: PointerEvent, mode: 'deplacer' | 'debut' | 'fin') => {
@@ -958,6 +966,7 @@ const onRubanDown = (evt: PointerEvent, mode: 'deplacer' | 'debut' | 'fin') => {
   // habituelle d'un groupe. Rien n'oblige a la garder.
   if (debut === null) {
     const pose = Math.max(0, Math.min(RUBAN_FIN - 120, arrondiRuban(minuteSousCurseur(evt), evt)));
+    // Pose libre elle aussi : le premier clic ne doit pas imposer une grille.
     form.value.heureDebut = enHeure(pose);
     form.value.heureFin = enHeure(pose + 120);
     return;
