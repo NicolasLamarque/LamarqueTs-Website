@@ -230,7 +230,7 @@ import {
   derniereOccurrence,
   rangOccurrence,
   versDateISO,
-} from './rruleOccurrences';
+} from '../../shared/utils/rruleOccurrences';
 
 /**
  * Calcule la date de la DERNIÈRE occurrence.

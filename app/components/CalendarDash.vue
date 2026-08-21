@@ -1,12 +1,12 @@
 <template>
-  <div class="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg shadow-xl border-t-4 border-sky-500">
-    <header class="mb-6">
-      <h2 class="text-xl font-semibold mb-4 text-gray-800 dark:text-gray-100">
-        <i class="fas fa-calendar-alt text-sky-500 mr-2"></i>
-        Gestion des Événements
-      </h2>
+  <div class="p-4 sm:p-6 space-y-5">
+    <header class="space-y-4">
+      <div>
+        <h2 class="text-xl sm:text-2xl font-bold text-gray-800 dark:text-gray-100">Calendrier</h2>
+        <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Séances, groupes et rencontres</p>
+      </div>
 
-      <div class="flex justify-between items-center">
+      <div class="flex flex-wrap justify-between items-center gap-3">
         <div class="flex gap-2">
           <select v-model="filterCategory" class="form-select text-sm">
             <option value="">Toutes les catégories</option>
@@ -20,33 +20,71 @@
           </select>
         </div>
 
-        <button @click="toggleView" class="bg-indigo-500 text-white px-6 py-2 rounded-lg font-semibold shadow-md hover:bg-indigo-600 transition-all">
-          <i :class="showCalendar ? 'fas fa-list' : 'fas fa-calendar-alt'" class="mr-2"></i>
-          {{ showCalendar ? "Voir la liste" : "Voir le calendrier" }}
-        </button>
+        <!-- Bascule calendrier / liste, presentee comme deux positions d'un
+             meme interrupteur plutot qu'un bouton dont le libelle change. -->
+        <div class="inline-flex rounded-lg border border-gray-300 dark:border-gray-600 overflow-hidden">
+          <button
+            type="button"
+            @click="showCalendar || toggleView()"
+            class="px-4 py-1.5 text-sm font-medium transition-colors"
+            :class="showCalendar
+              ? 'bg-sky-700 text-white'
+              : 'text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'"
+          >
+            Calendrier
+          </button>
+          <button
+            type="button"
+            @click="!showCalendar || toggleView()"
+            class="px-4 py-1.5 text-sm font-medium transition-colors border-l border-gray-300 dark:border-gray-600"
+            :class="!showCalendar
+              ? 'bg-sky-700 text-white'
+              : 'text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'"
+          >
+            Liste
+          </button>
+        </div>
       </div>
     </header>
 
     <Transition name="fade">
-      <div v-if="message" :class="{'bg-green-500': message.type === 'success', 'bg-red-500': message.type === 'error'}" class="text-white p-3 rounded-lg shadow-md mb-4">
+      <p v-if="message"
+        class="px-4 py-3 rounded-lg text-sm border"
+        :class="message.type === 'success'
+          ? 'bg-green-50 dark:bg-green-900/25 border-green-200 dark:border-green-800 text-green-800 dark:text-green-300'
+          : 'bg-red-50 dark:bg-red-900/25 border-red-200 dark:border-red-800 text-red-800 dark:text-red-300'">
         {{ message.text }}
-      </div>
+      </p>
     </Transition>
 
     <Transition name="fade" mode="out-in">
       <div v-if="showCalendar" key="calendar">
-        <div class="bg-white dark:bg-gray-700 rounded-lg shadow-lg p-6 md:p-10">
+        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm p-4 sm:p-6">
           <FullCalendar :options="calendarOptions" />
         </div>
       </div>
 
       <div v-else key="gestion" class="space-y-6">
-        <section class="bg-white dark:bg-gray-700 p-6 rounded-lg shadow">
-          <h3 class="text-lg font-medium mb-4 text-gray-900 dark:text-gray-100">
-            {{ editMode ? "Modifier l'événement" : "Ajouter un événement" }}
-          </h3>
+        <section
+          class="bg-white dark:bg-gray-800 rounded-xl border shadow-sm border-l-4 transition-colors"
+          :class="editMode
+            ? 'border-gray-200 dark:border-gray-700 border-l-sky-600 dark:border-l-sky-500'
+            : 'border-gray-200 dark:border-gray-700 border-l-gray-300 dark:border-l-gray-600'"
+        >
+          <div class="flex flex-wrap items-center justify-between gap-2 px-5 py-3 border-b border-gray-200 dark:border-gray-700">
+            <div>
+              <h3 class="font-semibold text-gray-800 dark:text-gray-100">
+                {{ editMode ? "Modification en cours" : "Nouvel événement" }}
+              </h3>
+              <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                {{ editMode
+                  ? "Les modifications s'appliquent à toute la série."
+                  : "Une séance unique, ou une série récurrente." }}
+              </p>
+            </div>
+          </div>
 
-          <form @submit.prevent="handleSubmit" class="space-y-4">
+          <form @submit.prevent="handleSubmit" class="p-5 space-y-4">
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               <div class="form-group">
                 <label class="form-label">Titre <span class="text-red-500">*</span></label>
@@ -173,12 +211,34 @@
                 </div>
               </div>
 
-              <!-- Preview de la récurrence -->
-              <div v-if="form.frequency" class="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-700">
-                <p class="text-sm text-blue-800 dark:text-blue-200">
-                  <i class="fas fa-info-circle mr-2"></i>
-                  <strong>Récurrence:</strong> {{ recurrencePreview }}
+              <!-- Aperçu : les vraies dates.
+                   Voir « jeu 17 sept · jeu 24 sept · … » plutôt qu'un code de
+                   récurrence permet de reperer immediatement une erreur — un
+                   mauvais jour de la semaine, une serie qui deborde sur les
+                   fetes, un « le 31 » qui saute fevrier. -->
+              <div
+                v-if="occurrencesApercu.length"
+                class="mt-4 rounded-lg border border-sky-200 dark:border-sky-800 bg-sky-50 dark:bg-sky-900/20 p-3"
+              >
+                <p class="text-sm font-medium text-sky-900 dark:text-sky-200">
+                  {{ recurrencePreview }}
                 </p>
+
+                <div class="mt-2 flex flex-wrap gap-1.5">
+                  <span
+                    v-for="(d, i) in occurrencesApercu.slice(0, 14)"
+                    :key="i"
+                    class="px-2 py-0.5 rounded text-xs bg-white dark:bg-gray-800 border border-sky-200 dark:border-sky-800 text-gray-700 dark:text-gray-300 tabular-nums"
+                  >
+                    {{ dateLisible(d) }}
+                  </span>
+                  <span
+                    v-if="occurrencesApercu.length > 14"
+                    class="px-2 py-0.5 text-xs text-sky-700 dark:text-sky-400"
+                  >
+                    + {{ occurrencesApercu.length - 14 }} autres
+                  </span>
+                </div>
               </div>
             </div>
 
@@ -221,46 +281,51 @@
               </div>
             </div>
 
-            <div class="flex flex-wrap gap-4 mt-6 pt-4 border-t">
-              <button type="submit" :disabled="isLoading || !isFormValid" class="btn btn-primary">
-                <i v-if="isLoading" class="fas fa-spinner fa-spin mr-2"></i>
-                <font-awesome-icon :icon="editMode ? 'save' : 'plus'" class="mr-2" />
-                {{ editMode ? "Mettre à jour" : "Ajouter" }}
+            <div class="flex flex-wrap items-center gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
+              <button
+                type="submit"
+                :disabled="isLoading || !isFormValid"
+                class="px-5 py-2 rounded-lg text-sm font-semibold bg-sky-700 hover:bg-sky-600 text-white shadow-sm transition-colors disabled:opacity-50"
+              >
+                {{ isLoading ? "Enregistrement…" : editMode ? "Enregistrer les modifications" : "Créer l'événement" }}
               </button>
 
-              <button type="button" @click="resetForm" :disabled="isLoading" class="btn btn-secondary">
-                <i class="fas fa-times mr-2"></i>Annuler
+              <button
+                type="button"
+                @click="resetForm"
+                :disabled="isLoading"
+                class="px-4 py-2 rounded-lg text-sm font-medium border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+              >
+                Annuler
               </button>
-
-              <button @click="toggleView" class="bg-indigo-500 text-white px-6 py-2 rounded-lg font-semibold shadow-md hover:bg-indigo-600 transition-all">
-          <i :class="showCalendar ? 'fas fa-list' : 'fas fa-calendar-alt'" class="mr-2"></i>
-          {{ showCalendar ? "Voir la liste" : "Voir le calendrier" }}
-        </button>
             </div>
           </form>
         </section>
 
-        <section class="bg-white dark:bg-gray-700 rounded-lg shadow overflow-hidden">
-          <div class="px-6 py-4 border-b">
-            <div class="flex justify-between items-center">
-              <h3 class="text-lg font-medium">Liste des événements ({{ filteredEvents.length }})</h3>
-              <input v-model="searchQuery" type="text" placeholder="Rechercher..." class="form-input w-64" />
-            </div>
+        <section class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden">
+          <div class="flex flex-wrap items-center justify-between gap-3 px-5 py-3 border-b border-gray-200 dark:border-gray-700">
+            <h3 class="font-semibold text-gray-800 dark:text-gray-100">
+              Événements <span class="font-normal text-gray-400">({{ filteredEvents.length }})</span>
+            </h3>
+            <input
+              v-model="searchQuery"
+              type="text"
+              placeholder="Rechercher…"
+              class="w-full sm:w-64 px-3 py-1.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-sm text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-sky-500 focus:border-transparent outline-none transition"
+            />
           </div>
 
-          <div v-if="isLoading" class="p-8 text-center">
-            <i class="fas fa-spinner fa-spin text-2xl"></i>
-            <p class="mt-2">Chargement...</p>
+          <div v-if="isLoading" class="px-4 py-12 text-center text-sm text-gray-500 dark:text-gray-400">
+            Chargement…
           </div>
 
-          <div v-else-if="filteredEvents.length === 0" class="p-8 text-center">
-            <i class="fas fa-calendar-times text-4xl text-gray-400 mb-4"></i>
-            <p class="text-gray-500">Aucun événement</p>
+          <div v-else-if="filteredEvents.length === 0" class="px-4 py-12 text-center text-sm text-gray-500 dark:text-gray-400">
+            Aucun événement.
           </div>
 
           <div v-else class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200">
-              <thead class="bg-gray-50 dark:bg-gray-800">
+            <table class="min-w-full text-sm">
+              <thead>
                 <tr>
                   <th class="table-header">Titre</th>
                   <th class="table-header">Date/Heure</th>
@@ -504,31 +569,60 @@ const suggestedEndDate = computed(() => {
   return start.toLocaleDateString('fr-FR');
 });
 
-// Preview de la récurrence
+// ============================================================================
+// Apercu de la recurrence : les VRAIES dates, pas un code
+// ============================================================================
+//
+// L'apercu precedent recomposait une phrase a partir des libelles :
+// « Hebdomadaire, 8 fois ». Cela n'apprenait rien de plus que ce qui venait
+// d'etre saisi, et surtout ne disait pas QUAND tombent les seances.
+//
+// On calcule desormais les occurrences reelles avec le moteur partage, le
+// meme que celui du serveur. Voir les dates evite les mauvaises surprises :
+// un « tous les mois le 31 » qui saute fevrier se remarque immediatement.
+
+const occurrencesApercu = computed<Date[]>(() => {
+  if (!form.value.frequency || !form.value.dateDebut) return [];
+
+  const parties = [`FREQ=${form.value.frequency.toUpperCase()}`];
+  if (form.value.interval > 1) parties.push(`INTERVAL=${form.value.interval}`);
+  if (form.value.count) parties.push(`COUNT=${form.value.count}`);
+  else if (form.value.endDate) parties.push(`UNTIL=${form.value.endDate.replace(/-/g, '')}T235900`);
+  else parties.push("COUNT=12");
+  if (form.value.byweekday?.length) parties.push(`BYDAY=${form.value.byweekday.join(',').toUpperCase()}`);
+
+  const debut = form.value.heureDebut
+    ? `${form.value.dateDebut}T${form.value.heureDebut}`
+    : form.value.dateDebut;
+
+  try {
+    return genererOccurrences(parties.join(';'), debut);
+  } catch {
+    return [];
+  }
+});
+
+/** Date lisible, sans decalage de fuseau. */
+const dateLisible = (d: Date) => {
+  const iso = versDateISO(d);
+  if (!iso) return "";
+  const [a, m, j] = iso.split("-").map(Number);
+  return new Date(a, m - 1, j).toLocaleDateString("fr-CA", {
+    weekday: "short", day: "numeric", month: "short",
+  });
+};
+
+/** Phrase de synthese affichee au-dessus des dates. */
 const recurrencePreview = computed(() => {
-  if (!form.value.frequency) return '';
-  
-  const freqLabels: Record<string, string> = {
-    daily: 'Quotidien',
-    weekly: 'Hebdomadaire',
-    monthly: 'Mensuel',
-    yearly: 'Annuel'
-  };
-  
-  let preview = freqLabels[form.value.frequency];
-  
-  if (form.value.interval > 1) {
-    preview += ` (tous les ${form.value.interval})`;
-  }
-  
-  if (form.value.count) {
-    preview += `, ${form.value.count} fois`;
-  } else if (form.value.endDate) {
-    const end = new Date(form.value.endDate);
-    preview += `, jusqu'au ${end.toLocaleDateString('fr-FR')}`;
-  }
-  
-  return preview;
+  const dates = occurrencesApercu.value;
+  if (!dates.length) return "";
+
+  const total = dates.length;
+  const premiere = dateLisible(dates[0]);
+  const derniere = dateLisible(dates[total - 1]);
+
+  if (total === 1) return `Une seule séance, le ${premiere}.`;
+  return `${total} séances, du ${premiere} au ${derniere}.`;
 });
 
 // ========================================
@@ -965,18 +1059,22 @@ watch(() => form.value.endDate, (newVal) => {
 
 <style scoped>
 .form-group { @apply space-y-1; }
-.form-label { @apply block text-sm font-medium text-gray-700 dark:text-gray-300; }
-.form-input { @apply w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:bg-gray-600 dark:border-gray-500 dark:text-white; }
-.form-select { @apply w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:bg-gray-600 dark:border-gray-500 dark:text-white; }
+/* Ces classes sont definies ici plutot que repetees sur chaque balise.
+   Les realigner a la source suffit a harmoniser tout le composant. */
+.form-label { @apply block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5; }
+.form-input { @apply w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-sky-500 focus:border-transparent outline-none transition disabled:opacity-50; }
+.form-select { @apply w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-sky-500 focus:border-transparent outline-none transition disabled:opacity-50; }
 .form-textarea { @apply w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-y dark:bg-gray-600 dark:border-gray-500 dark:text-white; }
-.btn { @apply px-4 py-2 rounded-lg font-semibold shadow-md transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed; }
-.btn-primary { @apply bg-sky-500 text-white hover:bg-sky-600 focus:ring-sky-500; }
-.btn-secondary { @apply bg-gray-500 text-white hover:bg-gray-600 focus:ring-gray-500; }
-.btn-info { @apply bg-blue-500 text-white hover:bg-blue-600 focus:ring-blue-500; }
-.btn-success { @apply bg-green-500 text-white hover:bg-green-600 focus:ring-green-500; }
-.btn-error { @apply bg-red-500 text-white hover:bg-red-600 focus:ring-red-500; }
-.btn-sm { @apply px-2 py-1 text-sm; }
-.table-header { @apply px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider; }
+/* Le hover:scale-105 faisait sursauter chaque bouton au survol. Sur une
+   barre d'actions, cela produit un effet de tremblement peu agreable. */
+.btn { @apply px-4 py-2 rounded-lg text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-1 disabled:opacity-50 disabled:cursor-not-allowed; }
+.btn-primary { @apply bg-sky-700 text-white hover:bg-sky-600 shadow-sm; }
+.btn-secondary { @apply border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700; }
+.btn-info { @apply border border-sky-200 dark:border-sky-800 text-sky-700 dark:text-sky-300 hover:bg-sky-50 dark:hover:bg-sky-900/30; }
+.btn-success { @apply border border-green-200 dark:border-green-800 text-green-700 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/30; }
+.btn-error { @apply text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30; }
+.btn-sm { @apply px-3 py-1.5 text-xs; }
+.table-header { @apply px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400; }
 .table-cell { @apply px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100; }
 .fade-enter-active, .fade-leave-active { transition: opacity 0.3s ease; }
 .fade-enter-from, .fade-leave-to { opacity: 0; }
