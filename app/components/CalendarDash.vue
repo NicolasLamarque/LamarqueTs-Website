@@ -251,6 +251,76 @@
                   />
                 </div>
 
+                <!-- Le ruban de la journee.
+                     Une seance n'est pas un instant, c'est une etendue : ce
+                     qu'on verifie d'un coup d'oeil, ce n'est pas « 18:00 »,
+                     c'est ou le bloc tombe et sur quoi il mord. Le champ texte
+                     reste la saisie exacte ; le ruban montre ce que la saisie
+                     veut dire. Les deux ecrivent la meme valeur.
+                     La duree s'inscrit dans le bloc lui-meme : c'est elle
+                     l'information, pas les deux bornes. -->
+                <div v-if="!form.allDay" class="md:col-span-2 lg:col-span-4">
+                  <div
+                    ref="rubanRef"
+                    class="relative h-11 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/60 overflow-hidden select-none touch-none"
+                    :class="blocRuban ? 'cursor-grab' : 'cursor-copy'"
+                    role="group"
+                    aria-label="Placer la séance dans la journée"
+                    @pointerdown="onRubanDown($event, 'deplacer')"
+                    @pointermove="onRubanMove"
+                    @pointerup="onRubanUp"
+                    @pointercancel="onRubanUp"
+                  >
+                    <!-- Reperes horaires : la trame de fond, discrete. -->
+                    <div
+                      v-for="g in graduationsRuban"
+                      :key="g.minutes"
+                      class="absolute top-0 bottom-0 border-l border-gray-200/70 dark:border-gray-700/60"
+                      :style="{ left: g.pourcent + '%' }"
+                    >
+                      <span class="absolute top-0.5 left-1 text-[10px] leading-none text-gray-400 dark:text-gray-500 tabular-nums">
+                        {{ g.etiquette }}
+                      </span>
+                    </div>
+
+                    <!-- La soiree, ombree : le repere qui compte pour un groupe. -->
+                    <div
+                      class="absolute top-0 bottom-0 bg-gray-200/40 dark:bg-black/25 pointer-events-none"
+                      :style="{ left: soireeRuban + '%', right: '0%' }"
+                    ></div>
+
+                    <!-- Le bloc, avec sa duree ecrite dedans. -->
+                    <div
+                      v-if="blocRuban"
+                      class="absolute top-1 bottom-1 rounded bg-sky-200 dark:bg-sky-700/70 ring-1 ring-sky-400/60 dark:ring-sky-500/50 flex items-center justify-center"
+                      :style="{ left: blocRuban.gauche + '%', width: blocRuban.largeur + '%' }"
+                    >
+                      <!-- Poignees de bord : elles changent la duree sans
+                           toucher au debut, ou l'inverse. -->
+                      <span
+                        class="absolute inset-y-0 left-0 w-2 cursor-ew-resize"
+                        @pointerdown.stop="onRubanDown($event, 'debut')"
+                      ></span>
+                      <span
+                        class="absolute inset-y-0 right-0 w-2 cursor-ew-resize"
+                        @pointerdown.stop="onRubanDown($event, 'fin')"
+                      ></span>
+                      <span
+                        v-if="dureeLisible"
+                        class="px-1 text-[11px] font-medium text-sky-900 dark:text-sky-50 whitespace-nowrap overflow-hidden pointer-events-none"
+                      >
+                        {{ dureeLisible }}
+                      </span>
+                    </div>
+                  </div>
+
+                  <p class="mt-1.5 text-xs text-gray-500 dark:text-gray-400">
+                    <span v-if="!blocRuban">Clique dans le ruban pour poser une séance de deux heures — ou tape l'heure ci-dessus.</span>
+                    <span v-else-if="remarqueRuban" class="text-amber-600 dark:text-amber-400">{{ remarqueRuban }}</span>
+                    <span v-else>Glisse le bloc, tire ses bords pour la durée. <kbd class="px-1 rounded border border-gray-300 dark:border-gray-600 text-[10px]">Maj</kbd> pour la minute près.</span>
+                  </p>
+                </div>
+
               </div>
             </div>
 
@@ -743,6 +813,187 @@ const onHeureDebutChange = () => {
   const [h, m] = form.value.heureDebut.split(':').map(Number);
   const fin = Math.min(h + 2, 23);
   form.value.heureFin = `${String(fin).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+};
+
+// ============================================================================
+// Le ruban de la journee
+// ============================================================================
+//
+// Une liste de creneaux traite le temps comme une suite d'etiquettes ou 18:05
+// et 18:10 seraient deux choses distinctes. Le temps ne fait pas de marches :
+// une seance est une etendue, avec un ancrage et une longueur.
+//
+// Le ruban montre cette etendue. On y lit ce qu'aucun champ numerique ne dit :
+// ou la seance tombe dans la journee, si elle mord sur le souper, si elle
+// finit trop tard pour le transport en commun.
+//
+// Le clavier reste la saisie de reference — le ruban n'enleve rien, il ajoute
+// un second geste pour ceux ou la souris va plus vite que la frappe.
+
+/** Le ruban couvre la journee utile ; il s'ouvre si la seance commence avant. */
+const RUBAN_FIN = 24 * 60;
+
+/** Pas du glissement. Le clavier, lui, reste libre a la minute pres. */
+const RUBAN_PAS = 5;
+
+const rubanRef = ref<HTMLElement | null>(null);
+
+/** « 18:30 » vers 1110 minutes. Retourne null si la saisie est incomplete. */
+const enMinutes = (valeur: string | null | undefined): number | null => {
+  if (!valeur) return null;
+  const [h, m] = String(valeur).split(':').map(Number);
+  if (isNaN(h)) return null;
+  return h * 60 + (isNaN(m) ? 0 : m);
+};
+
+/** 1110 minutes vers « 18:30 », borne a la journee. */
+const enHeure = (minutes: number): string => {
+  const m = Math.max(0, Math.min(RUBAN_FIN - 1, Math.round(minutes)));
+  return `${String(Math.floor(m / 60)).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}`;
+};
+
+/**
+ * Bornes affichees.
+ *
+ * On part de 6 h : afficher la nuit gaspillerait un tiers du ruban pour des
+ * heures ou personne n'anime de groupe. Mais si une seance y tombe quand meme,
+ * le ruban s'ouvre plutot que de la cacher.
+ */
+const fenetreRuban = computed(() => {
+  const debutSeance = enMinutes(form.value.heureDebut);
+  const debut = debutSeance !== null && debutSeance < 6 * 60 ? 0 : 6 * 60;
+  return { debut, etendue: RUBAN_FIN - debut };
+});
+
+/** Traits horaires de la trame de fond, toutes les trois heures. */
+const graduationsRuban = computed(() => {
+  const { debut, etendue } = fenetreRuban.value;
+  const traits: { minutes: number; pourcent: number; etiquette: string }[] = [];
+  for (let m = debut; m < RUBAN_FIN; m += 180) {
+    traits.push({
+      minutes: m,
+      pourcent: ((m - debut) / etendue) * 100,
+      etiquette: `${m / 60} h`,
+    });
+  }
+  return traits;
+});
+
+/** Debut de la zone ombree du soir, en pourcentage du ruban. */
+const soireeRuban = computed(() => {
+  const { debut, etendue } = fenetreRuban.value;
+  return ((18 * 60 - debut) / etendue) * 100;
+});
+
+/**
+ * Position et largeur du bloc.
+ *
+ * Une largeur minimale evite qu'une seance de quinze minutes devienne un trait
+ * insaisissable a la souris.
+ */
+const blocRuban = computed(() => {
+  const debut = enMinutes(form.value.heureDebut);
+  if (debut === null) return null;
+
+  const finSaisie = enMinutes(form.value.heureFin);
+  const fin = finSaisie !== null && finSaisie > debut ? finSaisie : debut + 60;
+
+  const { debut: origine, etendue } = fenetreRuban.value;
+  return {
+    gauche: Math.max(((debut - origine) / etendue) * 100, 0),
+    largeur: Math.max(((fin - debut) / etendue) * 100, 2),
+  };
+});
+
+/** Ce que le ruban donne a voir et qu'un champ numerique tait. */
+const remarqueRuban = computed(() => {
+  const debut = enMinutes(form.value.heureDebut);
+  const fin = enMinutes(form.value.heureFin);
+  if (debut === null || fin === null) return '';
+  if (fin > 22 * 60) return 'Ça se termine après 22 h — pense au transport en commun.';
+  if (debut < 18 * 60 + 30 && fin > 17 * 60 + 30) return 'Ça mord sur l’heure du souper.';
+  if (debut < 8 * 60) return 'Ça commence avant 8 h.';
+  return '';
+});
+
+// Etat du glissement. Hors des refs : rien de tout cela n'est affiche, et le
+// declarer reactif provoquerait un rendu a chaque pixel parcouru.
+let modeRuban: 'deplacer' | 'debut' | 'fin' | null = null;
+let priseRuban = 0;
+
+/** Minute sous le curseur, deduite de la position dans le ruban. */
+const minuteSousCurseur = (evt: PointerEvent): number => {
+  const el = rubanRef.value;
+  if (!el) return 0;
+  const rect = el.getBoundingClientRect();
+  if (rect.width === 0) return 0;
+  const { debut, etendue } = fenetreRuban.value;
+  const ratio = Math.max(0, Math.min(1, (evt.clientX - rect.left) / rect.width));
+  return debut + ratio * etendue;
+};
+
+/** Maj enfonce : precision a la minute. Sinon, pas de cinq minutes. */
+const arrondiRuban = (minutes: number, evt: PointerEvent): number => {
+  const pas = evt.shiftKey ? 1 : RUBAN_PAS;
+  return Math.round(minutes / pas) * pas;
+};
+
+const onRubanDown = (evt: PointerEvent, mode: 'deplacer' | 'debut' | 'fin') => {
+  const debut = enMinutes(form.value.heureDebut);
+
+  // Ruban vide : le premier clic pose une seance de deux heures, la duree
+  // habituelle d'un groupe. Rien n'oblige a la garder.
+  if (debut === null) {
+    const pose = Math.max(0, Math.min(RUBAN_FIN - 120, arrondiRuban(minuteSousCurseur(evt), evt)));
+    form.value.heureDebut = enHeure(pose);
+    form.value.heureFin = enHeure(pose + 120);
+    return;
+  }
+
+  modeRuban = mode;
+  priseRuban = minuteSousCurseur(evt) - debut;
+  rubanRef.value?.setPointerCapture(evt.pointerId);
+};
+
+const onRubanMove = (evt: PointerEvent) => {
+  if (!modeRuban) return;
+
+  const debut = enMinutes(form.value.heureDebut);
+  const fin = enMinutes(form.value.heureFin);
+  if (debut === null) return;
+
+  const curseur = arrondiRuban(minuteSousCurseur(evt), evt);
+
+  if (modeRuban === 'deplacer') {
+    // La duree est conservee : on deplace la seance, on ne la deforme pas.
+    const duree = fin !== null && fin > debut ? fin - debut : 120;
+    const nouveau = Math.max(0, Math.min(RUBAN_FIN - duree, Math.round(curseur - priseRuban)));
+    form.value.heureDebut = enHeure(nouveau);
+    form.value.heureFin = enHeure(nouveau + duree);
+    return;
+  }
+
+  if (modeRuban === 'debut') {
+    // Le bord gauche ne franchit pas le droit : une seance ne finit pas avant
+    // d'avoir commence. On laisse un quart d'heure minimum.
+    const limite = fin !== null ? fin - 15 : RUBAN_FIN;
+    form.value.heureDebut = enHeure(Math.max(0, Math.min(limite, curseur)));
+    return;
+  }
+
+  form.value.heureFin = enHeure(Math.max(debut + 15, Math.min(RUBAN_FIN - 1, curseur)));
+};
+
+const onRubanUp = (evt: PointerEvent) => {
+  if (!modeRuban) return;
+  modeRuban = null;
+  // Sans cette liberation, le ruban continue de capter le pointeur et le reste
+  // du formulaire ne repond plus.
+  try {
+    rubanRef.value?.releasePointerCapture(evt.pointerId);
+  } catch {
+    /* le pointeur a deja ete relache par le navigateur */
+  }
 };
 
 /** Durée affichée à côté de l'heure de fin, pour vérifier d'un coup d'œil. */
