@@ -9,15 +9,32 @@
       {{ message.text }}
     </div>
 
-    <form @submit.prevent="submitArticle" class="mb-6 bg-white dark:bg-gray-700 rounded-lg shadow-xl overflow-hidden">
-      
-      <div class="bg-gradient-to-r from-sky-600 to-sky-700 p-4 text-white">
-        <h3 class="text-lg font-bold flex items-center gap-2">
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-          </svg>
-          {{ editMode ? 'Modifier l\'article' : 'Nouvel article' }}
-        </h3>
+    <form @submit.prevent="submitArticle"
+      class="bg-white dark:bg-gray-800 rounded-xl border shadow-sm border-l-4 overflow-hidden transition-colors"
+      :class="editMode
+        ? 'border-gray-200 dark:border-gray-700 border-l-sky-600 dark:border-l-sky-500'
+        : 'border-gray-200 dark:border-gray-700 border-l-gray-300 dark:border-l-gray-600'">
+
+      <!-- Le bandeau annonce le mode en cours, comme dans l'onglet
+           Utilisateurs : c'est le repere qui manquait partout. -->
+      <div class="flex flex-wrap items-center justify-between gap-2 px-5 py-3 border-b border-gray-200 dark:border-gray-700">
+        <div>
+          <h3 class="font-semibold text-gray-800 dark:text-gray-100">
+            <template v-if="editMode">
+              Modification en cours
+            </template>
+            <template v-else>Nouvel article</template>
+          </h3>
+          <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+            {{ editMode
+              ? 'Les modifications remplacent la version publiee.'
+              : 'Le billet sera visible sur le blog une fois publie.' }}
+          </p>
+        </div>
+        <button v-if="editMode" type="button" @click="cancelEdit"
+          class="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 underline underline-offset-2">
+          Annuler la modification
+        </button>
       </div>
 
       <div class="p-6 space-y-6">
@@ -286,7 +303,7 @@ Exemples:
         <div class="flex justify-between items-center pt-4 border-t border-gray-200 dark:border-gray-600">
           <button 
             type="submit"
-            class="bg-gradient-to-r from-sky-600 to-sky-700 text-white px-8 py-3 rounded-lg hover:from-sky-700 hover:to-sky-800 transition font-semibold shadow-lg flex items-center gap-2" 
+            class="px-5 py-2 rounded-lg text-sm font-semibold bg-sky-700 hover:bg-sky-600 text-white shadow-sm transition-colors disabled:opacity-50 flex items-center gap-2" 
             :disabled="isLoading || isUploading"
           >
             <svg v-if="!isLoading" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -303,7 +320,7 @@ Exemples:
             v-if="editMode" 
             type="button" 
             @click="cancelEdit" 
-            class="bg-gray-400 dark:bg-gray-600 text-white px-6 py-3 rounded-lg hover:bg-gray-500 dark:hover:bg-gray-700 transition font-semibold" 
+            class="px-4 py-2 rounded-lg text-sm font-medium border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors" 
             :disabled="isLoading"
           >
             Annuler
@@ -312,7 +329,7 @@ Exemples:
       </div>
     </form>
 
-    <div class="bg-white dark:bg-gray-700 p-4 rounded shadow">
+    <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-x-auto">
       <div v-if="isLoading" class="text-center py-8">
         <svg class="animate-spin h-8 w-8 mx-auto text-gray-500" fill="none" viewBox="0 0 24 24">
           <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -321,58 +338,76 @@ Exemples:
         <p class="mt-2 text-gray-500">Chargement...</p>
       </div>
       
-      <table v-else class="w-full table-auto border-collapse">
+      <table v-else class="w-full text-sm min-w-[720px]">
         <thead>
-          <tr class="bg-gray-200 dark:bg-gray-600">
-            <th class="px-4 py-2 text-left">ID</th>
-            <th class="px-4 py-2 text-left">Titre</th>
-            <th class="px-4 py-2 text-left">Auteur</th>
-            <th class="px-4 py-2 text-left">Catégorie</th>
-            <th class="px-4 py-2 text-left">Date</th>
-            <th class="px-4 py-2">Actions</th>
+          <tr class="text-left text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400 border-b border-gray-200 dark:border-gray-700">
+            <th class="px-4 py-3 font-semibold">Titre</th>
+            <th class="px-4 py-3 font-semibold">Auteur</th>
+            <th class="px-4 py-3 font-semibold">Catégorie</th>
+            <th class="px-4 py-3 font-semibold">Date</th>
+            <th class="px-4 py-3 font-semibold text-right">Actions</th>
           </tr>
         </thead>
         <tbody>
-          <tr v-for="a in articles" :key="a.id" class="border-b border-gray-300 dark:border-gray-600">
-            <td class="px-4 py-2">{{ a.id }}</td>
-            <td class="px-4 py-2">{{ a.titleArticle }}</td>
-            <td class="px-4 py-2">{{ a.AuthorArticle }}</td>
-            <td class="px-4 py-2">{{ a.CategoryArticle }}</td>
-            <td class="px-4 py-2">{{ formatDate(a.DatePost) }}</td>
-            <td class="px-4 py-2 flex gap-2 justify-center">
-              <button @click="editArticle(a)" class="bg-yellow-500 text-white px-2 py-1 rounded hover:bg-yellow-600">Modifier</button>
-              <button @click="viewArticle(a)" class="bg-indigo-500 text-white px-2 py-1 rounded hover:bg-indigo-600">Voir</button>
-              <button @click="deleteArticleConfirm(a.id)" class="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600">Supprimer</button>
+          <tr v-for="a in articles" :key="a.id"
+            class="border-b border-gray-100 dark:border-gray-700 last:border-0">
+            <td class="px-4 py-3">
+              <p class="font-medium text-gray-800 dark:text-gray-100">{{ a.titleArticle }}</p>
+              <p class="text-xs text-gray-400 tabular-nums">#{{ a.id }}</p>
+            </td>
+            <td class="px-4 py-3 text-gray-600 dark:text-gray-300">{{ a.AuthorArticle || '—' }}</td>
+            <td class="px-4 py-3">
+              <span v-if="a.CategoryArticle"
+                class="text-xs font-medium px-2 py-0.5 rounded bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300">
+                {{ a.CategoryArticle }}
+              </span>
+              <span v-else class="text-gray-400">—</span>
+            </td>
+            <td class="px-4 py-3 text-gray-500 dark:text-gray-400 whitespace-nowrap tabular-nums">{{ formatDate(a.DatePost) }}</td>
+            <td class="px-4 py-3">
+              <div class="flex items-center justify-end gap-1">
+                <button @click="editArticle(a)"
+                  class="px-3 py-1.5 rounded-lg text-xs font-medium border border-sky-200 dark:border-sky-800 text-sky-700 dark:text-sky-300 hover:bg-sky-50 dark:hover:bg-sky-900/30 transition-colors">Modifier</button>
+                <button @click="viewArticle(a)"
+                  class="px-3 py-1.5 rounded-lg text-xs font-medium border border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">Voir</button>
+                <button @click="deleteArticleConfirm(a.id)"
+                  class="ml-3 px-3 py-1.5 rounded-lg text-xs font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors">Supprimer</button>
+              </div>
             </td>
           </tr>
           <tr v-if="articles.length === 0">
-            <td colspan="6" class="text-center py-4 text-gray-500">Aucun article</td>
+            <td colspan="5" class="px-4 py-8 text-center text-gray-500 dark:text-gray-400">Aucun article.</td>
           </tr>
         </tbody>
       </table>
     </div>
 
-    <div v-if="showModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex justify-center items-center">
-      <div class="relative p-8 border w-3/4 max-w-4xl shadow-lg rounded-md bg-white dark:bg-gray-700">
-        <div class="mt-3 text-center">
-          <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white">{{ currentArticle?.titleArticle }}</h3>
-          <p class="text-sm text-gray-500 dark:text-gray-300">
-            Par {{ currentArticle?.AuthorArticle }} le {{ formatDate(currentArticle?.DatePost) }}
+    <div v-if="showModal" @click.self="closeModal"
+      class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+      <div class="w-full max-w-3xl max-h-[90vh] flex flex-col bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-xl overflow-hidden">
+        <div class="px-5 py-4 border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
+          <h3 class="font-semibold text-gray-800 dark:text-gray-100">{{ currentArticle?.titleArticle }}</h3>
+          <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+            {{ currentArticle?.AuthorArticle }} — {{ formatDate(currentArticle?.DatePost) }}
           </p>
+        </div>
+        <div class="flex-1 overflow-y-auto p-5">
           <img
             v-if="currentArticle?.ImageArticle"
             :src="currentArticle.ImageArticle"
             alt="Image de l'article"
-            class="w-full h-auto mt-4 mb-4 rounded-md shadow-lg"
+            class="w-full h-auto mb-5 rounded-lg border border-gray-200 dark:border-gray-700"
           />
-          <div class="mt-2 px-7 py-3 max-h-[70vh] overflow-y-auto prose dark:prose-invert markdown-content">
+          <div class="prose dark:prose-invert max-w-none markdown-content">
             <div v-html="renderedMarkdown"></div>
           </div>
-          <div class="items-center px-4 py-3">
-            <button @click="closeModal" class="px-4 py-2 bg-sky-500 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-sky-600 focus:outline-none focus:ring-2 focus:ring-sky-500">
-              Fermer
-            </button>
-          </div>
+        </div>
+
+        <div class="px-5 py-4 border-t border-gray-200 dark:border-gray-700 flex justify-end flex-shrink-0">
+          <button @click="closeModal"
+            class="px-4 py-2 rounded-lg text-sm font-medium border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+            Fermer
+          </button>
         </div>
       </div>
     </div>
