@@ -234,12 +234,7 @@
                 </div>
 
                 <div v-if="!form.allDay" class="form-group">
-                  <label class="form-label">
-                    Heure de fin
-                    <span v-if="dureeLisible" class="font-normal text-xs text-gray-500 dark:text-gray-400">
-                      — {{ dureeLisible }}
-                    </span>
-                  </label>
+                  <label class="form-label">Heure de fin</label>
                   <input
                     v-model="form.heureFin"
                     type="text"
@@ -305,11 +300,29 @@
                         class="absolute inset-y-0 right-0 w-2 cursor-ew-resize"
                         @pointerdown.stop="onRubanDown($event, 'fin')"
                       ></span>
-                      <span
-                        v-if="dureeLisible"
-                        class="px-1 text-[11px] font-medium text-sky-900 dark:text-sky-50 whitespace-nowrap overflow-hidden pointer-events-none"
-                      >
-                        {{ dureeLisible }}
+                      <!-- La duree se tape la ou elle se lit.
+                           C'est souvent elle qu'on connait en premier : « une
+                           heure et demie », pas « de 18:00 a 19:30 ». Ecrire
+                           1,5 ici elargit le bloc et deplace l'heure de fin.
+                           pointerdown.stop : cliquer dans le champ ne doit pas
+                           declencher le glissement du bloc. -->
+                      <span class="flex items-baseline gap-0.5 px-1 overflow-hidden">
+                        <input
+                          v-model="dureeTexte"
+                          type="text"
+                          inputmode="decimal"
+                          maxlength="6"
+                          :size="Math.max(dureeTexte.length, 1)"
+                          class="min-w-0 bg-transparent border-0 p-0 text-center text-[11px] font-medium tabular-nums text-sky-900 dark:text-sky-50 focus:outline-none focus:ring-0 cursor-text"
+                          title="Durée en heures — 1,5 vaut une heure et demie"
+                          aria-label="Durée de la séance, en heures"
+                          @pointerdown.stop
+                          @input="onSaisieDuree"
+                          @focus="dureeEnEdition = true"
+                          @blur="dureeEnEdition = false; rafraichirDuree()"
+                          @keydown.enter.prevent="($event.target as HTMLInputElement).blur()"
+                        />
+                        <span class="text-[11px] font-medium text-sky-900 dark:text-sky-50 pointer-events-none">h</span>
                       </span>
                     </div>
                   </div>
@@ -996,23 +1009,88 @@ const onRubanUp = (evt: PointerEvent) => {
   }
 };
 
-/** Durée affichée à côté de l'heure de fin, pour vérifier d'un coup d'œil. */
-const dureeLisible = computed(() => {
-  const { heureDebut, heureFin } = form.value;
-  if (!heureDebut || !heureFin) return '';
+// ============================================================================
+// La duree, troisieme facon de dire la meme chose
+// ============================================================================
+//
+// Debut, fin et duree decrivent une seule realite : deux suffisent a deduire
+// la troisieme. Mais celle qu'on a en tete varie — « une heure et demie » se
+// sait souvent avant « jusqu'a 19:30 ». Autant laisser saisir l'une ou l'autre.
+//
+// L'ancrage est le debut : changer la duree deplace la fin, jamais le debut.
 
-  const [hd, md] = heureDebut.split(':').map(Number);
-  const [hf, mf] = heureFin.split(':').map(Number);
-  let minutes = (hf * 60 + mf) - (hd * 60 + md);
-  if (minutes < 0) minutes += 24 * 60;
-  if (minutes === 0) return '';
+/**
+ * Le texte en cours de frappe, distinct de la valeur calculee.
+ *
+ * Sans ce tampon, taper « 1, » serait aussitot reecrit en « 1 » par la
+ * synchronisation, et la virgule deviendrait impossible a saisir.
+ */
+const dureeTexte = ref('');
+const dureeEnEdition = ref(false);
 
-  const h = Math.floor(minutes / 60);
-  const m = minutes % 60;
-  if (h && m) return `${h} h ${m}`;
-  if (h) return `${h} h`;
-  return `${m} min`;
-});
+/** Minutes separant le debut de la fin, ou null si l'une des deux manque. */
+const dureeEnMinutes = (): number | null => {
+  const debut = enMinutes(form.value.heureDebut);
+  const fin = enMinutes(form.value.heureFin);
+  if (debut === null || fin === null) return null;
+  return fin > debut ? fin - debut : null;
+};
+
+/**
+ * Minutes vers heures decimales : 90 donne « 1,5 ».
+ *
+ * Deux decimales suffisent — au-dela, l'ecart se compte en secondes, que le
+ * formulaire ne sait de toute facon pas enregistrer.
+ */
+const formaterDuree = (minutes: number): string =>
+  String(Math.round((minutes / 60) * 100) / 100).replace('.', ',');
+
+/**
+ * Lit une duree ecrite librement.
+ *
+ * « 1,5 », « 1.5 », « 1h30 » et « 2 » sont tous acceptes : personne ne devrait
+ * avoir a deviner quelle notation le champ attend.
+ */
+const lireDuree = (texte: string): number | null => {
+  const t = String(texte).trim().toLowerCase().replace(',', '.');
+  if (!t) return null;
+
+  const forme = t.match(/^(\d+)\s*h\s*(\d{0,2})$/);
+  if (forme) return parseInt(forme[1]) * 60 + (forme[2] ? parseInt(forme[2]) : 0);
+
+  const nombre = parseFloat(t);
+  if (isNaN(nombre) || nombre <= 0) return null;
+  return Math.round(nombre * 60);
+};
+
+/** Recopie la duree calculee dans le champ, sauf pendant la frappe. */
+const rafraichirDuree = () => {
+  const minutes = dureeEnMinutes();
+  dureeTexte.value = minutes === null ? '' : formaterDuree(minutes);
+};
+
+/** Saisie de la duree : la fin suit, bornee a la fin de journee. */
+const onSaisieDuree = () => {
+  const minutes = lireDuree(dureeTexte.value);
+  const debut = enMinutes(form.value.heureDebut);
+  if (minutes === null || debut === null) return;
+
+  // Une seance ne peut pas deborder sur le lendemain : la colonne d'heure de
+  // fin ne sait ecrire que jusqu'a 23:59.
+  const duree = Math.max(5, Math.min(minutes, RUBAN_FIN - 1 - debut));
+  form.value.heureFin = enHeure(debut + duree);
+};
+
+// Le ruban et les champs d'heure ecrivent dans heureDebut/heureFin ; la duree
+// s'y reaccorde toute seule. On ne touche pas au champ pendant sa frappe, pour
+// ne pas reecrire ce que l'utilisateur est en train de taper.
+watch(
+  [() => form.value.heureDebut, () => form.value.heureFin],
+  () => {
+    if (!dureeEnEdition.value) rafraichirDuree();
+  },
+  { immediate: true }
+);
 
 /**
  * Categories deja utilisees — sert au FILTRE de la barre du haut.
