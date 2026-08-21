@@ -103,10 +103,25 @@
 
               <div class="form-group">
                 <label class="form-label">Catégorie <span class="text-red-500">*</span></label>
-                <input v-model="form.CategoryEvenement" type="text" class="form-input" list="categories-list" required />
+                <input
+                  v-model="form.CategoryEvenement"
+                  type="text"
+                  class="form-input"
+                  list="categories-list"
+                  placeholder="Ex. : Groupe fermé, Atelier, Rencontre…"
+                  required
+                />
+                <!-- Champ LIBRE, pas une liste fermee.
+                     La datalist ne propose que les categories deja utilisees
+                     par des evenements existants — au demarrage elle est donc
+                     presque vide, ce qui laisse croire a tort qu'aucune autre
+                     valeur n'est possible. La mention ci-dessous le dit. -->
                 <datalist id="categories-list">
-                  <option v-for="cat in categories" :key="cat" :value="cat" />
+                  <option v-for="cat in categoriesSuggerees" :key="cat" :value="cat" />
                 </datalist>
+                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                  Tapez librement, ou choisissez une catégorie existante.
+                </p>
               </div>
 
               <div class="form-group">
@@ -150,14 +165,42 @@
                   <input v-model="form.dateDebut" type="date" class="form-input" required />
                 </div>
 
+                <!-- Saisie libre en 24 h.
+                     Le champ natif type="time" affiche l'heure selon la locale
+                     du systeme : sous une locale anglaise il impose AM/PM, et
+                     rien dans le HTML ne permet de forcer le format 24 h. On
+                     saisit donc le texte directement — les deux-points sont
+                     ajoutes automatiquement. -->
                 <div v-if="!form.allDay" class="form-group">
                   <label class="form-label">Heure de début</label>
-                  <input v-model="form.heureDebut" type="time" class="form-input" />
+                  <input
+                    v-model="form.heureDebut"
+                    type="text"
+                    class="form-input tabular-nums"
+                    inputmode="numeric"
+                    maxlength="5"
+                    placeholder="18:00"
+                    @input="onSaisieHeure($event, 'heureDebut')"
+                    @blur="onHeureDebutChange"
+                  />
                 </div>
 
                 <div v-if="!form.allDay" class="form-group">
-                  <label class="form-label">Heure de fin</label>
-                  <input v-model="form.heureFin" type="time" class="form-input" />
+                  <label class="form-label">
+                    Heure de fin
+                    <span v-if="dureeLisible" class="font-normal text-xs text-gray-500 dark:text-gray-400">
+                      — {{ dureeLisible }}
+                    </span>
+                  </label>
+                  <input
+                    v-model="form.heureFin"
+                    type="text"
+                    class="form-input tabular-nums"
+                    inputmode="numeric"
+                    maxlength="5"
+                    placeholder="20:00"
+                    @input="onSaisieHeure($event, 'heureFin')"
+                  />
                 </div>
               </div>
             </div>
@@ -527,12 +570,110 @@ const deleteModalMessage = computed(() => {
   return deleteTarget.value.isRecurrent ? "Supprimer cet événement récurrent ?" : "Supprimer cet événement ?";
 });
 
+// ============================================================================
+// Saisie des heures, en 24 h
+// ============================================================================
+//
+// Le champ natif type="time" suit la locale du systeme : sous une locale
+// anglaise il impose AM/PM, et aucun attribut HTML ne permet de forcer le
+// format 24 h. On saisit donc le texte, en le mettant en forme au fur et a
+// mesure.
+
+/**
+ * Ne garde que les chiffres, insere les deux-points et borne les valeurs.
+ *
+ * « 1830 » devient « 18:30 ». Une heure au-dela de 23 ou des minutes au-dela
+ * de 59 sont ramenees au maximum : impossible de saisir 99:99.
+ */
+const onSaisieHeure = (evt: Event, champ: 'heureDebut' | 'heureFin') => {
+  const chiffres = (evt.target as HTMLInputElement).value.replace(/\D/g, '').slice(0, 4);
+
+  let valeur = chiffres;
+  if (chiffres.length >= 3) {
+    let h = parseInt(chiffres.slice(0, 2));
+    let m = parseInt(chiffres.slice(2));
+    if (h > 23) h = 23;
+    if (chiffres.length === 4 && m > 59) m = 59;
+    valeur = `${String(h).padStart(2, '0')}:${chiffres.slice(2)}`;
+    if (chiffres.length === 4) valeur = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+  } else if (chiffres.length === 2) {
+    const h = Math.min(parseInt(chiffres), 23);
+    valeur = String(h).padStart(2, '0');
+  }
+
+  form.value[champ] = valeur;
+};
+
+/**
+ * Propose une heure de fin deux heures après le début.
+ *
+ * C'est la durée habituelle d'une séance de groupe, et cela évite de choisir
+ * deux fois. La valeur reste modifiable ; elle n'est proposée que si le champ
+ * de fin est encore vide, pour ne jamais écraser un choix délibéré.
+ */
+const onHeureDebutChange = () => {
+  if (!form.value.heureDebut || form.value.heureFin) return;
+  const [h, m] = form.value.heureDebut.split(':').map(Number);
+  const fin = Math.min(h + 2, 23);
+  form.value.heureFin = `${String(fin).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+};
+
+/** Durée affichée à côté de l'heure de fin, pour vérifier d'un coup d'œil. */
+const dureeLisible = computed(() => {
+  const { heureDebut, heureFin } = form.value;
+  if (!heureDebut || !heureFin) return '';
+
+  const [hd, md] = heureDebut.split(':').map(Number);
+  const [hf, mf] = heureFin.split(':').map(Number);
+  let minutes = (hf * 60 + mf) - (hd * 60 + md);
+  if (minutes < 0) minutes += 24 * 60;
+  if (minutes === 0) return '';
+
+  const h = Math.floor(minutes / 60);
+  const m = minutes % 60;
+  if (h && m) return `${h} h ${m}`;
+  if (h) return `${h} h`;
+  return `${m} min`;
+});
+
+/**
+ * Categories deja utilisees — sert au FILTRE de la barre du haut.
+ *
+ * Ne peut contenir que ce qui existe deja : filtrer sur une categorie sans
+ * evenement n'aurait aucun sens.
+ */
 const categories = computed(() => {
   const cats = new Set<string>();
   evenements.value.forEach((e) => {
     if (e.CategoryEvenement) cats.add(e.CategoryEvenement);
   });
   return Array.from(cats).sort();
+});
+
+/**
+ * Suggestions du FORMULAIRE : les categories utilisees, plus quelques
+ * propositions de depart.
+ *
+ * Sans ces propositions, un site neuf n'offre aucune suggestion — et le champ
+ * parait alors etre une liste vide plutot qu'un champ libre. Elles ne
+ * restreignent rien : toute autre valeur reste acceptee.
+ */
+const CATEGORIES_PROPOSEES = [
+  'Groupe fermé',
+  'Groupe ouvert',
+  'Atelier',
+  'Conférence',
+  'Rencontre individuelle',
+  'Formation',
+  'Information',
+];
+
+const categoriesSuggerees = computed(() => {
+  const cats = new Set<string>(CATEGORIES_PROPOSEES);
+  evenements.value.forEach((e) => {
+    if (e.CategoryEvenement) cats.add(e.CategoryEvenement);
+  });
+  return Array.from(cats).sort((a, b) => a.localeCompare(b, 'fr'));
 });
 
 const filteredEvents = computed(() => {
