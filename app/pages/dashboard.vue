@@ -1,41 +1,40 @@
 <template>
-  <div v-if="!isChecking && isAuthenticated" class="dashboard-shell flex h-screen bg-gray-100 dark:bg-gray-800">
+  <div v-if="!isChecking && isAuthenticated" class="dashboard-shell flex h-screen bg-gray-50 dark:bg-gray-950">
     <!-- Sidebar -->
     <SideBar :activeSection="section" @select="section = $event" />
 
     <!-- Contenu principal -->
     <main class="flex-1 flex flex-col overflow-hidden">
-      <!-- Header -->
-      <header class="bg-white dark:bg-gray-900 shadow-sm p-4 flex-shrink-0">
-        <div class="flex justify-between items-center gap-3">
-          <div class="flex-1 min-w-0">
-            <h1 class="text-xl sm:text-2xl font-bold text-gray-800 dark:text-gray-100 truncate">
-              LamarqueTS
-            </h1>
-            <p class="text-xs sm:text-sm text-gray-500 dark:text-gray-400 truncate">
-              {{ getSectionLabel(section) }}
-            </p>
-          </div>
+      <!-- En-tete
+           Meme hauteur que le titre de la barre laterale (h-16), pour que les
+           deux se rejoignent sur une ligne continue. Le nom de la section
+           tient lieu de titre : le nom du site est deja dans la barre. -->
+      <header class="h-16 px-4 sm:px-6 flex items-center justify-between gap-3 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 flex-shrink-0">
+        <div class="flex items-center gap-3 min-w-0">
+          <button
+            @click="toggleSidebar"
+            class="lg:hidden p-2 -ml-2 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+            aria-label="Ouvrir le menu"
+          >
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
 
-          <div class="flex items-center gap-2">
-            <!-- Bouton hamburger mobile -->
-            <button 
-              @click="toggleSidebar"
-              class="lg:hidden p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg"
-            >
-              <i class="fas fa-bars text-xl text-gray-800 dark:text-gray-100"></i>
-            </button>
-            
-            <!-- Bouton déconnexion -->
-            <button 
-              @click="logout" 
-              class="px-3 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg flex items-center gap-2 text-sm"
-            >
-              <i class="fas fa-sign-out-alt"></i>
-              <span class="hidden sm:inline">Déconnexion</span>
-            </button>
-          </div>
+          <h1 class="text-base sm:text-lg font-semibold text-gray-800 dark:text-gray-100 truncate">
+            {{ getSectionLabel(section) }}
+          </h1>
         </div>
+
+        <button
+          @click="logout"
+          class="px-3 py-1.5 rounded-lg text-sm font-medium border border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:border-red-300 dark:hover:border-red-800 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors flex items-center gap-2 flex-shrink-0"
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+          </svg>
+          <span class="hidden sm:inline">Déconnexion</span>
+        </button>
       </header>
 
       <!-- Zone de contenu scrollable -->
@@ -46,16 +45,16 @@
   </div>
   
   <!-- Écran de chargement -->
-  <div v-else-if="isChecking" class="flex items-center justify-center h-screen bg-gray-900">
+  <div v-else-if="isChecking" class="flex items-center justify-center h-screen bg-gray-50 dark:bg-gray-950">
     <div class="text-center">
-      <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-sky-500 mx-auto mb-4"></div>
-      <p class="text-white text-xl">Vérification...</p>
+      <div class="animate-spin rounded-full h-10 w-10 border-2 border-gray-300 dark:border-gray-700 border-t-sky-600 mx-auto mb-4"></div>
+      <p class="text-gray-500 dark:text-gray-400 text-sm">Vérification de la session…</p>
     </div>
   </div>
   
   <!-- Non authentifié -->
-  <div v-else class="flex items-center justify-center h-screen bg-gray-900">
-    <div class="text-white text-xl">Redirection...</div>
+  <div v-else class="flex items-center justify-center h-screen bg-gray-50 dark:bg-gray-950">
+    <p class="text-gray-500 dark:text-gray-400 text-sm">Redirection vers la connexion…</p>
   </div>
 </template>
 
