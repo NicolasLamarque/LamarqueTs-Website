@@ -228,7 +228,6 @@
                     inputmode="numeric"
                     maxlength="5"
                     placeholder="18:00"
-                    list="creneaux-5min"
                     @input="onSaisieHeure($event, 'heureDebut')"
                     @blur="onHeureDebutChange"
                   />
@@ -248,20 +247,10 @@
                     inputmode="numeric"
                     maxlength="5"
                     placeholder="20:00"
-                    list="creneaux-5min"
                     @input="onSaisieHeure($event, 'heureFin')"
                   />
                 </div>
 
-                <!-- La grille de 5 minutes, comme dans les dossiers cliniques.
-                     La liste propose sans imposer : taper « 18 » la filtre a
-                     18:00, 18:05, 18:10… et un clic suffit. Mais rien n'empeche
-                     d'ecrire 18:07 si la seance commence a 18:07. C'est la
-                     difference avec une liste deroulante fermee, qui aurait
-                     condamne les cas particuliers. -->
-                <datalist id="creneaux-5min">
-                  <option v-for="c in creneaux5min" :key="c" :value="c" />
-                </datalist>
               </div>
             </div>
 
@@ -723,22 +712,6 @@ const dateDebutLisible = computed(() => {
  * « 1830 » devient « 18:30 ». Une heure au-dela de 23 ou des minutes au-dela
  * de 59 sont ramenees au maximum : impossible de saisir 99:99.
  */
-/**
- * La journee decoupee en creneaux de 5 minutes : 00:00, 00:05 … 23:55.
- *
- * Les logiciels de dossier clinique fonctionnent ainsi, et pour une bonne
- * raison : personne ne fixe un groupe a 18h07, donc proposer les 288 creneaux
- * utiles evite 288 frappes au clavier. La liste reste une suggestion — le
- * champ accepte toujours une heure quelconque si la situation l'exige.
- *
- * Calculee une seule fois (constante, hors de tout computed) : la liste ne
- * depend d'aucun etat, la recalculer a chaque rendu serait du gaspillage.
- */
-const creneaux5min: string[] = Array.from({ length: 24 * 12 }, (_, i) => {
-  const minutes = i * 5;
-  return `${String(Math.floor(minutes / 60)).padStart(2, '0')}:${String(minutes % 60).padStart(2, '0')}`;
-});
-
 const onSaisieHeure = (evt: Event, champ: 'heureDebut' | 'heureFin') => {
   const chiffres = (evt.target as HTMLInputElement).value.replace(/\D/g, '').slice(0, 4);
 
