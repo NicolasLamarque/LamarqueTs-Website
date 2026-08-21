@@ -346,185 +346,76 @@ onMounted(() => {
 </script>
 
 <template>
-  <div
-    class="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 dark:from-gray-900 dark:to-gray-800 p-2 sm:p-4 md:p-6"
-  >
-    <div class="max-w-7xl mx-auto">
-      <!-- Notification -->
-      <Transition name="slide">
-        <div
-          v-if="notification"
-          :class="[
-            'fixed top-4 right-4 left-4 sm:left-auto sm:right-4 px-4 sm:px-6 py-3 rounded-lg shadow-lg z-50',
-            notification.type === 'success' ? 'bg-green-500' : 'bg-red-500',
-            'text-white',
-          ]"
-        >
-          {{ notification.text }}
-        </div>
-      </Transition>
+  <div class="p-4 sm:p-6 space-y-5">
 
-      <!-- Header -->
+    <!-- Notification flottante -->
+    <Transition name="slide">
       <div
-        class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-4 sm:p-6 mb-4 sm:mb-6"
+        v-if="notification"
+        class="fixed top-4 right-4 left-4 sm:left-auto z-50 px-4 py-3 rounded-lg border shadow-lg text-sm"
+        :class="notification.type === 'success'
+          ? 'bg-green-50 dark:bg-green-900/90 border-green-200 dark:border-green-800 text-green-800 dark:text-green-200'
+          : 'bg-red-50 dark:bg-red-900/90 border-red-200 dark:border-red-800 text-red-800 dark:text-red-200'"
       >
-        <div
-          class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4 sm:mb-6"
-        >
-          <div class="flex items-center gap-3 sm:gap-4">
-            <div
-              class="w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg"
-            >
-              <i class="fas fa-envelope text-white text-xl sm:text-2xl"></i>
-            </div>
-            <div>
-              <h1
-                class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white"
-              >
-                Messages
-              </h1>
-              <p class="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
-                Gestion centralisée des contacts
-              </p>
-            </div>
-          </div>
-          <button
-            @click="fetchMessages"
-            :disabled="loading"
-            class="w-full sm:w-auto px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors disabled:opacity-50 text-sm sm:text-base"
-          >
-            <i :class="['fas fa-sync', loading ? 'fa-spin' : '']"></i>
-            {{ loading ? "Chargement..." : "Actualiser" }}
-          </button>
-        </div>
-
-        <!-- Stats Cards - Grid responsive -->
-        <div class="grid grid-cols-2 lg:grid-cols-5 gap-2 sm:gap-4">
-          <div
-            class="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900 dark:to-blue-800 p-3 sm:p-4 rounded-xl"
-          >
-            <div
-              class="flex flex-col sm:flex-row items-start sm:items-center sm:justify-between gap-2"
-            >
-              <div class="w-full">
-                <p
-                  class="text-xs sm:text-sm text-blue-600 dark:text-blue-300 font-medium"
-                >
-                  Total
-                </p>
-                <p
-                  class="text-2xl sm:text-3xl font-bold text-blue-900 dark:text-white"
-                >
-                  {{ stats.total }}
-                </p>
-              </div>
-              <i
-                class="fas fa-inbox text-blue-500 opacity-50 text-2xl sm:text-4xl hidden sm:block"
-              ></i>
-            </div>
-          </div>
-
-          <div
-            class="bg-gradient-to-br from-yellow-50 to-yellow-100 dark:from-yellow-900 dark:to-yellow-800 p-3 sm:p-4 rounded-xl"
-          >
-            <div
-              class="flex flex-col sm:flex-row items-start sm:items-center sm:justify-between gap-2"
-            >
-              <div class="w-full">
-                <p
-                  class="text-xs sm:text-sm text-yellow-600 dark:text-yellow-300 font-medium"
-                >
-                  Non lus
-                </p>
-                <p
-                  class="text-2xl sm:text-3xl font-bold text-yellow-900 dark:text-white"
-                >
-                  {{ stats.unread }}
-                </p>
-              </div>
-              <i
-                class="fas fa-exclamation-circle text-yellow-500 opacity-50 text-2xl sm:text-4xl hidden sm:block"
-              ></i>
-            </div>
-          </div>
-
-          <div
-            class="bg-gradient-to-br from-red-50 to-red-100 dark:from-red-900 dark:to-red-800 p-3 sm:p-4 rounded-xl"
-          >
-            <div
-              class="flex flex-col sm:flex-row items-start sm:items-center sm:justify-between gap-2"
-            >
-              <div class="w-full">
-                <p
-                  class="text-xs sm:text-sm text-red-600 dark:text-red-300 font-medium"
-                >
-                  Urgents
-                </p>
-                <p
-                  class="text-2xl sm:text-3xl font-bold text-red-900 dark:text-white"
-                >
-                  {{ stats.urgent }}
-                </p>
-              </div>
-              <i
-                class="fas fa-star text-red-500 opacity-50 text-2xl sm:text-4xl hidden sm:block"
-              ></i>
-            </div>
-          </div>
-
-          <div
-            class="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900 dark:to-green-800 p-3 sm:p-4 rounded-xl"
-          >
-            <div
-              class="flex flex-col sm:flex-row items-start sm:items-center sm:justify-between gap-2"
-            >
-              <div class="w-full">
-                <p
-                  class="text-xs sm:text-sm text-green-600 dark:text-green-300 font-medium"
-                >
-                  Cryptés
-                </p>
-                <p
-                  class="text-2xl sm:text-3xl font-bold text-green-900 dark:text-white"
-                >
-                  {{ stats.encrypted }}
-                </p>
-              </div>
-              <i
-                class="fas fa-lock text-green-500 opacity-50 text-2xl sm:text-4xl hidden sm:block"
-              ></i>
-            </div>
-          </div>
-
-          <div
-            class="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-600 p-3 sm:p-4 rounded-xl col-span-2 lg:col-span-1"
-          >
-            <div
-              class="flex flex-col sm:flex-row items-start sm:items-center sm:justify-between gap-2"
-            >
-              <div class="w-full">
-                <p
-                  class="text-xs sm:text-sm text-gray-600 dark:text-gray-300 font-medium"
-                >
-                  Supprimés
-                </p>
-                <p
-                  class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white"
-                >
-                  {{ stats.deleted }}
-                </p>
-              </div>
-              <i
-                class="fas fa-trash text-gray-500 opacity-50 text-2xl sm:text-4xl hidden sm:block"
-              ></i>
-            </div>
-          </div>
-        </div>
+        {{ notification.text }}
       </div>
+    </Transition>
+
+    <!-- En-tête -->
+    <div class="flex flex-wrap items-start justify-between gap-3">
+      <div>
+        <h2 class="text-xl sm:text-2xl font-bold text-gray-800 dark:text-gray-100">Messages</h2>
+        <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Demandes reçues par le formulaire de contact</p>
+      </div>
+      <button
+        @click="fetchMessages"
+        :disabled="loading"
+        class="px-4 py-2 rounded-lg text-sm font-semibold border border-sky-200 dark:border-sky-700 text-sky-700 dark:text-sky-300 hover:bg-sky-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50"
+      >
+        {{ loading ? "Chargement…" : "Actualiser" }}
+      </button>
+    </div>
+
+    <!-- Chiffres clés
+         Les cinq tuiles avaient chacune leur degrade et leur grande icone en
+         filigrane. Seul « Urgents » garde une couleur : c'est le seul chiffre
+         qui appelle une action. -->
+    <div class="grid grid-cols-2 lg:grid-cols-5 gap-3">
+      <div class="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700 shadow-sm">
+        <p class="text-xs text-gray-500 dark:text-gray-400">Total</p>
+        <p class="text-2xl font-bold tabular-nums mt-1 text-gray-800 dark:text-gray-100">{{ stats.total }}</p>
+      </div>
+
+      <div class="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700 shadow-sm">
+        <p class="text-xs text-gray-500 dark:text-gray-400">Non lus</p>
+        <p class="text-2xl font-bold tabular-nums mt-1"
+          :class="stats.unread > 0 ? 'text-sky-700 dark:text-sky-400' : 'text-gray-800 dark:text-gray-100'">
+          {{ stats.unread }}
+        </p>
+      </div>
+
+      <div class="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700 shadow-sm">
+        <p class="text-xs text-gray-500 dark:text-gray-400">Urgents</p>
+        <p class="text-2xl font-bold tabular-nums mt-1"
+          :class="stats.urgent > 0 ? 'text-red-600 dark:text-red-400' : 'text-gray-800 dark:text-gray-100'">
+          {{ stats.urgent }}
+        </p>
+      </div>
+
+      <div class="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700 shadow-sm">
+        <p class="text-xs text-gray-500 dark:text-gray-400">Chiffrés</p>
+        <p class="text-2xl font-bold tabular-nums mt-1 text-gray-800 dark:text-gray-100">{{ stats.encrypted }}</p>
+      </div>
+
+      <div class="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700 shadow-sm col-span-2 lg:col-span-1">
+        <p class="text-xs text-gray-500 dark:text-gray-400">Supprimés</p>
+        <p class="text-2xl font-bold tabular-nums mt-1 text-gray-400">{{ stats.deleted }}</p>
+      </div>
+    </div>
 
       <!-- Filtres et recherche - Version mobile améliorée -->
       <div
-        class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-4 sm:p-6 mb-4 sm:mb-6"
+        class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm p-4 sm:p-6"
       >
         <!-- Bouton toggle pour mobile -->
         <button
@@ -551,14 +442,14 @@ onMounted(() => {
               v-model="searchQuery"
               type="text"
               placeholder="Rechercher..."
-              class="w-full pl-10 pr-4 py-2.5 border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm sm:text-base"
+              class="w-full pl-10 pr-4 py-2.5 border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent text-sm sm:text-base"
             />
           </div>
 
           <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
             <select
               v-model="filterStatus"
-              class="px-3 sm:px-4 py-2.5 border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500 text-sm"
+              class="px-3 sm:px-4 py-2.5 border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-sky-500 text-sm"
             >
               <option value="all">Tous statuts</option>
               <option value="new">Nouveaux</option>
@@ -569,7 +460,7 @@ onMounted(() => {
 
             <select
               v-model="filterPriority"
-              class="px-3 sm:px-4 py-2.5 border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500 text-sm"
+              class="px-3 sm:px-4 py-2.5 border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-sky-500 text-sm"
             >
               <option value="all">Priorités</option>
               <option value="urgent">Urgent</option>
@@ -579,7 +470,7 @@ onMounted(() => {
 
             <select
               v-model="sortBy"
-              class="px-3 sm:px-4 py-2.5 border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500 text-sm"
+              class="px-3 sm:px-4 py-2.5 border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-sky-500 text-sm"
             >
               <option value="date-desc">Plus récents</option>
               <option value="date-asc">Plus anciens</option>
@@ -618,7 +509,7 @@ onMounted(() => {
 
       <!-- Liste des messages - Cartes sur mobile -->
       <div
-        class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm overflow-hidden"
+        class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden"
       >
         <div class="p-4 sm:p-6 border-b border-gray-100 dark:border-gray-700">
           <h2
@@ -672,10 +563,10 @@ onMounted(() => {
                 :class="[
                   'w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center flex-shrink-0',
                   msg.deleted
-                    ? 'bg-gray-400'
-                    : 'bg-gradient-to-br from-blue-400 to-blue-600',
+                    ? 'bg-gray-300 dark:bg-gray-600 text-gray-500 dark:text-gray-400'
+                    : 'bg-sky-100 dark:bg-sky-900/40 text-sky-700 dark:text-sky-300',
                   msg.status === 'new' && !msg.deleted
-                    ? 'ring-4 ring-yellow-300'
+                    ? 'ring-2 ring-sky-500'
                     : '',
                 ]"
               >
@@ -800,30 +691,36 @@ onMounted(() => {
             class="bg-white dark:bg-gray-800 rounded-t-2xl sm:rounded-2xl shadow-2xl w-full sm:max-w-4xl max-h-[95vh] sm:max-h-[90vh] overflow-hidden flex flex-col"
           >
             <!-- Header du modal -->
+            <!-- En-tete sobre : le bandeau bleu plein rendait illisibles les
+                 pastilles de statut posees dessus, qui devaient etre passees
+                 en blanc translucide pour ressortir. -->
             <div
-              class="bg-gradient-to-r from-blue-500 to-blue-600 p-4 sm:p-6 text-white flex-shrink-0"
+              class="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 p-4 sm:p-5 flex-shrink-0"
             >
               <div class="flex items-start justify-between mb-3 sm:mb-4">
                 <div class="flex items-center gap-3 sm:gap-4 flex-1 min-w-0">
                   <div
-                    class="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-white/20 backdrop-blur flex items-center justify-center flex-shrink-0"
+                    class="w-12 h-12 rounded-full bg-sky-100 dark:bg-sky-900/40 text-sky-700 dark:text-sky-300 flex items-center justify-center flex-shrink-0 font-semibold"
                   >
-                    <i class="fas fa-user text-xl sm:text-2xl"></i>
+                    {{ (selectedMessage.sender_name || '?').charAt(0).toUpperCase() }}
                   </div>
                   <div class="flex-1 min-w-0">
-                    <h2 class="text-lg sm:text-2xl font-bold truncate">
+                    <h2 class="font-semibold text-gray-800 dark:text-gray-100 truncate">
                       {{ selectedMessage.sender_name }}
                     </h2>
-                    <p class="text-sm sm:text-base text-blue-100 truncate">
+                    <p class="text-sm text-gray-500 dark:text-gray-400 truncate">
                       {{ selectedMessage.sender_email }}
                     </p>
                   </div>
                 </div>
                 <button
                   @click="closeModal"
-                  class="p-2 hover:bg-white/20 rounded-lg transition-colors flex-shrink-0"
+                  class="p-2 rounded-lg text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors flex-shrink-0"
+                  aria-label="Fermer"
                 >
-                  <i class="fas fa-times text-lg sm:text-xl"></i>
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
                 </button>
               </div>
 
@@ -837,7 +734,7 @@ onMounted(() => {
                 </span>
                 <span
                   :class="[
-                    'px-2 sm:px-3 py-1 text-xs sm:text-sm font-medium rounded-full bg-white/90 text-gray-700',
+                    'px-2 sm:px-3 py-1 text-xs sm:text-sm font-medium rounded-full',
                     getStatusColor(selectedMessage.status),
                   ]"
                 >
@@ -845,7 +742,7 @@ onMounted(() => {
                 </span>
                 <span
                   :class="[
-                    'px-2 sm:px-3 py-1 text-xs sm:text-sm font-medium rounded-full bg-white/90 text-gray-700',
+                    'px-2 sm:px-3 py-1 text-xs sm:text-sm font-medium rounded-full',
                     getPriorityColor(selectedMessage.priority),
                   ]"
                 >
@@ -870,7 +767,7 @@ onMounted(() => {
             <div class="flex-1 overflow-y-auto p-4 sm:p-6">
               <!-- Informations -->
               <div
-                class="bg-gray-50 dark:bg-gray-900 rounded-xl p-3 sm:p-4 mb-4 sm:mb-6"
+                class="bg-gray-50 dark:bg-gray-900 rounded-xl p-3 sm:p-4"
               >
                 <div
                   class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 text-xs sm:text-sm"
@@ -944,7 +841,7 @@ onMounted(() => {
                   <div
                     v-for="(reply, idx) in selectedMessage.reply_history"
                     :key="idx"
-                    class="bg-blue-50 dark:bg-blue-900 rounded-xl p-3 sm:p-4 border-l-4 border-blue-500"
+                    class="bg-blue-50 dark:bg-blue-900 rounded-xl p-3 sm:p-4 border-l-4 border-sky-600"
                   >
                     <div
                       class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-2 mb-2"
@@ -979,7 +876,7 @@ onMounted(() => {
                   v-model="replyText"
                   placeholder="Votre réponse..."
                   rows="4"
-                  class="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none text-sm sm:text-base"
+                  class="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl focus:ring-2 focus:ring-sky-500 focus:border-transparent resize-none text-sm sm:text-base"
                 ></textarea>
               </div>
               <div
@@ -1035,7 +932,7 @@ onMounted(() => {
                     v-if="!selectedMessage.deleted"
                     @click="sendReply"
                     :disabled="!replyText.trim()"
-                    class="flex-1 sm:flex-none px-4 sm:px-6 py-2 sm:py-2.5 text-sm sm:text-base bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                    class="flex-1 sm:flex-none px-4 sm:px-6 py-2 sm:py-2.5 text-sm sm:text-base bg-sky-700 text-white rounded-lg hover:bg-sky-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                   >
                     <i class="fas fa-paper-plane"></i>
                     Envoyer
@@ -1047,7 +944,6 @@ onMounted(() => {
         </div>
       </Transition>
     </div>
-  </div>
 </template>
 
 <style scoped>
