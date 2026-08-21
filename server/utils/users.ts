@@ -29,12 +29,32 @@ export async function insertUser(user: User) {
 // 📋 Récupérer tous les utilisateurs (sans mot de passe)
 export async function getAllUsers() {
   return db
+    // Selection complete, volontairement — meme raison que getUserById.
+    //
+    // Cette fonction ne renvoyait que cinq colonnes. Consequence en cascade :
+    // la liste affichee dans l'administration ne contenait ni photo, ni bio,
+    // ni preferences. Et comme editUser() remplit le formulaire a partir de
+    // CETTE liste, le champ photo arrivait toujours vide — puis etait
+    // reenvoye vide a l'enregistrement, ce qui effacait la valeur en base.
+    //
+    // Une colonne absente d'un SELECT ne provoque aucune erreur : elle vaut
+    // simplement undefined. Le defaut se propage donc en silence jusqu'a
+    // l'ecran, ou l'on croit a tort que l'enregistrement a echoue.
+    //
+    // Le mot de passe reste exclu, evidemment.
     .select({
       id: users.id,
       username: users.username,
       mail: users.mail,
       role: users.role,
       is_active: users.is_active,
+      bio: users.bio,
+      profile_picture: users.profile_picture,
+      two_factor_enabled: users.two_factor_enabled,
+      preferences: users.preferences,
+      created_at: users.created_at,
+      updated_at: users.updated_at,
+      last_login: users.last_login,
     })
     .from(users)
 }
