@@ -96,9 +96,59 @@
                 <input v-model="form.AuthorEvenement" type="text" class="form-input" required />
               </div>
 
+              <!-- Avatar de l'animateur.
+                   C'etait un textarea, ce qui n'avait pas de sens pour une
+                   adresse d'image : plusieurs lignes possibles, aucun apercu,
+                   et le fichier a deposer ailleurs. -->
               <div class="form-group">
-                <label class="form-label">avatar de l'animateur</label>
-                <textarea v-model="form.avatarAnimateur" class="form-textarea"></textarea>
+                <label class="form-label">Avatar de l'animateur</label>
+
+                <div class="flex items-center gap-2">
+                  <img
+                    v-if="form.avatarAnimateur"
+                    :src="form.avatarAnimateur"
+                    alt="Aperçu de l'avatar"
+                    class="w-10 h-10 rounded-full object-cover border border-gray-200 dark:border-gray-700 flex-shrink-0"
+                    @error="handleImageError"
+                  />
+                  <span
+                    v-else
+                    class="w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-gray-400 flex-shrink-0"
+                    aria-hidden="true"
+                  >
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                  </span>
+
+                  <button
+                    type="button"
+                    class="px-3 py-2 rounded-lg text-sm font-medium border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors disabled:opacity-50"
+                    :disabled="televersementEnCours !== null"
+                    @click="fichierAvatar?.click()"
+                  >
+                    {{ televersementEnCours === 'avatarAnimateur' ? 'Envoi…' : 'Téléverser' }}
+                  </button>
+
+                  <button
+                    v-if="form.avatarAnimateur"
+                    type="button"
+                    class="text-sm text-gray-500 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors"
+                    :disabled="televersementEnCours !== null"
+                    @click="retirerImage('avatarAnimateur')"
+                  >
+                    Retirer
+                  </button>
+
+                  <input
+                    ref="fichierAvatar"
+                    type="file"
+                    accept="image/*"
+                    class="hidden"
+                    @change="onChoisirImage($event, 'avatarAnimateur')"
+                  />
+                </div>
               </div>
 
               <div class="form-group">
@@ -472,10 +522,65 @@
                 <textarea v-model="form.TextEvenement" class="form-textarea" rows="4" required></textarea>
               </div>
 
+              <!-- Image de l'evenement.
+                   Il fallait jusqu'ici deposer le fichier ailleurs et coller
+                   l'adresse a la main. Le bouton fait les deux d'un coup.
+                   Le champ d'adresse reste : une image hebergee ailleurs se
+                   colle toujours, et voir l'URL permet de verifier ce qui est
+                   reellement enregistre. -->
               <div class="form-group">
-                <label class="form-label">Image URL</label>
-                <input v-model="form.ImageEvenement" type="text" class="form-input" />
-                <img v-if="form.ImageEvenement" :src="form.ImageEvenement" alt="Aperçu" class="h-32 w-auto rounded shadow mt-2" @error="handleImageError" />
+                <label class="form-label">
+                  Image de l'événement
+                  <span class="font-normal text-xs text-gray-500 dark:text-gray-400">— bannière</span>
+                </label>
+
+                <div class="flex flex-wrap items-center gap-2">
+                  <button
+                    type="button"
+                    class="px-3 py-2 rounded-lg text-sm font-medium border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors disabled:opacity-50 inline-flex items-center gap-2"
+                    :disabled="televersementEnCours !== null"
+                    @click="fichierBanniere?.click()"
+                  >
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M7 16a4 4 0 01-.88-7.9A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                    </svg>
+                    {{ televersementEnCours === 'ImageEvenement' ? 'Envoi…' : 'Téléverser une image' }}
+                  </button>
+
+                  <button
+                    v-if="form.ImageEvenement"
+                    type="button"
+                    class="px-3 py-2 rounded-lg text-sm border border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors"
+                    :disabled="televersementEnCours !== null"
+                    @click="retirerImage('ImageEvenement')"
+                  >
+                    Retirer
+                  </button>
+
+                  <input
+                    ref="fichierBanniere"
+                    type="file"
+                    accept="image/*"
+                    class="hidden"
+                    @change="onChoisirImage($event, 'ImageEvenement')"
+                  />
+                </div>
+
+                <input
+                  v-model="form.ImageEvenement"
+                  type="text"
+                  class="form-input mt-2 text-xs"
+                  placeholder="…ou colle l'adresse d'une image hébergée ailleurs"
+                />
+
+                <img
+                  v-if="form.ImageEvenement"
+                  :src="form.ImageEvenement"
+                  alt="Aperçu de l'image de l'événement"
+                  class="h-32 w-auto rounded-lg border border-gray-200 dark:border-gray-700 mt-2"
+                  @error="handleImageError"
+                />
               </div>
             </div>
 
@@ -1400,6 +1505,77 @@ const getStatusClass = (status: string): string => {
     cancelled: "bg-red-100 text-red-800",
   };
   return classes[status] || "bg-gray-100 text-gray-800";
+};
+
+// ============================================================================
+// Televersement des images de l'evenement
+// ============================================================================
+//
+// Avant, il fallait deposer le fichier dans le stockage par un autre chemin,
+// puis revenir coller l'adresse a la main. Le bouton fait les deux.
+//
+// La compression a lieu dans le navigateur, AVANT l'envoi : une photo de
+// telephone de 5 Mo part a quelques centaines de Ko. C'est ce qui protege
+// l'espace du forfait et la bande passante des visiteurs.
+//
+// Le champ d'adresse reste visible : une image hebergee ailleurs se colle
+// toujours, et voir l'URL permet de verifier ce qui est reellement enregistre.
+
+const { televerserImage, formaterPoids } = useImageUpload();
+
+const fichierBanniere = ref<HTMLInputElement | null>(null);
+const fichierAvatar = ref<HTMLInputElement | null>(null);
+
+/** Quel champ est en cours d'envoi — sert a desactiver les boutons. */
+const televersementEnCours = ref<'ImageEvenement' | 'avatarAnimateur' | null>(null);
+
+/**
+ * Reglages de compression, par usage.
+ *
+ * Une banniere s'affiche large ; un avatar ne depasse jamais quelques dizaines
+ * de pixels. Compresser les deux pareil gaspillerait de l'espace pour rien.
+ */
+const REGLAGES_IMAGE = {
+  ImageEvenement: { dimensionMax: 1600, qualite: 0.82 },
+  avatarAnimateur: { dimensionMax: 512, qualite: 0.82 },
+} as const;
+
+const onChoisirImage = async (
+  evt: Event,
+  champ: 'ImageEvenement' | 'avatarAnimateur'
+) => {
+  const input = evt.target as HTMLInputElement;
+  const fichier = input.files?.[0];
+  if (!fichier) return;
+
+  const poidsAvant = fichier.size;
+  televersementEnCours.value = champ;
+
+  try {
+    const url = await televerserImage(fichier, REGLAGES_IMAGE[champ]);
+    form.value[champ] = url;
+    showMessage(`Image envoyée (${formaterPoids(poidsAvant)} à l'origine)`, 'success');
+  } catch (erreur: any) {
+    console.error('Erreur de televersement :', erreur);
+    showMessage(erreur?.data?.message || "Échec de l'envoi de l'image", 'error');
+  } finally {
+    televersementEnCours.value = null;
+    // Sans cette remise a zero, rechoisir LE MEME fichier ne declencherait
+    // aucun evenement « change » et le bouton semblerait mort.
+    input.value = '';
+  }
+};
+
+/**
+ * Retire l'image du formulaire.
+ *
+ * Le fichier n'est pas supprime ici : tant que l'evenement n'est pas
+ * enregistre, rien n'est acquis, et effacer tout de suite rendrait un
+ * changement d'avis destructeur. Le menage du stockage se fait cote serveur,
+ * apres l'enregistrement, quand l'ancienne adresse n'est plus referencee.
+ */
+const retirerImage = (champ: 'ImageEvenement' | 'avatarAnimateur') => {
+  form.value[champ] = '';
 };
 
 const handleImageError = (event: Event) => {

@@ -7,6 +7,7 @@ import { defineEventHandler, getRouterParam, createError } from 'h3';
 import { db } from '~/server/utils/db';
 import { evenements } from '~/server/utils/schema';
 import { eq } from 'drizzle-orm';
+import { deleteBlobIfUnused } from '~/server/utils/blob';
 
 export default defineEventHandler(async (event) => {
   try {
@@ -25,6 +26,16 @@ export default defineEventHandler(async (event) => {
       throw createError({ statusCode: 404, message: 'Event not found' });
     }
     
+    // Les images de l'evenement supprime n'ont plus aucun lien vers elles.
+    // Sans ce menage, elles resteraient dans le stockage indefiniment : plus
+    // aucun moyen de les retrouver, et pourtant elles occuperaient toujours
+    // l'espace du forfait.
+    //
+    // Apres la suppression, jamais avant : la verification « encore utilisee
+    // ailleurs ? » doit voir la base telle qu'elle est desormais.
+    await deleteBlobIfUnused(deleted.ImageEvenement, `evenement ${id} supprime — image`);
+    await deleteBlobIfUnused(deleted.avatarAnimateur, `evenement ${id} supprime — avatar`);
+
     return { message: 'Event deleted', id };
     
   } catch (error) {

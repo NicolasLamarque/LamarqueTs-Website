@@ -7,6 +7,7 @@ import { defineEventHandler, getRouterParam, readBody, createError } from 'h3';
 import { db } from '~/server/utils/db';
 import { evenements } from '~/server/utils/schema';
 import { eq } from 'drizzle-orm';
+import { deleteBlobIfUnused } from '~/server/utils/blob';
 
 export default defineEventHandler(async (event) => {
   try {
@@ -33,6 +34,32 @@ export default defineEventHandler(async (event) => {
     if (body.location !== undefined) updates.location = body.location;
     if (body.status !== undefined) updates.status = body.status;
     if (body.allDay !== undefined) updates.allDay = body.allDay;
+
+    // ------------------------------------------------------------------
+    // Champs descriptifs et visuels.
+    //
+    // Aucun d'entre eux n'etait traite ici : le formulaire les envoyait, la
+    // route les recevait, et l'enregistrement les laissait tomber sans le
+    // moindre message. Modifier la categorie, l'auteur, les mots-cles, le
+    // lien, l'icone ou l'image d'un evenement existant etait donc impossible.
+    //
+    // Le « !== undefined » compte : il distingue « ce champ n'a pas ete
+    // envoye » de « ce champ a ete vide volontairement ». Sans lui, effacer
+    // une image serait ignore.
+    // ------------------------------------------------------------------
+    if (body.AuthorEvenement !== undefined) updates.AuthorEvenement = body.AuthorEvenement || null;
+    if (body.CategoryEvenement !== undefined) updates.CategoryEvenement = body.CategoryEvenement || null;
+    if (body.TagsEvenement !== undefined) updates.TagsEvenement = body.TagsEvenement || null;
+    if (body.nomAnimateur !== undefined) updates.nomAnimateur = body.nomAnimateur || null;
+    if (body.ImageEvenement !== undefined) updates.ImageEvenement = body.ImageEvenement || null;
+    if (body.avatarAnimateur !== undefined) updates.avatarAnimateur = body.avatarAnimateur || null;
+
+    // Meme piege de nommage qu'a la creation : la propriete du schema est
+    // Link, pas link, et iconEvenement, pas icon.
+    const lienRecu = body.link ?? body.Link;
+    if (lienRecu !== undefined) updates.Link = lienRecu || null;
+    const iconeRecue = body.icon ?? body.iconEvenement;
+    if (iconeRecue !== undefined) updates.iconEvenement = iconeRecue || null;
 
     if (currentEvent.isRecurrent) {
       // 🔥 Événement récurrent
@@ -98,6 +125,21 @@ export default defineEventHandler(async (event) => {
       .set(updates)
       .where(eq(evenements.id, id))
       .returning();
+
+    // Menage du stockage : si une image a ete remplacee, l'ancienne n'est
+    // plus referencee nulle part et occuperait l'espace du forfait pour
+    // toujours. On nettoie APRES l'ecriture, pour que la verification
+    // « encore utilisee ailleurs ? » porte sur l'etat reel de la base.
+    // deleteBlobIfUnused ne leve jamais d'exception : un echec de menage ne
+    // doit pas faire echouer la modification.
+    for (const [ancienne, nouvelle, quoi] of [
+      [currentEvent.ImageEvenement, updated?.ImageEvenement, 'image'],
+      [currentEvent.avatarAnimateur, updated?.avatarAnimateur, 'avatar'],
+    ] as const) {
+      if (ancienne && ancienne !== nouvelle) {
+        await deleteBlobIfUnused(ancienne, `evenement ${id} — ancienne ${quoi}`);
+      }
+    }
 
     console.log('Updated event:', updated);
     return { evenement: updated };

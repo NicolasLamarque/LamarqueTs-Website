@@ -35,8 +35,18 @@ export default defineEventHandler(async (event) => {
       CategoryEvenement: body.CategoryEvenement || null,
       ImageEvenement: body.ImageEvenement || null,
       TagsEvenement: body.TagsEvenement || null,
-      link: body.link || null,
-      icon: body.icon || null,
+
+      // Ces trois-la etaient perdues silencieusement.
+      //
+      // « link » et « icon » ne correspondent a aucune propriete du schema :
+      // les colonnes s'appellent Link et iconEvenement. Drizzle ignore sans
+      // broncher une cle qu'il ne reconnait pas, donc le lien et l'icone
+      // partaient a chaque creation sans qu'aucune erreur ne le signale.
+      // « avatarAnimateur », lui, n'etait tout simplement pas recopie.
+      Link: body.link ?? body.Link ?? null,
+      iconEvenement: body.icon ?? body.iconEvenement ?? null,
+      avatarAnimateur: body.avatarAnimateur || null,
+      nomAnimateur: body.nomAnimateur || null,
       color: body.color || '#3b82f6',
       location: body.location || null,
       status: body.status || 'confirmed',
