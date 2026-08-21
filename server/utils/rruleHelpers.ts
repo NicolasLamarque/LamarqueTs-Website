@@ -225,13 +225,23 @@ export function validateRRule(rrule: string): {
   };
 }
 
+import {
+  genererOccurrences,
+  derniereOccurrence,
+  rangOccurrence,
+  versDateISO,
+} from './rruleOccurrences';
+
 /**
- * Calcule la date de fin suggérée basée sur COUNT
- * @param dateDebut - Date de début (YYYY-MM-DD)
- * @param frequency - Fréquence (daily, weekly, monthly, yearly)
- * @param count - Nombre d'occurrences
- * @param interval - Intervalle (défaut: 1)
- * @returns Date de fin au format YYYY-MM-DD
+ * Calcule la date de la DERNIÈRE occurrence.
+ *
+ * L'ancienne implémentation ajoutait `count × interval` périodes à la date de
+ * début. Huit séances hebdomadaires, c'est sept semaines après la première :
+ * la date annoncée était donc systématiquement décalée d'une période, et
+ * BYDAY n'était pas pris en compte du tout.
+ *
+ * Le calcul est désormais délégué au moteur d'occurrences, qui applique la
+ * norme RFC 5545 via la bibliothèque `rrule`.
  */
 export function calculateEndDate(
   dateDebut: string,
@@ -239,25 +249,29 @@ export function calculateEndDate(
   count: number,
   interval: number = 1
 ): string {
-  const start = new Date(dateDebut);
-  const multiplier = count * interval;
-  
-  switch (frequency.toLowerCase()) {
-    case 'daily':
-      start.setDate(start.getDate() + multiplier);
-      break;
-    case 'weekly':
-      start.setDate(start.getDate() + (multiplier * 7));
-      break;
-    case 'monthly':
-      start.setMonth(start.getMonth() + multiplier);
-      break;
-    case 'yearly':
-      start.setFullYear(start.getFullYear() + multiplier);
-      break;
-  }
-  
-  return start.toISOString().split('T')[0];
+  const rrule = `FREQ=${frequency.toUpperCase()};INTERVAL=${interval};COUNT=${count}`;
+  return derniereOccurrence(rrule, dateDebut);
+}
+
+/** Identique à calculateEndDate — conservée pour les appels existants. */
+export function calculateEndDateToIsoString(
+  dateDebut: string | Date,
+  frequency: string,
+  count: number,
+  interval: number = 1
+): string {
+  const rrule = `FREQ=${frequency.toUpperCase()};INTERVAL=${interval};COUNT=${count}`;
+  return derniereOccurrence(rrule, dateDebut);
+}
+
+/**
+ * Normalise une date en YYYY-MM-DD, sans décalage de fuseau.
+ *
+ * L'ancienne version passait par toISOString(), qui convertit en UTC : une
+ * date locale du 12 novembre ressortait au 11 novembre en heure du Québec.
+ */
+export function toIsoDateString(date: string | Date): string {
+  return versDateISO(date);
 }
 
 /**
@@ -274,186 +288,89 @@ export function getFrequencyLabel(freq: string): string {
 }
 
 /**
- * Obtient une description complète de la récurrence
+ * Description courte de la récurrence, à partir de la règle seule.
  */
 export function getRecurrenceDescription(rrule: string | null): string {
   if (!rrule) return '';
-  
+
   const parsed = parseRRule(rrule);
   if (!parsed.freq) return '';
-  
+
   let desc = getFrequencyLabel(parsed.freq);
-  
+
   if (parsed.interval && parsed.interval > 1) {
     desc += ` (tous les ${parsed.interval})`;
   }
-  
   if (parsed.count) {
     desc += `, ${parsed.count} fois`;
   } else if (parsed.until) {
-    const until = new Date(parsed.until);
-    desc += `, jusqu'au ${until.toLocaleDateString('fr-FR')}`;
+    desc += `, jusqu'au ${new Date(parsed.until).toLocaleDateString('fr-CA')}`;
   }
-  
   if (parsed.byweekday && parsed.byweekday.length > 0) {
     desc += ` (${parsed.byweekday.join(', ')})`;
   }
-  
   return desc;
 }
 
 /**
- * Calcule la date de fin d'un événement récurrent et renvoie une ISO string normalisée (YYYY-MM-DD)
- * @param dateDebut - Date de début (string ou Date)
- * @param frequency - Fréquence (daily, weekly, monthly, yearly)
- * @param count - Nombre d'occurrences
- * @param interval - Intervalle (défaut 1)
- * @returns Date de fin en string ISO YYYY-MM-DD
+ * Texte affiché quand on clique sur une séance précise.
+ *
+ * L'ancienne version reconstruisait la liste des dates avec la formule
+ * fautive : la première séance n'y figurait pas, et le rang affiché commençait
+ * donc à zéro (« 0ᵉ séance »). Le rang vient maintenant du moteur.
  */
-export function calculateEndDateToIsoString(
-  dateDebut: string | Date,
-  frequency: string,
-  count: number,
-  interval: number = 1
-): string {
-  const start = typeof dateDebut === 'string' ? new Date(dateDebut) : new Date(dateDebut.getTime());
-  const multiplier = count * interval;
-
-  switch (frequency.toLowerCase()) {
-    case 'daily':
-      start.setDate(start.getDate() + multiplier);
-      break;
-    case 'weekly':
-      start.setDate(start.getDate() + multiplier * 7);
-      break;
-    case 'monthly':
-      start.setMonth(start.getMonth() + multiplier);
-      break;
-    case 'yearly':
-      start.setFullYear(start.getFullYear() + multiplier);
-      break;
-  }
-
-  // Retourne YYYY-MM-DD
-  return start.toISOString().split('T')[0];
-}
-
-/**
- * Normalise une date (string ISO ou Date) en string YYYY-MM-DD
- * @param date - string ISO (ex: 2025-10-30T09:00:00) ou Date
- * @returns YYYY-MM-DD
- */
-export function toIsoDateString(date: string | Date): string {
-  const Madate = typeof date === 'string' ? new Date(date) : date;
-  if (isNaN(Madate.getTime())) return ''; // date invalide
-  return Madate.toISOString().split('T')[0];
-}
-
-
-
-//  Génère une description textuelle pour un événement récurrent
-
 export function formatRecurrentEventDisplay(event: any, clickedDate: Date | string): string {
-  if (!event.rrule) return '';
+  if (!event?.rrule) return '';
 
-  const parsed = parseRRule(event.rrule);
+  const rang = rangOccurrence(event.rrule, event.dateDebut, clickedDate, event.exdate);
+  const dates = genererOccurrences(event.rrule, event.dateDebut, event.exdate);
+  if (!dates.length) return '';
 
-  const startDateStr = toIsoDateString(event.dateDebut!);
-  const clickDateStr = toIsoDateString(clickedDate);
-
-  const occurrences: string[] = [];
-  if (parsed.count && parsed.freq) {
-    for (let i = 0; i < parsed.count; i++) {
-      const d = calculateEndDateToIsoString(startDateStr, parsed.freq, i + 1, parsed.interval || 1);
-      occurrences.push(d);
-    }
-  } else if (parsed.until) {
-    const start = new Date(startDateStr);
-    const end = new Date(parsed.until);
-    let current = new Date(start);
-    while (current <= end) {
-      occurrences.push(toIsoDateString(current));
-      switch (parsed.freq) {
-        case 'daily': current.setDate(current.getDate() + (parsed.interval || 1)); break;
-        case 'weekly': current.setDate(current.getDate() + 7 * (parsed.interval || 1)); break;
-        case 'monthly': current.setMonth(current.getMonth() + (parsed.interval || 1)); break;
-        case 'yearly': current.setFullYear(current.getFullYear() + (parsed.interval || 1)); break;
-      }
-    }
-  } else {
-    occurrences.push(startDateStr);
-  }
-
-  const sessionIndex = occurrences.findIndex(d => d === clickDateStr) + 1;
-  const name = event.titleEvenement || 'Groupe';
-  const freqLabel = parsed.freq ? parsed.freq.charAt(0).toUpperCase() + parsed.freq.slice(1).toLowerCase() : '';
-  const totalSessions = parsed.count || occurrences.length;
-  const endDateStr = parsed.count
-    ? calculateEndDateToIsoString(startDateStr, parsed.freq!, parsed.count, parsed.interval || 1)
-    : parsed.until
-      ? toIsoDateString(parsed.until)
-      : startDateStr;
-  const timeRange = event.allDay
-    ? 'Toute la journée'
+  const nom = event.titleEvenement || 'Groupe';
+  const total = dates.length;
+  const debut = versDateISO(dates[0]);
+  const fin = versDateISO(dates[dates.length - 1]);
+  const horaire = event.allDay
+    ? 'toute la journée'
     : `${event.heureDebut || '--'} → ${event.heureFin || '--'}`;
-  const ordinal = (n: number) => n === 1 ? '1ʳᵉ' : `${n}ᵉ`;
 
-  return `${ordinal(sessionIndex)} séance du ${name} tenue ${freqLabel} pendant ${totalSessions} fois. À partir du : ${startDateStr} Au : ${endDateStr} Heure : ${timeRange}`;
-};
+  const ordinal = (n: number) => (n === 1 ? '1ʳᵉ' : `${n}ᵉ`);
+  const position = rang > 0 ? `${ordinal(rang)} séance sur ${total}` : `Séance du ${nom}`;
+
+  return `${position} — ${nom}. Du ${debut} au ${fin}. Horaire : ${horaire}.`;
+}
 
 /**
- * Génère une description lisible et naturelle d’un événement (simple ou récurrent)
- * en combinant la RRule et les champs de la DB.
+ * Description lisible d'un événement, simple ou récurrent.
  */
 export function describeEvenement(event: any): string {
-  if (!event) return "";
+  if (!event) return '';
 
-  const { rrule, allDay, heureDebut, heureFin, dateDebut } = event;
+  const { rrule, allDay, heureDebut, heureFin, dateDebut, exdate } = event;
+
+  const formatDate = (d: string | Date) => {
+    const iso = versDateISO(d);
+    if (!iso) return '';
+    const [a, m, j] = iso.split('-').map(Number);
+    return new Date(a, m - 1, j).toLocaleDateString('fr-CA', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    });
+  };
+
+  const horaire = allDay ? 'toute la journée' : `${heureDebut || '--'} → ${heureFin || '--'}`;
   const parsed = rrule ? parseRRule(rrule) : null;
 
-  // Format de date locale
-  const formatDate = (d: string | Date) =>
-    new Date(d).toLocaleDateString("fr-CA", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
-
-  // Horaire
-  const horaire = allDay
-    ? "toute la journée"
-    : `${heureDebut || "--"} → ${heureFin || "--"}`;
-
-  // Événement non récurrent
   if (!parsed || !parsed.freq) {
     return `Activité prévue le ${formatDate(dateDebut)}. Horaire : ${horaire}.`;
   }
 
-  // Événement récurrent
-  const freqLabel = getFrequencyLabel(parsed.freq);
-  const startStr = formatDate(parsed.dtstart || dateDebut);
-  let endStr = "";
+  const dates = genererOccurrences(rrule, dateDebut, exdate);
+  const total = dates.length;
+  const debut = dates.length ? formatDate(dates[0]) : formatDate(dateDebut);
+  const fin = dates.length ? formatDate(dates[dates.length - 1]) : debut;
+  const seances = `${total} séance${total > 1 ? 's' : ''}`;
 
-  // Calcul de la fin
-  if (parsed.count && parsed.freq) {
-    const endDateIso = calculateEndDateToIsoString(
-      dateDebut,
-      parsed.freq,
-      parsed.count,
-      parsed.interval || 1
-    );
-    endStr = formatDate(endDateIso);
-  } else if (parsed.until) {
-    endStr = formatDate(parsed.until);
-  } else {
-    endStr = startStr;
-  }
-
-  // Nombre de séances
-  const nbSessions = parsed.count
-    ? `${parsed.count} séance${parsed.count > 1 ? "s" : ""}`
-    : "plusieurs séances";
-
-  // Phrase finale
-  return `Activité ${freqLabel.toLowerCase()} pendant ${nbSessions}. Du ${startStr} au ${endStr}. Horaire : ${horaire}.`;
-};
+  return `Activité ${getFrequencyLabel(parsed.freq).toLowerCase()} pendant ${seances}. Du ${debut} au ${fin}. Horaire : ${horaire}.`;
+}
