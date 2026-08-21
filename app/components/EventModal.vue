@@ -9,70 +9,70 @@
         class="relative w-full max-w-4xl mx-auto shadow-2xl rounded-3xl bg-white dark:bg-gray-900 transform transition-all duration-300 overflow-hidden max-h-[90vh] flex flex-col"
         :class="themeClass"
       >
-        <div class="relative h-72 flex-shrink-0 overflow-hidden">
-          <div class="absolute inset-0">
-            <img 
-              v-if="event?.ImageEvenement"
-              :src="event.ImageEvenement"
-              :alt="event.titleEvenement"
-              class="w-full h-full object-cover"
-            />
-            <div
-              v-else
-              class="w-full h-full bg-gradient-to-br from-sky-400 via-blue-500 to-indigo-600 flex items-center justify-center"
-            >
-              <font-awesome-icon
-                :icon="event?.iconEvenement || 'calendar'"
-                class="text-white/30 text-8xl"
-              />
+        <!-- En-tete
+             La zone image faisait 288 px de haut et affichait un degrade vide
+             quand aucune image n'etait renseignee — la moitie de l'ecran pour
+             ne rien montrer. Elle n'apparait plus que s'il y a une image, et
+             le titre remonte en haut. -->
+        <div v-if="event?.ImageEvenement" class="relative h-44 flex-shrink-0 overflow-hidden">
+          <img
+            :src="event.ImageEvenement"
+            :alt="event.titleEvenement"
+            class="w-full h-full object-cover"
+          />
+        </div>
+
+        <div class="flex items-start justify-between gap-4 px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
+          <div class="min-w-0">
+            <h2 class="text-lg sm:text-xl font-bold text-gray-800 dark:text-gray-100 leading-tight">
+              {{ event?.titleEvenement || 'Événement sans titre' }}
+            </h2>
+
+            <!-- Etiquettes : la categorie n'apparait qu'une fois. Elle etait
+                 affichee deux fois — une version claire, une version en
+                 degrade rose — ce qui donnait a lire deux fois la meme chose. -->
+            <div class="flex flex-wrap items-center gap-1.5 mt-2">
+              <span
+                v-if="event?.CategoryEvenement"
+                class="px-2 py-0.5 rounded text-xs font-medium bg-sky-100 dark:bg-sky-900/40 text-sky-800 dark:text-sky-300"
+              >
+                {{ event.CategoryEvenement }}
+              </span>
+
+              <span
+                v-if="isRecurrentEvent"
+                class="px-2 py-0.5 rounded text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300"
+              >
+                Série
+              </span>
+
+              <span
+                v-if="event?.status"
+                class="px-2 py-0.5 rounded text-xs font-medium"
+                :class="getStatusClass(event.status)"
+              >
+                {{ getStatusLabel(event.status) }}
+              </span>
             </div>
-            <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent"></div>
           </div>
 
           <button
             @click="close"
-            class="absolute top-6 right-6 w-11 h-11 bg-white/10 backdrop-blur-md border border-white/20 rounded-xl shadow-lg flex items-center justify-center hover:bg-white/20 transition-all duration-200 group"
+            class="p-2 -mr-2 rounded-lg text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors flex-shrink-0"
+            aria-label="Fermer"
           >
-            <font-awesome-icon icon="xmark" class="text-white text-lg group-hover:rotate-90 transition-transform duration-300" />
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
           </button>
-
-          <div class="absolute top-6 left-6 w-16 h-16 bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl shadow-lg flex items-center justify-center">
-            <font-awesome-icon
-              :icon="event?.iconEvenement || 'calendar'"
-              class="text-white text-3xl"
-            />
-          </div>
-
-          <div class="absolute bottom-6 left-6 right-6 flex items-end justify-between">
-            <div v-if="event?.CategoryEvenement" class="flex gap-2 flex-wrap">
-              <span class="px-4 py-2 bg-white/90 backdrop-blur-sm dark:bg-gray-900/90 text-sky-600 dark:text-sky-400 text-sm font-bold rounded-xl shadow-lg border border-white/20">
-                {{ event.CategoryEvenement }}
-              </span>
-              <span v-if="isRecurrentEvent" class="px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-sm font-bold rounded-xl shadow-lg flex items-center gap-2">
-                <i class="fas fa-repeat"></i>{{ getEventTypeLabel() }}
-              </span>
-            </div>
-
-            <span 
-              v-if="event?.status"
-              class="px-4 py-2 text-sm font-bold rounded-xl shadow-lg backdrop-blur-sm border border-white/20"
-              :class="getStatusClass(event.status)"
-            >
-              {{ getStatusLabel(event.status) }}
-            </span>
-          </div>
         </div>
-
         <div class="flex-1 overflow-y-auto">
-          <div class="p-8">
-            <h2 class="text-4xl font-bold text-gray-900 dark:text-white mb-6 leading-tight">
-              {{ event?.titleEvenement || 'Événement sans titre' }}
-            </h2>
+          <div class="p-5 sm:p-6">
 
-            <div class="mb-6 p-6 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-2xl border-2 border-blue-200 dark:border-blue-800">
+            <div class="mb-6 p-6 bg-sky-50 dark:bg-sky-900/20 rounded-xl border border-sky-200 dark:border-sky-800">
               <div class="flex items-start gap-4">
-                <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center flex-shrink-0">
-                  <i class="fas fa-calendar-week text-white text-xl"></i>
+                <div class="w-12 h-12 rounded-xl bg-sky-100 dark:bg-sky-900/40 flex items-center justify-center flex-shrink-0">
+                  <i class="fas fa-calendar-week text-sky-700 dark:text-sky-300 text-lg"></i>
                 </div>
                 <div class="flex-1">
                   <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-3">
@@ -91,7 +91,7 @@
                       :key="index"
                       class="group relative p-4 rounded-xl transition-all duration-300"
                       :class="occurrence.isCurrent 
-                        ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-lg scale-105 ring-4 ring-indigo-300 dark:ring-indigo-700' 
+                        ? 'bg-sky-700 text-white' 
                         : 'bg-white/60 dark:bg-gray-800/60 text-gray-700 dark:text-gray-300 hover:bg-white/80 dark:hover:bg-gray-800/80'"
                     >
                       <div class="flex items-center justify-between">
@@ -100,7 +100,7 @@
                             class="w-10 h-10 rounded-lg flex items-center justify-center font-bold text-lg flex-shrink-0"
                             :class="occurrence.isCurrent 
                               ? 'bg-white/20 text-white' 
-                              : 'bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-blue-900/40 dark:to-indigo-900/40 text-blue-600 dark:text-blue-400'"
+                              : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300'"
                           >
                             {{ index + 1 }}
                           </div>
@@ -134,7 +134,7 @@
               </div>
             </div>
 
-            <div v-if="event?.nomAnimateur || event?.AuthorEvenement" class="flex items-center gap-4 mb-8 p-4 bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-800/50 rounded-2xl border border-gray-200 dark:border-gray-700">
+            <div v-if="event?.nomAnimateur || event?.AuthorEvenement" class="flex items-center gap-4 mb-8 p-4 bg-gray-50 dark:bg-gray-800/60 rounded-xl border border-gray-200 dark:border-gray-700">
               <div class="relative">
                 <div class="w-16 h-16 rounded-2xl overflow-hidden ring-4 ring-sky-400/20">
                   <UAvatar
@@ -143,8 +143,8 @@
                     :alt="event.nomAnimateur || event.AuthorEvenement"
                     class="w-full h-full object-cover"
                   />
-                  <div v-else class="w-full h-full bg-gradient-to-br from-sky-400 to-blue-500 flex items-center justify-center">
-                    <i class="fas fa-user text-white text-2xl"></i>
+                  <div v-else class="w-full h-full bg-sky-100 dark:bg-sky-900/40 flex items-center justify-center">
+                    <i class="fas fa-user text-sky-700 dark:text-sky-300 text-xl"></i>
                   </div>
                 </div>
                 <div class="absolute -bottom-1 -right-1 w-6 h-6 bg-green-500 rounded-full border-2 border-white dark:border-gray-800"></div>
@@ -165,13 +165,13 @@
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-              <div class="group relative overflow-hidden p-6 bg-gradient-to-br from-blue-50 to-blue-100/50 dark:from-blue-900/20 dark:to-blue-800/10 rounded-2xl border-2 border-blue-200 dark:border-blue-800 hover:shadow-xl hover:scale-[1.02] transition-all duration-300">
+              <div class="group relative overflow-hidden p-6 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
                 <div class="absolute top-0 right-0 w-32 h-32 bg-blue-400/10 rounded-full blur-3xl"></div>
                 <div class="absolute bottom-2 right-2 opacity-5 group-hover:opacity-10 transition-opacity duration-300">
                   <font-awesome-icon icon="calendar" class="text-blue-500 text-7xl" />
                 </div>
                 <div class="relative flex items-start gap-4">
-                  <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-lg group-hover:scale-110 group-hover:rotate-3 transition-transform duration-300">
+                  <div class="w-14 h-14 rounded-xl bg-sky-100 dark:bg-sky-900/40 flex items-center justify-center">
                     <font-awesome-icon icon="calendar-day" class="text-white text-xl" />
                   </div>
                   <div class="flex-1">
@@ -186,13 +186,13 @@
                 </div>
               </div>
 
-              <div class="group relative overflow-hidden p-6 bg-gradient-to-br from-purple-50 to-purple-100/50 dark:from-purple-900/20 dark:to-purple-800/10 rounded-2xl border-2 border-purple-200 dark:border-purple-800 hover:shadow-xl hover:scale-[1.02] transition-all duration-300">
+              <div class="group relative overflow-hidden p-6 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
                 <div class="absolute top-0 right-0 w-32 h-32 bg-purple-400/10 rounded-full blur-3xl"></div>
                 <div class="absolute bottom-2 right-2 opacity-5 group-hover:opacity-10 transition-opacity duration-300">
                   <font-awesome-icon icon="clock" class="text-purple-500 text-7xl" />
                 </div>
                 <div class="relative flex items-start gap-4">
-                  <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center shadow-lg group-hover:scale-110 group-hover:rotate-3 transition-transform duration-300">
+                  <div class="w-14 h-14 rounded-xl bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
                     <font-awesome-icon icon="clock" class="text-white text-xl group-hover:animate-pulse" />
                   </div>
                   <div class="flex-1">
@@ -205,13 +205,13 @@
                 </div>
               </div>
 
-              <div v-if="event?.location" class="group relative overflow-hidden p-6 bg-gradient-to-br from-green-50 to-green-100/50 dark:from-green-900/20 dark:to-green-800/10 rounded-2xl border-2 border-green-200 dark:border-green-800 hover:shadow-xl hover:scale-[1.02] transition-all duration-300 md:col-span-2">
+              <div v-if="event?.location" class="group relative overflow-hidden p-6 bg-gray-100 dark:bg-gray-700 dark:from-green-900/20 dark:to-green-800/10 rounded-2xl border-2 border-green-200 dark:border-green-800 hover:shadow-xl transition-all duration-300 md:col-span-2">
                 <div class="absolute top-0 right-0 w-32 h-32 bg-green-400/10 rounded-full blur-3xl"></div>
                 <div class="absolute bottom-2 right-2 opacity-5 group-hover:opacity-10 transition-opacity duration-300">
                   <font-awesome-icon icon="map-marked-alt" class="text-green-500 text-7xl" />
                 </div>
                 <div class="relative flex items-start gap-4">
-                  <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center shadow-lg group-hover:scale-110 group-hover:rotate-3 transition-transform duration-300">
+                  <div class="w-14 h-14 rounded-xl bg-gray-100 dark:bg-gray-700 flex items-center justify-center shadow-lg group-transition-transform duration-300">
                     <font-awesome-icon icon="map-marker-alt" class="text-white text-xl group-hover:animate-bounce" />
                   </div>
                   <div class="flex-1">
@@ -231,23 +231,45 @@
                 <span
                   v-for="tag in parseTags(event.TagsEvenement)"
                   :key="tag"
-                  class="px-4 py-2 bg-gradient-to-r from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-600 text-gray-700 dark:text-gray-200 text-sm font-semibold rounded-xl hover:scale-105 transition-transform duration-200 shadow-sm"
+                  class="px-4 py-2 bg-gray-100 dark:bg-gray-700 dark:from-gray-700 dark:to-gray-600 text-gray-700 dark:text-gray-200 text-sm font-semibold rounded-xl transition-transform duration-200 shadow-sm"
                 >
                   #{{ tag }}
                 </span>
               </div>
             </div>
 
-            <div v-if="event?.Link" class="pt-4 border-t border-gray-200 dark:border-gray-700">
+            <!-- Actions -->
+            <div class="pt-4 border-t border-gray-200 dark:border-gray-700 flex flex-wrap items-center gap-3">
+              <!-- Ajout a l'agenda personnel.
+                   Sans ce bouton, il faut recopier chaque seance a la main —
+                   la friction exacte qui fait qu'on ne le fait pas, puis qu'on
+                   oublie une rencontre. Le fichier produit est lu par Google
+                   Agenda, Apple Calendrier et Outlook. -->
               <a
+                v-if="event?.id"
+                :href="`/api/events/${event.id}/ics`"
+                download
+                class="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold bg-sky-700 hover:bg-sky-600 text-white shadow-sm transition-colors"
+              >
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                Ajouter à mon agenda
+              </a>
+
+              <a
+                v-if="event?.Link"
                 :href="event.Link"
                 target="_blank"
                 rel="noopener noreferrer"
-                class="group relative inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-sky-500 via-blue-500 to-indigo-600 text-white font-bold rounded-2xl shadow-lg hover:shadow-2xl transform hover:scale-105 transition-all duration-300 overflow-hidden"
+                class="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
               >
-                <span class="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700"></span>
-                <i class="fas fa-external-link-alt text-lg relative z-10"></i>
-                <span class="relative z-10">En savoir plus</span>
+                En savoir plus
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                </svg>
               </a>
             </div>
           </div>

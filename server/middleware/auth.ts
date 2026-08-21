@@ -73,7 +73,14 @@ const PAGES_PUBLIQUES = [
 
 export default defineEventHandler(async (event) => {
   const urlBrute = event.node.req.url || ''
-  const methode = (event.node.req.method || 'GET').toUpperCase()
+  // HEAD est traitee comme GET.
+  //
+  // Un navigateur, un robot ou un outil de diagnostic emet souvent une requete
+  // HEAD avant de telecharger : memes entetes, sans le corps. Sans cette
+  // equivalence, une route publique en lecture repondait 401 a HEAD tout en
+  // repondant 200 a GET — incoherent, et de nature a faire croire a une panne.
+  const methodeBrute = (event.node.req.method || 'GET').toUpperCase()
+  const methode = methodeBrute === 'HEAD' ? 'GET' : methodeBrute
 
   // On retire la chaîne de requête avant toute comparaison : sans ça,
   // « /api/mail?x=1 » ne correspondrait à aucune règle.
