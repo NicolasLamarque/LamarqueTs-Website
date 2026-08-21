@@ -30,14 +30,40 @@
         </div>
 
         <div class="col-span-1">
-          <label class="block font-medium mb-1">Mot de passe</label>
-          <input
-            v-model="form.password"
-            type="password"
-            class="w-full px-3 py-2 border rounded"
-            required
-            :disabled="isLoading || isUploading"
-          />
+          <label class="block font-medium mb-1">
+            Mot de passe
+            <span v-if="editMode" class="font-normal text-xs text-gray-400">
+              (laisser vide pour ne pas le changer)
+            </span>
+          </label>
+          <div class="relative">
+            <input
+              v-model="form.password"
+              :type="motDePasseVisible ? 'text' : 'password'"
+              class="w-full px-3 py-2 pr-11 border rounded"
+              :required="!editMode"
+              :disabled="isLoading || isUploading"
+            />
+            <!-- Voir ce que l'on tape : indispensable pour un mot de passe
+                 long, ou l'on ne peut pas se relire autrement. -->
+            <button
+              type="button"
+              @click="motDePasseVisible = !motDePasseVisible"
+              class="absolute inset-y-0 right-0 px-3 flex items-center text-gray-400 hover:text-gray-200 transition-colors"
+              :aria-label="motDePasseVisible ? 'Masquer le mot de passe' : 'Afficher le mot de passe'"
+              :title="motDePasseVisible ? 'Masquer' : 'Afficher'"
+            >
+              <!-- Oeil ouvert -->
+              <svg v-if="!motDePasseVisible" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+              </svg>
+              <!-- Oeil barre -->
+              <svg v-else class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+              </svg>
+            </button>
+          </div>
         </div>
 
         <div class="col-span-1">
@@ -317,6 +343,9 @@ const form = ref<{
 const editMode = ref(false)
 const isLoading = ref(false)
 const isUploading = ref(false) // NOUVEAU
+
+// Affichage en clair du mot de passe pendant la saisie.
+const motDePasseVisible = ref(false)
 const fileInput = ref<HTMLInputElement | null>(null) // NOUVEAU
 let editId: number | null = null
 const message = ref<Message | null>(null)
@@ -396,14 +425,23 @@ const submitUser = async () => {
       role: form.value.role,
       is_active: form.value.is_active,
       bio: form.value.bio,
-      profile_picture: form.value.profile_picture,
       two_factor_enabled: form.value.two_factor_enabled,
       preferences: form.value.preferences
     }
 
     if (editMode.value && editId !== null) {
+      // En modification, un champ laisse vide signifie « ne pas y toucher »,
+      // jamais « effacer ».
+      //
+      // Le mot de passe suivait deja cette regle ; la photo de profil, non :
+      // elle partait meme vide, ce qui effacait la photo existante des qu'on
+      // modifiait autre chose. Et depuis que la suppression des orphelins est
+      // automatique, cela aurait detruit le fichier lui-meme.
       if (form.value.password) {
         userData.password = form.value.password
+      }
+      if (form.value.profile_picture) {
+        userData.profile_picture = form.value.profile_picture
       }
 
       await $fetch(`/api/users/${editId}`, {
@@ -412,7 +450,9 @@ const submitUser = async () => {
       })
       showMessage('Utilisateur modifié avec succès !', 'success')
     } else {
+      // A la creation, rien a preserver : on envoie les valeurs telles quelles.
       userData.password = form.value.password
+      userData.profile_picture = form.value.profile_picture
 
       await $fetch('/api/users', {
         method: 'POST',

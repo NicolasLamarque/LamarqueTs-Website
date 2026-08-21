@@ -42,12 +42,28 @@ export async function getAllUsers() {
 // 🔍 Récupérer un utilisateur par ID
 export async function getUserById(id: number) {
   const [user] = await db
+    // Selection complete, volontairement.
+    //
+    // Cette fonction ne renvoyait que cinq colonnes. Le nettoyage des photos
+    // orphelines lisait donc `profile_picture` sur un objet qui ne la contenait
+    // pas : la valeur etait toujours undefined, et aucune ancienne photo n'a
+    // jamais ete supprimee. Un bug silencieux — la fonctionnalite semblait
+    // marcher, elle ne faisait rien.
+    //
+    // Le mot de passe reste evidemment exclu.
     .select({
       id: users.id,
       username: users.username,
       mail: users.mail,
       role: users.role,
       is_active: users.is_active,
+      bio: users.bio,
+      profile_picture: users.profile_picture,
+      two_factor_enabled: users.two_factor_enabled,
+      preferences: users.preferences,
+      created_at: users.created_at,
+      updated_at: users.updated_at,
+      last_login: users.last_login,
     })
     .from(users)
     .where(eq(users.id, id))
