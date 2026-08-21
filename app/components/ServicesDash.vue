@@ -1,21 +1,39 @@
 <template>
-  <div class="p-6 bg-gray-50 dark:bg-gray-900 min-h-screen">
-    <div class="max-w-7xl mx-auto">
+  <div class="p-4 sm:p-6 space-y-5">
+    <div class="max-w-7xl mx-auto space-y-5">
       <!-- En-tête -->
-      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 mb-6">
-        <div class="flex items-center gap-3">
-          <i class="fas fa-calendar-alt text-blue-500 text-2xl"></i>
-          <h2 class="text-2xl font-bold text-gray-800 dark:text-white">
-            Gestion des Services
-          </h2>
-        </div>
+      <div>
+        <h2 class="text-xl sm:text-2xl font-bold text-gray-800 dark:text-gray-100">Services</h2>
+        <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Prestations présentées sur le site</p>
       </div>
 
-      <!-- Formulaire -->
-      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 mb-6">
-        <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-4">
-          {{ isEditing ? 'Modifier le service' : 'Ajouter un service' }}
-        </h3>
+      <!-- Formulaire
+           Bandeau de mode et bordure gauche, comme dans les autres onglets :
+           rien n'indiquait qu'on modifiait un service existant. -->
+      <div
+        class="bg-white dark:bg-gray-800 rounded-xl border shadow-sm border-l-4 transition-colors"
+        :class="isEditing
+          ? 'border-gray-200 dark:border-gray-700 border-l-sky-600 dark:border-l-sky-500'
+          : 'border-gray-200 dark:border-gray-700 border-l-gray-300 dark:border-l-gray-600'"
+      >
+        <div class="flex flex-wrap items-center justify-between gap-2 px-5 py-3 border-b border-gray-200 dark:border-gray-700">
+          <div>
+            <h3 class="font-semibold text-gray-800 dark:text-gray-100">
+              {{ isEditing ? 'Modification en cours' : 'Nouveau service' }}
+            </h3>
+            <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+              {{ isEditing
+                ? 'Les modifications remplacent la version affichée sur le site.'
+                : 'Le service apparaîtra sur le site une fois enregistré.' }}
+            </p>
+          </div>
+          <button v-if="isEditing" type="button" @click="cancelEdit"
+            class="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 underline underline-offset-2">
+            Annuler la modification
+          </button>
+        </div>
+
+        <div class="p-5">
 
         <!-- Onglets -->
         <div class="flex border-b border-gray-200 dark:border-gray-700 mb-6">
@@ -196,29 +214,24 @@
               v-if="isEditing"
               @click="cancelEdit"
               type="button"
-              class="px-5 py-2.5 text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
+              class="px-4 py-2 rounded-lg text-sm font-medium border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
             >
               Annuler
             </button>
             <button
               @click="saveService"
               type="button"
-              class="flex items-center gap-2 px-5 py-2.5 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors shadow-sm"
+              class="px-5 py-2 rounded-lg text-sm font-semibold bg-sky-700 hover:bg-sky-600 text-white shadow-sm transition-colors"
             >
-              <i class="fas fa-save"></i>
-              {{ isEditing ? 'Sauvegarder' : 'Ajouter' }}
+              {{ isEditing ? 'Enregistrer les modifications' : 'Créer le service' }}
             </button>
           </div>
         </div>
+        </div>
       </div>
 
-      <!-- Table des services -->
-      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm">
-        <div class="p-6">
-          <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-4">
-            Liste des services
-          </h3>
-        </div>
+      <!-- Liste des services -->
+      <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden">
 
         <div v-if="loading" class="text-center py-12 text-gray-500 dark:text-gray-400">
           Chargement des services...
@@ -229,50 +242,50 @@
         </div>
 
         <div v-else class="overflow-x-auto">
-          <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-            <thead class="bg-gray-50 dark:bg-gray-900">
+          <table class="min-w-full text-sm">
+            <thead>
               <tr>
-                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
+                <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
                   Titre
                 </th>
-                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
+                <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
                   Description
                 </th>
-                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
+                <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
                   Tags
                 </th>
-                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
+                <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
                   Couleur
                 </th>
-                <th class="px-6 py-4 text-right text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
+                <th class="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
                   Actions
                 </th>
               </tr>
             </thead>
-            <tbody class="bg-white divide-y divide-gray-200 dark:bg-gray-800 dark:divide-gray-700">
-              <tr v-for="service in services" :key="service.id" class="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
-                <td class="px-6 py-4 whitespace-nowrap">
+            <tbody>
+              <tr v-for="service in services" :key="service.id" class="border-b border-gray-100 dark:border-gray-700 last:border-0 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+                <td class="px-4 py-3 whitespace-nowrap">
                   <div class="text-sm font-medium text-gray-900 dark:text-gray-100">
                     {{ service.title }}
                   </div>
                 </td>
-                <td class="px-6 py-4">
+                <td class="px-4 py-3">
                   <div class="text-sm text-gray-600 dark:text-gray-300 max-w-xs truncate">
                     {{ service.description }}
                   </div>
                 </td>
-                <td class="px-6 py-4">
+                <td class="px-4 py-3">
                   <div class="flex flex-wrap gap-1">
                     <span 
                       v-for="(tag, idx) in service.tags?.split(',').slice(0, 3)" 
                       :key="idx"
-                      class="px-2 py-1 text-xs bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300 rounded"
+                      class="px-2 py-0.5 text-xs rounded bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300"
                     >
                       {{ tag.trim() }}
                     </span>
                   </div>
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap">
+                <td class="px-4 py-3 whitespace-nowrap">
                   <div class="flex items-center gap-2">
                     <div 
                       class="w-6 h-6 rounded border border-gray-300 dark:border-gray-600"
@@ -283,28 +296,30 @@
                     </span>
                   </div>
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                  <button 
-                    @click="viewService(service)"
-                    class="text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-200 mr-4"
-                  >
-                    <i class="fas fa-eye mr-1"></i>
-                    Voir
-                  </button>
-                  <button 
-                    @click="editService(service)"
-                    class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-200 mr-4"
-                  >
-                    <i class="fas fa-edit mr-1"></i>
-                    Modifier
-                  </button>
-                  <button 
-                    @click="deleteService(service.id)"
-                    class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-200"
-                  >
-                    <i class="fas fa-trash mr-1"></i>
-                    Supprimer
-                  </button>
+                <td class="px-4 py-3">
+                  <!-- Meme disposition que dans les autres onglets :
+                       « Supprimer » ecarte des deux autres et sans bordure,
+                       pour ne pas etre clique par reflexe. -->
+                  <div class="flex items-center justify-end gap-1">
+                    <button
+                      @click="editService(service)"
+                      class="px-3 py-1.5 rounded-lg text-xs font-medium border border-sky-200 dark:border-sky-800 text-sky-700 dark:text-sky-300 hover:bg-sky-50 dark:hover:bg-sky-900/30 transition-colors"
+                    >
+                      Modifier
+                    </button>
+                    <button
+                      @click="viewService(service)"
+                      class="px-3 py-1.5 rounded-lg text-xs font-medium border border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                    >
+                      Voir
+                    </button>
+                    <button
+                      @click="deleteService(service.id)"
+                      class="ml-3 px-3 py-1.5 rounded-lg text-xs font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors"
+                    >
+                      Supprimer
+                    </button>
+                  </div>
                 </td>
               </tr>
             </tbody>
