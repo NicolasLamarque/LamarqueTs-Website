@@ -1,29 +1,23 @@
 <template>
-  <div class="p-6 bg-gray-50 dark:bg-gray-900 min-h-screen">
-    <div class="max-w-7xl mx-auto">
-      <!-- En-tête -->
-      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 mb-6">
-        <div class="flex items-center justify-between">
-          <div class="flex items-center gap-3">
-            <i class="fas fa-database text-green-500 text-2xl"></i>
-            <div>
-              <h2 class="text-2xl font-bold text-gray-800 dark:text-white">
-                Monitoring Supabase
-              </h2>
-              <p class="text-sm text-gray-500 dark:text-gray-400">
-                Vue d'ensemble de votre base de données
-              </p>
-            </div>
-          </div>
-          <button
-            @click="refreshAll"
-            :disabled="loading"
-            class="flex items-center gap-2 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors disabled:opacity-50"
-          >
-            <i :class="['fas fa-sync', { 'fa-spin': loading }]"></i>
-            Actualiser
-          </button>
+  <div class="p-4 sm:p-6 space-y-5">
+      <!-- En-tête : meme forme que les autres onglets, titre a gauche et
+           action a droite. -->
+      <div class="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h2 class="text-xl sm:text-2xl font-bold text-gray-800 dark:text-gray-100">
+            Base de données
+          </h2>
+          <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
+            Tables, volumétrie et occupation
+          </p>
         </div>
+        <button
+          @click="refreshAll"
+          :disabled="loading"
+          class="px-4 py-2 rounded-lg text-sm font-semibold border border-sky-200 dark:border-sky-700 text-sky-700 dark:text-sky-300 hover:bg-sky-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50"
+        >
+          {{ loading ? 'Chargement…' : 'Actualiser' }}
+        </button>
       </div>
 
       <!-- Messages -->
@@ -38,86 +32,45 @@
       </div>
 
       <!-- Statistiques globales -->
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
-          <div class="flex items-center justify-between">
-            <div>
-              <p class="text-sm text-gray-500 dark:text-gray-400 mb-1">
-                Tables totales
-              </p>
-              <p class="text-3xl font-bold text-gray-900 dark:text-white">
-                {{ stats.totalTables }}
-              </p>
-            </div>
-            <div class="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center">
-              <i class="fas fa-table text-blue-500 text-xl"></i>
-            </div>
-          </div>
+      <!-- Chiffres cles
+           Meme traitement que dans l'onglet Audit : la valeur porte
+           l'information, pas la pastille de couleur qui l'accompagnait. -->
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        <div class="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700 shadow-sm">
+          <p class="text-xs text-gray-500 dark:text-gray-400">Tables</p>
+          <p class="text-2xl font-bold tabular-nums mt-1 text-gray-800 dark:text-gray-100">{{ stats.totalTables }}</p>
         </div>
 
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
-          <div class="flex items-center justify-between">
-            <div>
-              <p class="text-sm text-gray-500 dark:text-gray-400 mb-1">
-                Enregistrements
-              </p>
-              <p class="text-3xl font-bold text-gray-900 dark:text-white">
-                {{ stats.totalRecords.toLocaleString() }}
-              </p>
-            </div>
-            <div class="w-12 h-12 bg-green-100 dark:bg-green-900 rounded-lg flex items-center justify-center">
-              <i class="fas fa-database text-green-500 text-xl"></i>
-            </div>
-          </div>
+        <div class="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700 shadow-sm">
+          <p class="text-xs text-gray-500 dark:text-gray-400">Enregistrements</p>
+          <p class="text-2xl font-bold tabular-nums mt-1 text-gray-800 dark:text-gray-100">{{ stats.totalRecords.toLocaleString() }}</p>
         </div>
 
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
-          <div class="flex items-center justify-between">
-            <div>
-              <p class="text-sm text-gray-500 dark:text-gray-400 mb-1">
-                Taille totale
-              </p>
-              <p class="text-3xl font-bold text-gray-900 dark:text-white">
-                {{ formatBytes(stats.totalSize) }}
-              </p>
-            </div>
-            <div class="w-12 h-12 bg-purple-100 dark:bg-purple-900 rounded-lg flex items-center justify-center">
-              <i class="fas fa-hdd text-purple-500 text-xl"></i>
-            </div>
-          </div>
+        <div class="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700 shadow-sm">
+          <p class="text-xs text-gray-500 dark:text-gray-400">Taille totale</p>
+          <p class="text-2xl font-bold tabular-nums mt-1 text-gray-800 dark:text-gray-100">{{ formatBytes(stats.totalSize) }}</p>
         </div>
 
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
-          <div class="flex items-center justify-between">
-            <div>
-              <p class="text-sm text-gray-500 dark:text-gray-400 mb-1">
-                Dernière MAJ
-              </p>
-              <p class="text-lg font-bold text-gray-900 dark:text-white">
-                {{ stats.lastUpdate }}
-              </p>
-            </div>
-            <div class="w-12 h-12 bg-yellow-100 dark:bg-yellow-900 rounded-lg flex items-center justify-center">
-              <i class="fas fa-clock text-yellow-500 text-xl"></i>
-            </div>
-          </div>
+        <div class="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700 shadow-sm">
+          <p class="text-xs text-gray-500 dark:text-gray-400">Dernière mise à jour</p>
+          <p class="text-base font-semibold mt-1 text-gray-800 dark:text-gray-100">{{ stats.lastUpdate }}</p>
         </div>
       </div>
 
       <!-- Filtres et recherche -->
-      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4 mb-6">
+      <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm p-4">
         <div class="flex flex-col md:flex-row gap-4">
           <div class="flex-1">
             <input
               v-model="searchQuery"
               type="text"
               placeholder="Rechercher une table..."
-              class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-gray-100"
+              class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent dark:bg-gray-700 dark:text-gray-100"
             />
           </div>
           <select
             v-model="sortBy"
-            class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-gray-100"
+            class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent dark:bg-gray-700 dark:text-gray-100"
           >
             <option value="name">Nom</option>
             <option value="records">Nombre d'enregistrements</option>
@@ -128,30 +81,26 @@
       </div>
 
       <!-- Liste des tables -->
-      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden">
-        <div class="p-6 border-b border-gray-200 dark:border-gray-700">
-          <h3 class="text-xl font-bold text-gray-900 dark:text-white">
-            Détails des tables ({{ filteredTables.length }})
+      <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden">
+        <div class="px-5 py-3 border-b border-gray-200 dark:border-gray-700">
+          <h3 class="font-semibold text-gray-800 dark:text-gray-100">
+            Tables <span class="font-normal text-gray-400">({{ filteredTables.length }})</span>
           </h3>
         </div>
 
-        <div v-if="loading" class="p-12 text-center">
-          <i class="fas fa-spinner fa-spin text-4xl text-gray-400 mb-4"></i>
-          <p class="text-gray-500 dark:text-gray-400">
-            Chargement des données...
-          </p>
+        <div v-if="loading" class="px-4 py-12 text-center text-gray-500 dark:text-gray-400 text-sm">
+          Chargement des données…
         </div>
 
-        <div v-else-if="filteredTables.length === 0" class="p-12 text-center">
-          <i class="fas fa-inbox text-4xl text-gray-400 mb-4"></i>
-          <p class="text-gray-500 dark:text-gray-400">
+        <div v-else-if="filteredTables.length === 0" class="px-4 py-12 text-center">
+          <p class="text-gray-500 dark:text-gray-400 text-sm">
             Aucune table trouvée
           </p>
         </div>
 
         <div v-else class="overflow-x-auto">
-          <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-            <thead class="bg-gray-50 dark:bg-gray-900">
+          <table class="min-w-full text-sm">
+            <thead>
               <tr>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                   Table
@@ -179,7 +128,7 @@
                 :key="table.name"
                 class="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
               >
-                <td class="px-6 py-4 whitespace-nowrap">
+                <td class="px-4 py-3 whitespace-nowrap">
                   <div class="flex items-center">
                     <div
                       class="w-10 h-10 rounded-lg flex items-center justify-center mr-3"
@@ -197,7 +146,7 @@
                     </div>
                   </div>
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap">
+                <td class="px-4 py-3 whitespace-nowrap">
                   <div class="text-sm text-gray-900 dark:text-white font-semibold">
                     {{ table.record_count?.toLocaleString() || '0' }}
                   </div>
@@ -205,36 +154,36 @@
                     enregistrements
                   </div>
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap">
+                <td class="px-4 py-3 whitespace-nowrap">
                   <div class="text-sm text-gray-900 dark:text-white">
                     {{ formatBytes(table.size_bytes) }}
                   </div>
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap">
+                <td class="px-4 py-3 whitespace-nowrap">
                   <div class="text-sm text-gray-900 dark:text-white">
                     {{ table.column_count || 0 }}
                   </div>
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap">
+                <td class="px-4 py-3 whitespace-nowrap">
                   <div class="text-sm text-gray-500 dark:text-gray-400">
                     {{ formatDate(table.last_updated) }}
                   </div>
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                  <button
-                    @click="viewTableDetails(table)"
-                    class="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-200 mr-4"
-                  >
-                    <i class="fas fa-eye mr-1"></i>
-                    Détails
-                  </button>
-                  <button
-                    @click="analyzeTable(table)"
-                    class="text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-200"
-                  >
-                    <i class="fas fa-chart-bar mr-1"></i>
-                    Analyser
-                  </button>
+                <td class="px-4 py-3">
+                  <div class="flex items-center justify-end gap-1">
+                    <button
+                      @click="viewTableDetails(table)"
+                      class="px-3 py-1.5 rounded-lg text-xs font-medium border border-sky-200 dark:border-sky-800 text-sky-700 dark:text-sky-300 hover:bg-sky-50 dark:hover:bg-sky-900/30 transition-colors"
+                    >
+                      Détails
+                    </button>
+                    <button
+                      @click="analyzeTable(table)"
+                      class="px-3 py-1.5 rounded-lg text-xs font-medium border border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                    >
+                      Analyser
+                    </button>
+                  </div>
                 </td>
               </tr>
             </tbody>
@@ -250,7 +199,7 @@
       >
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
           <div class="flex justify-between items-center p-6 border-b border-gray-200 dark:border-gray-700">
-            <h3 class="text-xl font-bold text-gray-900 dark:text-white">
+            <h3 class="font-semibold text-gray-800 dark:text-gray-100">
               Détails : {{ selectedTable.name }}
             </h3>
             <button
@@ -302,8 +251,8 @@
                   Structure des colonnes
                 </h4>
                 <div class="overflow-x-auto">
-                  <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                    <thead class="bg-gray-50 dark:bg-gray-900">
+                  <table class="min-w-full text-sm">
+                    <thead>
                       <tr>
                         <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">
                           Nom
@@ -377,7 +326,6 @@
         </div>
       </div>
     </div>
-  </div>
 </template>
 
 <script setup lang="ts">

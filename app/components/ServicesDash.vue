@@ -1,6 +1,5 @@
 <template>
   <div class="p-4 sm:p-6 space-y-5">
-    <div class="max-w-7xl mx-auto space-y-5">
       <!-- En-tête -->
       <div>
         <h2 class="text-xl sm:text-2xl font-bold text-gray-800 dark:text-gray-100">Services</h2>
@@ -452,7 +451,6 @@
         </div>
       </div>
     </div>
-  </div>
 </template>
 
 <script setup lang="ts">
