@@ -91,7 +91,6 @@ const isOpen = ref(false)
 const sections = [
   { key: 'articles', label: 'Articles', icon: '📝' },
   { key: 'users', label: 'Utilisateurs', icon: '👥' },
-  { key: 'services', label: 'Services', icon: '🛠️' },
   { key: 'calendar', label: 'Calendrier', icon: '📅' },
   { key: 'supabase', label: 'Monitoring DB', icon: '🗄️' },
   { key: 'mails', label: 'Gestion mails', icon: '📧' },

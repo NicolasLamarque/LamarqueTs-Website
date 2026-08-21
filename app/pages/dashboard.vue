@@ -68,7 +68,6 @@ import SideBar from '../components/SideBar.vue'
 // Imports dynamiques
 const GestUserDash = defineAsyncComponent(() => import('../components/GestUserDash.vue'))
 const ArticlesDash = defineAsyncComponent(() => import('../components/ArticlesDash.vue'))
-const ServicesDash = defineAsyncComponent(() => import('../components/ServicesDash.vue'))
 const CalendarDash = defineAsyncComponent(() => import('../components/CalendarDash.vue'))
 const GestSupaBaseDash = defineAsyncComponent(() => import('../components/GestDatabaseDash.vue'))
 const mailsDash = defineAsyncComponent(() => import('../components/GestMailsDash.vue'))
@@ -136,7 +135,6 @@ const logout = async () => {
 const componentMap: Record<string, any> = {
   articles: ArticlesDash,
   users: GestUserDash,
-  services: ServicesDash,
   calendar: CalendarDash,
   supabase: GestSupaBaseDash,
   mails: mailsDash,
@@ -153,7 +151,6 @@ const getSectionLabel = (key: string): string => {
   const labels: Record<string, string> = {
     articles: 'Articles',
     users: 'Utilisateurs',
-    services: 'Services',
     calendar: 'Calendrier',
     supabase: 'Monitoring DB',
     mails: 'Gestion Mails',

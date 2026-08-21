@@ -38,7 +38,7 @@
 import { del } from '@vercel/blob'
 import { eq } from 'drizzle-orm'
 import { db } from './db'
-import { articles, users, services, evenements } from './schema'
+import { articles, users, evenements } from './schema'
 
 // Toutes nos images vivent sur un sous-domaine de cet hôte.
 // Toute URL qui ne s'y trouve pas est considérée comme extérieure : on n'y touche pas.
@@ -81,7 +81,6 @@ async function isBlobUrlStillReferenced(url: string): Promise<boolean> {
   const colonnesImages = [
     { table: articles, colonne: articles.ImageArticle },
     { table: users, colonne: users.profile_picture },
-    { table: services, colonne: services.image },
     { table: evenements, colonne: evenements.ImageEvenement },
     { table: evenements, colonne: evenements.avatarAnimateur },
   ] as const

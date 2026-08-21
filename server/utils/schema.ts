@@ -37,26 +37,6 @@ export const users = pgTable("users", {
 });
 
 // ========================================
-// TABLE SERVICES
-// ========================================
-export const services = pgTable("services", {
-  id: serial("id").primaryKey(),
-  title: varchar("title", { length: 255 }).notNull(),
-  description: varchar("description", { length: 255 }).notNull(),
-  icon: varchar("icon", { length: 255 }).notNull(),
-  image: varchar("image", { length: 255 }),
-  link: varchar("link", { length: 255 }),
-  color: varchar("color", { length: 255 }),
-  tags: varchar("tags", { length: 255 }),
-  contenu: text("contenu"),
-  created_at: timestamp("created_at").defaultNow(),
-  updated_at: timestamp("updated_at"),
-  deleted_at: timestamp("deleted_at"),
-  deleted: boolean("deleted").default(false),
-  deleted_by: varchar("deleted_by", { length: 255 }),
-});
-
-// ========================================
 // TABLE ARTICLES
 // ========================================
 export const articles = pgTable("articles", {
@@ -209,10 +189,6 @@ export const security_log = pgTable("security_log", {
 // ========================================
 // TYPES INFÉRÉS (à utiliser dans tes services)
 // ========================================
-
-// Services
-export type Service = typeof services.$inferSelect;     // ✅ Lecture (lignes existantes)
-export type ServiceInsert = typeof services.$inferInsert; // ✅ Insertion (nouvelles lignes)
 
 // Users
 export type User = typeof users.$inferInsert;
